@@ -1,10 +1,10 @@
 # Peta File dan Integrasi SECURE-TINY
 
-Panduan ini menjelaskan struktur sumber proyek, peran file teknis, dan jalur komunikasi antarmodul.
+Dalam panduan ini kami menjelaskan struktur sumber proyek, fungsi file teknis, dan jalur komunikasi antarmodul.
 
 ## 1. Gambaran integrasi
 
-SECURE-TINY adalah IP akselerator Ascon-AEAD128. Satu transaksi dimulai dengan perintah, kemudian AD dan pesan dikirim per byte menggunakan handshake `valid/ready`. Pengendali menampung seluruh masukan, menjalankan core kriptografi, lalu mengeluarkan ciphertext dan tag untuk enkripsi. Untuk dekripsi, plaintext baru ditawarkan setelah tag lolos verifikasi.
+Kami merancang SECURE-TINY sebagai IP akselerator Ascon-AEAD128. Satu transaksi dimulai dengan perintah, lalu AD dan pesan dikirim per byte menggunakan handshake `valid/ready`. Pengendali kami menampung seluruh masukan, menjalankan core kriptografi, lalu mengeluarkan ciphertext dan tag pada enkripsi. Pada dekripsi, kami baru menawarkan plaintext setelah tag lolos verifikasi.
 
 ```mermaid
 flowchart LR
@@ -165,4 +165,4 @@ build_quartus.ps1 ──────────> pemeriksaan awal ──> kompi
 synth_yosys.ps1 ────────────> sintesis generik dan log (bukan Quartus)
 ```
 
-Untuk rincian port/status dan hasil pengukuran, lihat [`module_spec.md`](module_spec.md), [`verification.md`](verification.md), dan [`results.md`](results.md). Regresi RTL telah dijalankan ulang pada 1 Oktober 2026. Atas arahan pemilik proyek, tahap Quartus dan pengembangan/pengujian DE10-Nano sedang ditahan; kompilasi Quartus, resource/timing FPGA, bitstream, dan pengujian board tetap belum terverifikasi.
+Untuk rincian port/status dan hasil pengukuran, kami merujuk ke [`module_spec.md`](module_spec.md), [`verification.md`](verification.md), dan [`results.md`](results.md). Kami menjalankan regresi RTL serta build penuh Quartus pada 1 Oktober 2026. Kompilasi Cyclone V, laporan resource/timing, dan `.sof` sudah tersedia secara lokal; integrasi host dan pengujian transaksi pada DE10-Nano masih menunggu antarmuka fisik serta akses board.

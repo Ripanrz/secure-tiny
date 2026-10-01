@@ -2,13 +2,13 @@
 
 ## Identitas dan sumber kebenaran
 
-Produk: **SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**.
+Produk yang kami rancang adalah **SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**.
 
-Tantangan utama: **Hardware Cryptography Accelerator**. Tantangan pendukung: **Secure Communication**. Algoritma: **Ascon-AEAD128 menurut NIST SP 800-232 final**. Target: **DE10-Nano FPGA/SoC**. Hasil saat ini berupa IP RTL dengan antarmuka aliran data per byte. Integrasi bus host dan pemetaan pin pengguna masih menjadi pekerjaan integrasi board.
+Kami memilih **Hardware Cryptography Accelerator** sebagai tantangan utama dan **Secure Communication** sebagai tantangan pendukung. Kami menggunakan **Ascon-AEAD128 menurut NIST SP 800-232 final** dan menargetkan **DE10-Nano FPGA/SoC**. Hasil kami saat ini berupa IP RTL dengan antarmuka aliran data per byte; integrasi bus host dan pemetaan pin masih menjadi pekerjaan lanjutan.
 
 ## Arsitektur yang diterapkan
 
-Satu transaksi diproses pada satu waktu. Antarmuka AD dan pesan memakai transfer satu byte dengan `valid/ready`. Pengendali mengumpulkan seluruh AD dan pesan di penyangga internal, lalu memulai core dengan penyangga. Core menjalankan AEAD dan menahan hasil di penyangga keluaran sampai pengendali mengirimkannya. Isi penyangga masukan tetap stabil saat core sibuk.
+Kami memproses satu transaksi pada satu waktu. Antarmuka AD dan pesan memakai transfer satu byte dengan `valid/ready`. Pengendali kami mengumpulkan seluruh AD dan pesan di penyangga internal, lalu memulai core dengan penyangga tersebut. Core menjalankan AEAD dan menahan hasil di penyangga keluaran sampai pengendali mengirimkannya; isi penyangga masukan tetap stabil saat core sibuk.
 
 ```text
 Perintah + key/nonce/panjang/tag
@@ -27,9 +27,9 @@ Perintah + key/nonce/panjang/tag
                                              aliran byte keluaran + status
 ```
 
-`tag_generator` menangkap dan menyajikan tag akhir yang dihitung core. `tag_verifier` membandingkan seluruh 128 bit tag hasil hitung dengan tag masukan. Guard hanya mengizinkan keluaran plaintext setelah hasil dekripsi cocok. Antarmuka tingkat atas tidak menerapkan AXI, Avalon, DMA, atau protokol HPS.
+Kami memakai `tag_generator` untuk menangkap dan menyajikan tag akhir dari core serta `tag_verifier` untuk membandingkan seluruh 128 bit tag dengan tag masukan. Guard kami hanya mengizinkan keluaran plaintext setelah hasil dekripsi cocok. Kami belum menerapkan AXI, Avalon, DMA, atau protokol HPS pada antarmuka tingkat atas.
 
-Model aset, batas kepercayaan, invarian keamanan, dan batas klaim normatif dijelaskan di bagian security-by-design pada [`PRD.md`](PRD.md). Guard membatasi pelepasan plaintext pada antarmuka; hal itu tidak membuktikan penghapusan key, ketahanan side-channel, deteksi gangguan fisik, atau keamanan terhadap fault injection.
+Kami menjelaskan aset, batas kepercayaan, invarian keamanan, dan batas klaim di bagian security-by-design pada [`PRD.md`](PRD.md). Guard membatasi pelepasan plaintext pada antarmuka, tetapi kami belum membuktikan penghapusan key, ketahanan side-channel, deteksi gangguan fisik, atau perlindungan terhadap fault injection.
 
 ## Kontrak transaksi
 
@@ -42,9 +42,9 @@ Model aset, batas kepercayaan, invarian keamanan, dan batas klaim normatif dijel
 
 ## Konfigurasi kapasitas dan biaya
 
-`MAX_DATA_BYTES` adalah parameter positif wajib tanpa nilai bawaan. Implementasi menyusun vektor dengan lebar `8*MAX_DATA_BYTES`; kapasitas praktis dibatasi oleh elaborator, memori, dan sumber daya FPGA. Konfigurasi build awal DE10-Nano adalah **16 byte per AD dan 16 byte per pesan**. Parameter ini adalah batas desain, bukan ukuran blok kriptografi. Penyangga membuat konsumsi register bertambah seiring kapasitas; konfigurasi 16 byte dipilih sebagai nilai awal agar desain dapat diuji, tetapi belum membuktikan klaim hemat sumber daya. Nilai resource Cyclone V dan timing berstatus `TBD — belum diukur` sampai build Quartus berhasil.
+`MAX_DATA_BYTES` adalah parameter positif wajib tanpa nilai bawaan. Implementasi menyusun vektor dengan lebar `8*MAX_DATA_BYTES`; kapasitas praktis dibatasi oleh elaborator, memori, dan sumber daya FPGA. Konfigurasi Quartus DE10-Nano yang kami build adalah **16 byte per AD dan 16 byte per pesan**. Parameter ini adalah batas desain, bukan ukuran blok kriptografi. Fitter Quartus 25.1 melaporkan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz untuk `FPGA_CLK1_50` dan setup slack terburuk +7,456 ns pada model slow 1100 mV 100°C. Angka tersebut adalah baseline satu konfigurasi dan belum membuktikan klaim hemat dibanding desain lain.
 
-Tidak ada klaim area, Fmax, latensi, throughput, atau daya sebelum pengukuran pada perangkat dan sasaran yang sesuai. Angka sintesis generik Yosys dicatat sebagai jumlah sel generik saja, bukan resource Cyclone V.
+Kami kini memiliki angka area logika FPGA dan Fmax dari Quartus. Daya dan throughput fisik belum kami ukur; hitungan siklus simulasi bukan timing atau throughput pada board. Angka sintesis generik Yosys kami catat sebagai jumlah sel generik saja, bukan resource Cyclone V. Laporan timing Quartus menyatakan I/O belum sepenuhnya constrained karena interface transaksi memakai virtual pins.
 
 ## Reset dan tahap target
 
@@ -60,10 +60,10 @@ Bagian ini mencatat hipotesis pengembangan, bukan requirement baru atau fitur RT
 
 ### Batas desain sekarang
 
-- Controller menyimpan seluruh AD dan pesan sebelum memulai core. Konfigurasi Quartus yang direncanakan membatasi masing-masing AD dan pesan hingga 16 byte per transaksi; build Quartus belum dijalankan.
+- Controller menyimpan seluruh AD dan pesan sebelum memulai core. Konfigurasi Quartus yang kami build membatasi masing-masing AD dan pesan hingga 16 byte per transaksi; pengujian transaksi pada board belum dilakukan.
 - Permutasi berjalan satu ronde per siklus aktif. Ini adalah pilihan iteratif; belum terbukti lebih hemat dibanding baseline alternatif pada Cyclone V.
 - Pada dekripsi, guard mencegah calon plaintext keluar sebelum tag cocok. Pemeriksaan RTL menunjukkan register key dan calon plaintext tidak memiliki pembersihan khusus pada setiap jalur akhir transaksi; reset membersihkan register yang dicakup reset. Hal ini belum diuji sebagai properti lifecycle dan tidak boleh disebut secure zeroization.
-- Parameter kapasitas, hitungan siklus simulasi, dan 20.887 sel generik Yosys bukan bukti ALM, Fmax, daya, atau efisiensi Cyclone V.
+- Kami memperoleh baseline 2.464 ALM dan 79,72 MHz dari Quartus untuk konfigurasi ini. Hitungan siklus simulasi dan 20.887 sel generik Yosys tetap bukan bukti daya, throughput board, atau efisiensi komparatif Cyclone V.
 
 ### Urutan kerja pengembangan
 

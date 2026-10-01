@@ -1,6 +1,6 @@
 # Spesifikasi Modul RTL SECURE-TINY
 
-Kontrak ini menjelaskan implementasi RTL saat ini. Semua modul sekuensial menggunakan `clk` dan reset aktif-rendah sinkron `rst_n`. Key, nonce, dan tag masing-masing selebar 128 bit sesuai Ascon-AEAD128 NIST SP 800-232 final. Parameter `MAX_DATA_BYTES` wajib ditentukan saat elaborasi dan membatasi panjang AD dan pesan secara terpisah.
+Di dokumen ini kami menetapkan kontrak implementasi RTL saat ini. Semua modul sekuensial menggunakan `clk` dan reset aktif-rendah sinkron `rst_n`. Key, nonce, dan tag masing-masing selebar 128 bit sesuai Ascon-AEAD128 NIST SP 800-232 final. Kami mewajibkan parameter `MAX_DATA_BYTES` ditentukan saat elaborasi; parameter ini membatasi panjang AD dan pesan secara terpisah.
 
 ## Kaidah antarmuka
 

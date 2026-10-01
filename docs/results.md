@@ -1,12 +1,13 @@
 # Hasil Verifikasi SECURE-TINY
 
-Regresi simulasi utama, lint Verilator, dan sintesis Yosys generik dijalankan ulang pada 2026-10-01, termasuk pengulangan setelah audit dokumentasi; percobaan build Quartus yang lebih lama tercatat pada tanggal yang sama. Atas arahan pemilik proyek, pekerjaan Quartus dan pengembangan/pengujian DE10-Nano kini ditahan sementara. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar dijalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
+Kami menjalankan ulang regresi simulasi utama, lint Verilator, sintesis Yosys generik, dan build penuh Quartus pada 2026-10-01. Build Quartus untuk Cyclone V berhasil, tetapi pengujian transaksi pada board masih menunggu antarmuka fisik dan akses DE10-Nano. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar kami jalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
 
-VCD dan log di `sim/` adalah keluaran skrip yang dapat dibuat ulang dan dikecualikan dari repositori publik. Nama artefak pada tabel menunjukkan lokasi keluaran lokal; jalankan perintah yang dicantumkan untuk membuatnya kembali.
+Kami menyimpan VCD dan log di `sim/` sebagai keluaran skrip yang dapat dibuat ulang dan mengecualikannya dari repositori publik. Nama artefak pada tabel menunjukkan lokasi keluaran lokal.
 
 ## Lingkungan dan perintah
 
 - Paket alat: OSS CAD Suite for Windows; lokasinya dikonfigurasi melalui `OSS_CAD_SUITE`.
+- Quartus Prime Lite 25.1: kami memasangnya di `C:\altera_lite\25.1std`; build melaporkan `25.1std.0 Build 1129 10/21/2025 SC Lite Edition` dan menerima perangkat `5CSEBA6U23I7`.
 - Icarus Verilog: `14.0 (devel) (s20260301-500-g2e81fcccb-dirty)`; Yosys: `0.69+156` (`9d0c91b23-dirty`); Verilator: `5.053 devel rev v5.052-119-g014c9820d (mod)`.
 - Perintah simulasi: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1` (menjalankan ketujuh skrip pengujian secara berurutan).
 - Perintah lint: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/lint_verilator.ps1 -MaxDataBytes 16`.
@@ -31,8 +32,9 @@ VCD dan log di `sim/` adalah keluaran skrip yang dapat dibuat ulang dan dikecual
 | LibreLane/ASIC | BELUM DIJALANKAN: `librelane` dan `openroad` tidak ada di PATH; direktori konfigurasi `librelane/`, `asic/`, `openlane/`, dan `config.json` tidak ditemukan di root proyek | Tidak ada flow, PDK, node, timing fisik, DRC/LVS, atau hasil layout yang diverifikasi; pemeriksaan tidak menyimpulkan status seluruh instalasi PDK mesin |
 | Percobaan pemetaan Cyclone V dengan Yosys ALM | DIHENTIKAN: Yosys berhenti karena assertion internal AIGER2 pada tahap ABC9; tidak menghasilkan angka ALM yang dapat digunakan | `sim/yosys_cyclonev_16.log`; bukan hasil Quartus dan bukan bukti RTL gagal/lulus untuk perangkat |
 | Pemeriksaan awal proyek DE10-Nano | PASS (lulus): QPF/QSF/SDC, tujuh sumber RTL, target perangkat, parameter, pin clock/reset, dan constraint 50 MHz konsisten | `scripts/check_quartus_project.ps1` |
-| Quartus DE10-Nano | BELUM DIJALANKAN: `quartus_sh` tidak ditemukan di PATH maupun lokasi instalasi umum yang diperiksa | 2026-10-01: pemeriksaan awal `scripts/build_quartus.ps1` lulus, lalu proses keluar dengan kode 1 karena Quartus tidak ditemukan; kompilasi FPGA tidak berjalan |
-| Skrip metrik Quartus | TERHALANG: parser PowerShell valid dan pemeriksaan awal lulus; `quartus_map`, `quartus_fit`, serta `quartus_sta` tidak ditemukan, skrip keluar dengan kode 2 sebelum kompilasi | `scripts/build_quartus_metrics.ps1`; tidak ada laporan Quartus yang diproses atau metrik baru; parser laporan belum dapat dicocokkan dengan keluaran Quartus aktual |
+| Build penuh Quartus Cyclone V | PASS (lulus): Analysis & Synthesis, Fitter, Assembler, dan Timing Analyzer; kode keluar `0`, 0 error, 5 warning | `quartus/output_files/secure_tiny.flow.rpt`; `quartus/output_files/secure_tiny.done` |
+| Pembuatan berkas konfigurasi | PASS (lulus): Assembler membuat `.sof` untuk perangkat target | `quartus/output_files/secure_tiny.sof` (6.690.378 byte; artefak lokal yang dikecualikan Git) |
+| Ekstraksi melalui `build_quartus_metrics.ps1` | BELUM DIJALANKAN terpisah: angka di bawah kami baca dari laporan resmi run penuh agar tidak mengulang Fitter | Skrip itu dapat dijalankan terpisah untuk membuat CSV, tetapi menjalankan map/fit/sta lagi |
 
 ## Latensi simulasi
 
@@ -63,14 +65,40 @@ Sumber KAT tambahan: tag `v1.3.0` dari `ascon/ascon-c`, berkas `crypto_aead/asco
 
 ## Hasil pembuatan untuk papan dan batas pengujian
 
-Proyek Quartus disiapkan untuk Cyclone V `5CSEBA6U23I7`, parameter 16 byte, clock 50 MHz, dan pin virtual bagi antarmuka IP. `scripts/check_quartus_project.ps1` memeriksa konsistensi berkas dan jalur secara lokal; pemeriksaan statis ini tidak membuktikan QSF/SDC diterima oleh Quartus. Quartus tidak terpasang/tersedia pada sesi ini. Pin virtual juga tidak menyediakan jalur host untuk menguji transaksi pada board.
+Kami menjalankan build penuh pada Cyclone V `5CSEBA6U23I7`, `MAX_DATA_BYTES=16`, dan clock `FPGA_CLK1_50` berperiode 20 ns. Karena Quartus/Tcl salah menormalisasi direktori kerja proyek saat kami menjalankannya dari `Downloads`, kami memetakan working tree ke drive sementara `R:` dengan `subst`; build kedua memakai berkas proyek yang sebenarnya dan berhasil. Fitter melaporkan Auto Fit.
 
-- Penggunaan sumber daya FPGA Cyclone V: `TBD - belum diukur`.
-- Fmax/timing FPGA: `TBD - belum diukur`.
-- Bitstream `.sof`/berkas pemrograman: `TBD - belum dibuat`.
-- Uji pada papan DE10-Nano: `TBD - belum dilakukan`.
-- Integrasi Avalon/HPS atau pemetaan pin antarmuka transaksi: belum ditentukan/diterapkan.
+Perintah yang kami gunakan untuk mengulang build dari root proyek:
+
+```powershell
+subst R: 'C:\Users\arpan\Downloads\chipset_peruri\secure-tiny'
+Push-Location R:\quartus
+try {
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File R:\scripts\build_quartus.ps1 -QuartusSh 'C:\altera_lite\25.1std\quartus\bin64\quartus_sh.exe'
+} finally {
+    Pop-Location
+    subst R: /d
+}
+```
+
+| Metrik/hasil | Nilai laporan Quartus | Bukti |
+|---|---:|---|
+| ALM setelah Fitter | 2.464 / 41.910 (6%) | `quartus/output_files/secure_tiny.fit.summary` |
+| Register | 2.800 | `quartus/output_files/secure_tiny.fit.summary` |
+| Memori blok / RAM | 0 bit / 0 M10K | `quartus/output_files/secure_tiny.fit.summary` |
+| DSP | 0 | `quartus/output_files/secure_tiny.fit.summary` |
+| Fmax `FPGA_CLK1_50`, slow 1100 mV 100°C | 79,72 MHz | `quartus/output_files/secure_tiny.sta.rpt`, Fmax Summary |
+| Setup slack terburuk, slow 1100 mV 100°C | +7,456 ns | `quartus/output_files/secure_tiny.sta.summary` |
+| Hold slack terburuk, slow 1100 mV 100°C | +0,338 ns | `quartus/output_files/secure_tiny.sta.summary` |
+| Berkas `.sof` | Dibuat, 6.690.378 byte | `quartus/output_files/secure_tiny.sof` |
+
+SHA-256 `.sof`: `CF070C96D2A23C1ABEB9943FEB864250918783A26675298867D09B14456AD342`.
+
+Fmax 79,72 MHz adalah hasil timing untuk jalur yang dianalisis Quartus, bukan bukti performa pada board. Timing Analyzer menyatakan desain belum sepenuhnya constrained untuk setup maupun hold karena 616 port transaksi adalah virtual pins dan tidak memiliki batasan input/output fisik. Clock internal 50 MHz menunjukkan setup slack positif, tetapi hasil ini belum menjadi sign-off timing I/O untuk integrasi DE10-Nano. Kami juga belum mengukur daya atau throughput fisik.
+
+Jumlah 20.887 sel adalah hasil pemetaan generik Yosys dan berbeda makna dari 2.464 ALM Quartus; kami tidak membandingkan keduanya sebagai metrik yang setara.
+
+Quartus menyelesaikan Analysis & Synthesis, Fitter, Assembler, dan Timing Analyzer dengan kode keluar 0. Rangkuman flow mencatat 0 error dan 5 warning; peringatan log mencakup jumlah prosesor yang tidak ditetapkan dan fitur LogicLock yang memerlukan lisensi subscription. Timing Analyzer juga mencatat bahwa constraint setup/hold belum lengkap. Kami tidak menafsirkan status sukses ini sebagai uji board.
 
 Jumlah 20.887 sel adalah hasil pemetaan generik Yosys, bukan jumlah ALM/LE Cyclone V, sehingga tidak boleh digunakan sebagai klaim penggunaan sumber daya FPGA.
 
-Pada pengulangan sintesis Yosys 1 Oktober 2026, proses berakhir dengan kode keluar 0, menghasilkan 20.887 sel generik, dan `check` melaporkan 0 masalah. Keluaran ABC juga memuat satu pesan akses berkas sementara yang sedang dipakai proses lain; sintesis tetap menyelesaikan seluruh tahap dan menghasilkan laporan akhir. Catat pesan itu sebagai peringatan lingkungan Windows, bukan sebagai metrik FPGA atau bukti kompilasi Quartus.
+Pada pengulangan sintesis Yosys 1 Oktober 2026, proses berakhir dengan kode keluar 0, menghasilkan 20.887 sel generik, dan `check` melaporkan 0 masalah. Keluaran ABC juga memuat satu pesan akses berkas sementara yang sedang dipakai proses lain; sintesis tetap menyelesaikan seluruh tahap dan menghasilkan laporan akhir. Pesan itu merupakan peringatan lingkungan Windows, bukan metrik FPGA.

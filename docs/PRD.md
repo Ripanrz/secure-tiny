@@ -22,15 +22,15 @@
 
 ### 2.1 Masalah
 
-Perangkat edge, simpul IoT, pengendali tertanam, dan sistem dengan sumber daya terbatas lainnya semakin sering memproses serta mengirimkan data sensitif. Komunikasi aman memerlukan kerahasiaan, integritas, dan autentikasi informasi yang dikirim.
+Kami melihat perangkat edge, simpul IoT, pengendali tertanam, dan sistem dengan sumber daya terbatas semakin sering memproses serta mengirimkan data sensitif. Karena itu, kami menargetkan perlindungan kerahasiaan, integritas, dan autentikasi informasi yang dikirim.
 
-Pada penerapan berbasis perangkat lunak saja, prosesor host menjalankan komputasi kriptografi. Beban komputasi dan waktu pemrosesan pada sistem dengan sumber daya terbatas dapat meningkat. Proyek ini mengkaji penerapan enkripsi terautentikasi sebagai akselerator perangkat keras khusus yang dapat diintegrasikan ke sistem komputasi edge.
+Pada penerapan berbasis perangkat lunak saja, prosesor host menjalankan komputasi kriptografi. Kami mengkaji apakah akselerator perangkat keras khusus dapat menyediakan pilihan integrasi lain bagi sistem komputasi edge dengan sumber daya terbatas; manfaat kinerja harus diukur sebelum kami mengklaim peningkatan.
 
 ### 2.2 Solusi yang Diusulkan
 
-SECURE-TINY adalah IP core perangkat keras modular untuk enkripsi dan dekripsi terautentikasi berdasarkan Ascon-AEAD128.
+Kami mengusulkan SECURE-TINY sebagai IP core perangkat keras modular untuk enkripsi dan dekripsi terautentikasi berdasarkan Ascon-AEAD128.
 
-Rancangan menggabungkan:
+Rancangan kami menggabungkan:
 
 * core kriptografi Ascon;
 * logika pengendali AEAD;
@@ -61,7 +61,7 @@ Key + Nonce + Associated Data + Ciphertext + Authentication Tag
 
 ## 3. Pernyataan Masalah
 
-Pertanyaan teknis proyek ini adalah: bagaimana menerapkan enkripsi terautentikasi sebagai IP core perangkat keras modular yang memiliki perilaku keamanan yang dapat diverifikasi, dengan penggunaan sumber daya perangkat keras dan latensi yang wajar?
+Pertanyaan teknis yang kami kaji adalah: bagaimana menerapkan enkripsi terautentikasi sebagai IP core perangkat keras modular dengan perilaku keamanan yang dapat diverifikasi, penggunaan sumber daya terukur, dan latensi yang sesuai sasaran?
 
 Rancangan perlu menyeimbangkan:
 
@@ -73,7 +73,7 @@ Rancangan perlu menyeimbangkan:
 * upaya verifikasi; dan
 * kemampuan pengembangan lanjutan.
 
-“Hemat sumber daya” merupakan tujuan arsitektur, bukan hasil pengukuran. Rancangan awal menggunakan permutasi iteratif dan penyimpanan masukan/keluaran dengan kapasitas terbatas. Hasil penggunaan sumber daya dan timing dari Quartus harus tersedia sebelum membuat klaim efisiensi yang bersifat perbandingan. PRD ini tidak menetapkan angka area, Fmax, throughput, atau daya yang belum diukur.
+Kami menetapkan “hemat sumber daya” sebagai tujuan arsitektur, bukan hasil pengukuran. Rancangan kami menggunakan permutasi iteratif dan penyimpanan masukan/keluaran berkapasitas terbatas. Kami perlu memperoleh hasil penggunaan sumber daya dan timing dari Quartus sebelum membuat klaim efisiensi komparatif. Kami tidak menetapkan angka area, Fmax, throughput, atau daya yang belum kami ukur.
 
 ## 4. Sasaran Desain
 
@@ -96,7 +96,7 @@ Proyek harus:
 
 ### 5.1 Ruang Lingkup Wajib
 
-Implementasi minimum harus mencakup:
+Untuk capaian minimum, kami menetapkan bahwa implementasi harus mencakup:
 
 * permutasi Ascon;
 * core Ascon;
@@ -121,7 +121,7 @@ Pengujian fisik pada board memerlukan akses board dan antarmuka transaksi yang d
 * pemetaan pin fisik untuk antarmuka transaksi; dan
 * DMA, antrean, atau transaksi yang saling tumpang tindih.
 
-Tenggat pengerjaan yang diberikan pemilik proyek adalah **6 Oktober 2026** (lima hari kalender dari tanggal perencanaan 1 Oktober 2026). Jadwal dikendalikan oleh capaian dan bukan janji bahwa seluruh pekerjaan pasti selesai. Simulasi, lint, sintesis generik, dan preflight statis Quartus telah memiliki bukti; kompilasi Quartus khusus perangkat, timing 50 MHz, laporan resource, dan `.sof` masih tertunda karena Quartus belum terpasang pada lingkungan saat ini. Build FPGA menjadi jalur kritis. Integrasi HPS dan pengujian fisik board tidak diasumsikan dapat atau harus selesai sebelum tenggat tersebut.
+Tenggat pengerjaan yang kami catat adalah **6 Oktober 2026** (lima hari kalender dari tanggal perencanaan 1 Oktober 2026). Jadwal kami kendalikan berdasarkan capaian dan bukan janji bahwa seluruh pekerjaan pasti selesai. Kami telah memasang Quartus Prime Lite 25.1 beserta dukungan Cyclone V di `C:\altera_lite\25.1std` dan pada 1 Oktober 2026 menjalankan kompilasi penuh untuk `5CSEBA6U23I7`: Analysis & Synthesis, Fitter, Assembler, dan Timing Analyzer lulus; Fitter melaporkan 2.464 ALM/2.800 register, Fmax 79,72 MHz, dan Assembler membuat `.sof`. Timing Analyzer tetap memperingatkan analisis I/O belum sepenuhnya constrained karena pin transaksi virtual. Integrasi HPS dan pengujian fisik board tetap terpisah dan belum dilakukan.
 
 ### 5.3 Ruang Lingkup Opsional
 
@@ -140,7 +140,7 @@ Alur ASIC opsional tidak boleh menunda penyelesaian verifikasi RTL wajib.
 
 ## 6. Arsitektur yang Diusulkan
 
-Aliran data IP awal yang tidak bergantung pada board:
+Berikut aliran data IP awal kami yang tidak bergantung pada board:
 
 ```text
 Pemanggil -- perintah/key/nonce/panjang/tag masuk --> Pengendali AEAD
@@ -311,11 +311,11 @@ Pengujian fisik board merupakan tahap validasi tambahan ketika perangkat keras t
 
 ## 13. Posisi Kebaruan dan Kontribusi yang Diusulkan
 
-SECURE-TINY tidak mengklaim algoritma kriptografi baru atau novelty yang sudah dibuktikan. Implementasi hardware Ascon dan guard autentikasi telah ada dalam prior-art; proyek ini menggunakan integrasi modular, penahanan plaintext sebelum autentikasi, serta verifikasi yang dapat diulang sebagai fokus engineering. Itu belum membuktikan bahwa desainnya baru, lebih kecil, lebih cepat, atau lebih aman daripada karya terdahulu.
+Kami tidak mengklaim algoritma kriptografi baru atau kebaruan yang sudah terbukti. Implementasi hardware Ascon dan guard autentikasi telah ada dalam prior-art; kami menjadikan integrasi modular, penahanan plaintext sebelum autentikasi, serta verifikasi yang dapat diulang sebagai fokus rekayasa. Fokus tersebut belum membuktikan bahwa desain kami baru, lebih kecil, lebih cepat, atau lebih aman daripada karya terdahulu.
 
-Kontribusi yang akan diuji adalah implementasi Ascon-AEAD128 yang sesuai NIST SP 800-232, kontrak antarmuka dan keluaran dekripsi fail-closed yang diuji, serta laporan resource/timing Cyclone V yang dapat direproduksi jika Quartus berhasil dijalankan. Klaim kontribusi komparatif baru dapat dibuat setelah tinjauan prior-art dan pengukuran pada konfigurasi setara. Proyek tidak boleh mengklaim implementasi Ascon hardware pertama, algoritma baru, area paling rendah, throughput tertinggi, atau ketahanan keamanan yang belum diuji.
+Kami menguji implementasi Ascon-AEAD128 yang mengikuti NIST SP 800-232 dan kontrak keluaran dekripsi fail-closed. Kami telah memperoleh baseline Quartus Cyclone V yang dapat diulang; klaim kontribusi komparatif masih memerlukan tinjauan prior-art dan pengukuran pembanding pada konfigurasi setara. Kami tidak mengklaim sebagai implementasi Ascon hardware pertama, algoritma baru, desain dengan area terendah atau throughput tertinggi, maupun desain dengan ketahanan keamanan yang belum kami uji.
 
-Dalam ruang lingkup ini, Hardware Authentication Guard adalah gerbang digital yang dikendalikan hasil verifikasi tag AEAD. Guard tidak mendeteksi gangguan fisik, mengurangi kebocoran side-channel, atau menghapus key secara aman. Sifat-sifat tersebut belum diterapkan atau dievaluasi dalam profil IP ini dan tidak boleh diklaim.
+Dalam ruang lingkup kami, Hardware Authentication Guard bertindak sebagai gerbang digital yang dikendalikan hasil verifikasi tag AEAD. Guard kami tidak mendeteksi gangguan fisik, mengurangi kebocoran side-channel, atau menghapus key secara aman. Kami belum menerapkan atau mengevaluasi sifat-sifat tersebut dalam profil IP ini, sehingga tidak mengklaimnya.
 
 ## 14. Kemampuan Pengembangan
 
@@ -353,6 +353,8 @@ Satu modul hanya dinyatakan selesai jika kode sumber tersedia, dapat dikompilasi
 Proyek dinyatakan terverifikasi pada tingkat RTL hanya jika RTL tingkat atas dapat dikompilasi, simulasi integrasi lulus, hasil kriptografi cocok dengan referensi/KAT tepercaya, autentikasi valid diterima, autentikasi tidak valid ditolak, serta waveform terkait telah diperiksa.
 
 Build FPGA DE10-Nano hanya dinyatakan siap setelah Quartus berhasil mengompilasi proyek Cyclone V yang dikonfigurasi, laporan Fitter dan Timing Analyzer disimpan, timing memenuhi constraint proyek 50 MHz, dan berkas pemrograman `.sof` berhasil dibuat. Nilai resource harus berasal dari keluaran Quartus; ambang penggunaan resource atau klaim efisiensi komparatif tidak boleh dikarang. Status fungsi pada board terpisah dan memerlukan DE10-Nano sungguhan serta jalur transaksi fisik/host yang terdokumentasi.
+
+**Status baseline 1 Oktober 2026:** kami telah memenuhi kompilasi penuh dan pembuatan `.sof` untuk profil Cyclone V yang ditetapkan. Laporan mencatat setup slack positif pada clock 50 MHz, tetapi belum sepenuhnya membatasi timing I/O karena port transaksi menggunakan virtual pins. Karena itu, kami menyatakan **build Quartus profil saat ini berhasil**, sedangkan **sign-off timing I/O dan demonstrasi fisik DE10-Nano masih pending**.
 
 ## 18. Penyesuaian Proposal
 
