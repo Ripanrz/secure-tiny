@@ -1,589 +1,361 @@
-# Product Requirements Document (PRD)
+# Dokumen Persyaratan Produk (PRD)
 
-## 1. Project Identity
+## 1. Identitas Proyek
 
-**Project Name:** SECURE-TINY
+**Nama proyek:** SECURE-TINY
 
-**Full Title:**
-SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman
+**Judul lengkap:** SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman
 
-**Indonesian Title:**
-Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman
+**Kompetisi:** PERURI Chip Hackathon 2026
 
-**Competition:** PERURI Chip Hackathon 2026
+**Kategori proposal:** Perancangan Chip IC dan Implementasi FPGA
 
-**Proposal Category:** IC Chip Design & FPGA Implementation
+**Tantangan utama:** Hardware Cryptography Accelerator
 
-**Primary Challenge:** Hardware Cryptography Accelerator
+**Tantangan pendukung:** Secure Communication
 
-**Supporting Challenge:** Secure Communication
+**Ranah penerapan:** Komunikasi edge yang aman
 
-**Application Domain:** Secure Edge Communication
+**Target evaluasi:** DE10-Nano FPGA/SoC
 
-**Target Evaluation Platform:** DE10-Nano FPGA/SoC
+## 2. Ringkasan Eksekutif
 
----
+### 2.1 Masalah
 
-# 2. Executive Summary
+Perangkat edge, simpul IoT, pengendali tertanam, dan sistem dengan sumber daya terbatas lainnya semakin sering memproses serta mengirimkan data sensitif. Komunikasi aman memerlukan kerahasiaan, integritas, dan autentikasi informasi yang dikirim.
 
-## 2.1 Problem
+Pada penerapan berbasis perangkat lunak saja, prosesor host menjalankan komputasi kriptografi. Beban komputasi dan waktu pemrosesan pada sistem dengan sumber daya terbatas dapat meningkat. Proyek ini mengkaji penerapan enkripsi terautentikasi sebagai akselerator perangkat keras khusus yang dapat diintegrasikan ke sistem komputasi edge.
 
-Edge devices, IoT nodes, embedded controllers, and other resource-constrained systems increasingly process and transmit sensitive data. Secure communication requires not only confidentiality but also integrity and authenticity of transmitted information.
+### 2.2 Solusi yang Diusulkan
 
-A software-only cryptographic implementation places cryptographic computation on the host processor. For resource-constrained systems, this can increase computational workload and processing latency.
+SECURE-TINY adalah IP core perangkat keras modular untuk enkripsi dan dekripsi terautentikasi berdasarkan Ascon-AEAD128.
 
-The project therefore addresses the hardware-design problem of implementing authenticated encryption as a dedicated hardware accelerator that can be integrated into an edge computing system.
+Rancangan menggabungkan:
 
-## 2.2 Proposed Solution
+* core kriptografi Ascon;
+* logika pengendali AEAD;
+* penanganan data masukan dan keluaran;
+* pembentukan tag autentikasi;
+* verifikasi tag autentikasi; dan
+* Hardware Authentication Guard.
 
-SECURE-TINY is a modular hardware IP core implementing authenticated encryption and decryption based on Ascon-AEAD128.
+Hardware Authentication Guard menghasilkan keputusan ACCEPT/REJECT pada tingkat perangkat keras berdasarkan hasil verifikasi autentikasi.
 
-The design integrates:
+### 2.3 Konsep Utama
 
-* Ascon cryptographic core
-* AEAD control logic
-* input/output data handling
-* authentication-tag generation
-* authentication-tag verification
-* Hardware Authentication Guard
-
-The Hardware Authentication Guard produces a hardware-level ACCEPT/REJECT decision based on authentication verification.
-
-## 2.3 Core Concept
-
-Encryption:
-
-Key + Nonce + Associated Data + Plaintext
-→ Ciphertext + Authentication Tag
-
-Decryption:
-
-Key + Nonce + Associated Data + Ciphertext + Authentication Tag
-→ Plaintext + Authentication Status
-
-Authentication:
-
-Valid Tag → ACCEPT
-
-Invalid Tag → REJECT
-
----
-
-# 3. Problem Statement
-
-The project focuses on the following technical problem:
-
-How can authenticated encryption be implemented as a modular hardware IP core that provides verifiable security behavior while maintaining reasonable hardware resource utilization and latency?
-
-The design must balance:
-
-* security functionality,
-* RTL complexity,
-* hardware resource utilization,
-* latency,
-* throughput,
-* verification effort,
-* and scalability.
-
-“Resource-efficient” is an architectural objective, not a measured result. The initial candidate uses an iterative permutation and bounded input/output storage. Quartus resource and timing results must be reported before making comparative efficiency claims. This PRD does not assert an unmeasured area, Fmax, throughput, or power target.
-
----
-
-# 4. Design Objectives
-
-The project shall:
-
-1. Implement an Ascon-AEAD128-based cryptographic hardware core.
-2. Support authenticated encryption/decryption functionality.
-3. Generate and verify authentication tags.
-4. Reject invalid authentication results through a hardware authentication guard.
-5. Use modular synthesizable SystemVerilog RTL.
-6. Provide automated RTL testbenches.
-7. Verify functionality against trusted reference/Known Answer Test material.
-8. Produce simulation waveforms.
-9. Measure latency in clock cycles.
-10. Prepare the design for FPGA synthesis targeting DE10-Nano.
-11. Evaluate resource utilization and timing when synthesis is available.
-12. Keep the architecture modular so that future interface, buffering, or performance improvements can be added without redesigning the entire cryptographic core.
-
----
-
-# 5. Scope
-
-## 5.1 Mandatory Scope
-
-The minimum working implementation shall contain:
-
-* Ascon permutation
-* Ascon core
-* AEAD controller
-* authentication-tag generation
-* authentication-tag verification
-* authentication guard
-* top-level integration
-* RTL testbench
-* functional verification
-* modified-ciphertext and invalid-tag functional testing (digital tamper cases)
-* waveform generation
-* Quartus compile for the DE10-Nano Cyclone V target
-* actual FPGA resource and timing report for the configured build
-* generation of the Quartus programming output (`.sof`)
-
-## 5.2 Extended Scope
-
-Physical board testing requires board access and a usable transaction interface; it is a separate hardware-validation result. The following remain later integration extensions and are not part of the initial board-independent IP:
-
-* HPS/Avalon host wrapper and software driver;
-* physical pin mapping for a transaction interface;
-* DMA, queues, or overlapping transactions.
-
-The owner-provided work deadline is **6 October 2026** (five calendar days from the current planning date, 1 October 2026). The schedule is milestone-gated rather than a completion promise: simulation, lint, generic synthesis, and static Quartus preflight have evidence; device-specific Quartus compile, 50 MHz timing, resource report, and `.sof` are still pending because Quartus is not installed in the current environment. This remaining FPGA build is the critical path; HPS integration and physical board testing are not assumed achievable or required by that deadline.
-
-## 5.3 Optional Scope
-
-If the mandatory and extended scope are already stable:
-
-* LibreLane ASIC flow
-* synthesis
-* floorplanning
-* placement
-* clock-tree synthesis
-* routing
-* DRC/LVS
-* layout/GDS generation
-
-The optional ASIC flow must never delay completion of the mandatory RTL verification.
-
----
-
-# 6. Proposed Architecture
-
-The initial, board-independent IP dataflow is:
+**Enkripsi:**
 
 ```text
-Caller -- command/key/nonce/lengths/received tag --> AEAD Controller
-Caller -- AD byte stream -------------------------> AEAD Controller
-Caller -- message byte stream --------------------> AEAD Controller
-                                                     | input buffers
-                                                     v
-                                               Ascon AEAD Core
-                                                  |       |
-                                   round request/state    | packed result bytes
-                                                  v       v
-                                          Ascon Permutation
-                                                  ^
-                                                  | round result/state
-
-Ascon AEAD Core -- final tag --> Tag Generator -- held tag handshake --> Caller
-Ascon AEAD Core -- calculated tag --+
-Caller tag -- through controller --+--> Tag Verifier --> Authentication Guard
-                                                     |             |
-AEAD Controller <-- plaintext-release decision ------+             |
-AEAD Controller <-- ciphertext/plaintext stream + status ----------+
-
-HPS/Avalon wrapper and physical transaction pins are outside this initial IP.
+Key + Nonce + Associated Data + Plaintext
+→ Ciphertext + Authentication Tag
 ```
 
-The controller owns bounded AD/message input buffers and coordinates the core, tag modules, output handshakes, and guard. The core retains packed results while the controller streams them to the caller. The tag generator captures the core's final tag; it does not calculate a second tag. The verifier compares the calculated and received tags; it does not perform AEAD processing.
+**Dekripsi:**
+
+```text
+Key + Nonce + Associated Data + Ciphertext + Authentication Tag
+→ Plaintext + Authentication Status
+```
+
+**Autentikasi:** tag valid menghasilkan ACCEPT; tag tidak valid menghasilkan REJECT.
+
+## 3. Pernyataan Masalah
+
+Pertanyaan teknis proyek ini adalah: bagaimana menerapkan enkripsi terautentikasi sebagai IP core perangkat keras modular yang memiliki perilaku keamanan yang dapat diverifikasi, dengan penggunaan sumber daya perangkat keras dan latensi yang wajar?
+
+Rancangan perlu menyeimbangkan:
+
+* fungsi keamanan;
+* kerumitan RTL;
+* penggunaan sumber daya perangkat keras;
+* latensi;
+* throughput;
+* upaya verifikasi; dan
+* kemampuan pengembangan lanjutan.
 
----
+“Hemat sumber daya” merupakan tujuan arsitektur, bukan hasil pengukuran. Rancangan awal menggunakan permutasi iteratif dan penyimpanan masukan/keluaran dengan kapasitas terbatas. Hasil penggunaan sumber daya dan timing dari Quartus harus tersedia sebelum membuat klaim efisiensi yang bersifat perbandingan. PRD ini tidak menetapkan angka area, Fmax, throughput, atau daya yang belum diukur.
 
-# 7. RTL Modules
+## 4. Sasaran Desain
 
-## 7.1 ascon_permutation.sv
+Proyek harus:
 
-Purpose:
+1. Menerapkan core kriptografi berbasis Ascon-AEAD128.
+2. Mendukung fungsi enkripsi dan dekripsi terautentikasi.
+3. Membentuk dan memverifikasi tag autentikasi.
+4. Menolak hasil autentikasi yang tidak valid melalui Hardware Authentication Guard.
+5. Menggunakan RTL SystemVerilog modular yang dapat disintesis.
+6. Menyediakan rangkaian uji RTL otomatis (testbench).
+7. Memverifikasi fungsi menggunakan referensi tepercaya atau bahan Known Answer Test (KAT).
+8. Menghasilkan waveform simulasi.
+9. Mengukur latensi dalam siklus clock.
+10. Menyiapkan desain untuk sintesis FPGA dengan target DE10-Nano.
+11. Mengevaluasi penggunaan sumber daya dan timing setelah perangkat lunak sintesis tersedia.
+12. Menjaga arsitektur tetap modular agar antarmuka, penyangga, atau kinerja dapat dikembangkan tanpa merancang ulang seluruh core kriptografi.
 
-Implement the core Ascon permutation operation.
+## 5. Ruang Lingkup
 
-Responsibilities:
+### 5.1 Ruang Lingkup Wajib
 
-* maintain cryptographic state;
-* perform round operations;
-* update state synchronously;
-* provide deterministic output for a given input state and round configuration.
+Implementasi minimum harus mencakup:
 
-This module must be independently testable.
+* permutasi Ascon;
+* core Ascon;
+* pengendali AEAD;
+* pembentukan tag autentikasi;
+* verifikasi tag autentikasi;
+* authentication guard;
+* integrasi tingkat atas;
+* rangkaian uji RTL (testbench);
+* verifikasi fungsional;
+* pengujian fungsional terhadap ciphertext yang diubah dan tag tidak valid (kasus gangguan digital);
+* pembuatan waveform;
+* kompilasi Quartus untuk target Cyclone V DE10-Nano;
+* laporan aktual penggunaan sumber daya FPGA dan timing untuk konfigurasi build; serta
+* pembuatan berkas keluaran pemrograman Quartus (`.sof`).
 
----
+### 5.2 Ruang Lingkup Lanjutan
 
-## 7.2 ascon_core.sv
+Pengujian fisik pada board memerlukan akses board dan antarmuka transaksi yang dapat digunakan; hasil tersebut dicatat sebagai validasi perangkat keras yang terpisah. Hal-hal berikut merupakan pengembangan integrasi berikutnya dan tidak termasuk dalam IP awal yang tidak bergantung pada board:
 
-Purpose:
+* pembungkus host HPS/Avalon dan driver perangkat lunak;
+* pemetaan pin fisik untuk antarmuka transaksi; dan
+* DMA, antrean, atau transaksi yang saling tumpang tindih.
 
-Provide the cryptographic datapath using the Ascon permutation.
+Tenggat pengerjaan yang diberikan pemilik proyek adalah **6 Oktober 2026** (lima hari kalender dari tanggal perencanaan 1 Oktober 2026). Jadwal dikendalikan oleh capaian dan bukan janji bahwa seluruh pekerjaan pasti selesai. Simulasi, lint, sintesis generik, dan preflight statis Quartus telah memiliki bukti; kompilasi Quartus khusus perangkat, timing 50 MHz, laporan resource, dan `.sof` masih tertunda karena Quartus belum terpasang pada lingkungan saat ini. Build FPGA menjadi jalur kritis. Integrasi HPS dan pengujian fisik board tidak diasumsikan dapat atau harus selesai sebelum tenggat tersebut.
 
-Responsibilities:
+### 5.3 Ruang Lingkup Opsional
 
-* key/state handling;
-* nonce handling;
-* associated-data processing;
-* plaintext/ciphertext processing;
-* finalization;
-* authentication-tag generation.
+Jika ruang lingkup wajib dan lanjutan sudah stabil, pekerjaan opsional dapat mencakup:
 
----
+* alur ASIC LibreLane;
+* sintesis;
+* perencanaan lantai (floorplanning);
+* penempatan;
+* pembentukan pohon clock;
+* perutean;
+* DRC/LVS; dan
+* pembuatan layout/GDS.
 
-## 7.3 aead_controller.sv
+Alur ASIC opsional tidak boleh menunda penyelesaian verifikasi RTL wajib.
 
-Purpose:
+## 6. Arsitektur yang Diusulkan
 
-Control the sequence of cryptographic operations.
+Aliran data IP awal yang tidak bergantung pada board:
 
-Conceptual states:
+```text
+Pemanggil -- perintah/key/nonce/panjang/tag masuk --> Pengendali AEAD
+Pemanggil -- aliran byte AD -----------------------> Pengendali AEAD
+Pemanggil -- aliran byte pesan --------------------> Pengendali AEAD
+                                                     | penyangga masukan
+                                                     v
+                                                Core AEAD Ascon
+                                                  |       |
+                                   permintaan ronde/state | byte hasil packed
+                                                  v       v
+                                          Permutasi Ascon
+                                                  ^
+                                                  | hasil ronde/state
 
-IDLE
-→ INIT
-→ ABSORB
-→ PROCESS
-→ FINALIZE
-→ TAG
-→ DONE
+Core AEAD Ascon -- tag akhir --> Pembentuk Tag -- handshake tag tertahan --> Pemanggil
+Core AEAD Ascon -- tag hitung --+
+Tag pemanggil -- via pengendali +--> Pemeriksa Tag --> Authentication Guard
+                                                     |             |
+Pengendali AEAD <-- keputusan pelepasan plaintext ---+             |
+Pengendali AEAD <-- aliran ciphertext/plaintext + status ----------+
 
-FSM state encoding is internal. Its externally visible behavior must satisfy §8.1 and the port-level contract in `docs/module_spec.md`; changing transaction behavior requires an explicit requirement revision.
+Pembungkus HPS/Avalon dan pin transaksi fisik berada di luar IP awal ini.
+```
 
----
+Pengendali memiliki penyangga masukan AD/pesan berkapasitas terbatas dan mengatur core, modul tag, handshake keluaran, serta guard. Core mempertahankan hasil packed saat pengendali mengirimkannya kepada pemanggil. Pembentuk tag menangkap tag akhir dari core; modul ini tidak menghitung tag kedua. Pemeriksa membandingkan tag hasil hitung dengan tag yang diterima; modul ini tidak menjalankan pemrosesan AEAD.
 
-## 7.4 tag_generator.sv
+## 7. Modul RTL
 
-Purpose:
+### 7.1 `ascon_permutation.sv`
 
-Provide the authentication tag output generated by the cryptographic process.
+**Tujuan:** menerapkan operasi permutasi inti Ascon.
 
-The module captures the tag from the Ascon core and holds it with `tag_valid/tag_ready` until transfer. It is a handshake register, not a cryptographic tag calculator.
+**Tanggung jawab:** mempertahankan state kriptografi, menjalankan operasi ronde, memperbarui state secara sinkron, dan memberikan keluaran yang deterministik untuk state masukan serta konfigurasi ronde tertentu. Modul ini harus dapat diuji secara mandiri.
 
----
+### 7.2 `ascon_core.sv`
 
-## 7.5 tag_verifier.sv
+**Tujuan:** menyediakan jalur data kriptografi yang menggunakan permutasi Ascon.
 
-Purpose:
+**Tanggung jawab:** menangani key dan state, nonce, pemrosesan associated data, plaintext/ciphertext, finalisasi, serta pembentukan tag autentikasi.
 
-Compare the expected/generated authentication tag with the received tag.
+### 7.3 `aead_controller.sv`
 
-Output:
+**Tujuan:** mengendalikan urutan operasi kriptografi.
 
-* match
-* mismatch
+State konseptual:
 
-The comparison must not be assumed correct without simulation evidence.
+```text
+IDLE → INIT → ABSORB → PROCESS → FINALIZE → TAG → DONE
+```
 
----
+Pengodean state FSM bersifat internal. Perilaku yang tampak dari luar harus memenuhi §8.1 serta kontrak tingkat port pada `docs/module_spec.md`. Perubahan perilaku transaksi memerlukan revisi persyaratan secara eksplisit.
 
-## 7.6 authentication_guard.sv
+### 7.4 `tag_generator.sv`
 
-Purpose:
+**Tujuan:** menyediakan keluaran tag autentikasi yang dihasilkan proses kriptografi.
 
-Convert authentication status into a hardware-level security decision.
+Modul menangkap tag dari core Ascon dan menahannya menggunakan `tag_valid/tag_ready` sampai terjadi transfer. Modul ini merupakan register handshake, bukan penghitung tag kriptografi.
 
-Valid authentication:
+### 7.5 `tag_verifier.sv`
 
-match = 1
-→ accept = 1
-→ reject = 0
+**Tujuan:** membandingkan tag autentikasi yang diharapkan/dihitung dengan tag yang diterima.
 
-Invalid authentication:
+Keluaran menunjukkan `match` atau `mismatch`. Kebenaran perbandingan harus dibuktikan melalui simulasi.
 
-mismatch = 1
-→ accept = 0
-→ reject = 1
+### 7.6 `authentication_guard.sv`
 
-The guard must prevent invalid authenticated data from being treated as valid output.
+**Tujuan:** mengubah status autentikasi menjadi keputusan keamanan pada tingkat perangkat keras.
 
-The ACCEPT/REJECT decision applies to decryption authentication only. The guard gates decryption plaintext; encryption reports its ciphertext/tag transfers and does not assert an authentication decision.
+Jika autentikasi valid (`match = 1`), guard menghasilkan `accept = 1` dan `reject = 0`. Jika autentikasi tidak valid (`mismatch = 1`), guard menghasilkan `accept = 0` dan `reject = 1`.
 
----
+Guard harus mencegah data yang autentikasinya tidak valid diperlakukan sebagai keluaran yang sah. Keputusan ACCEPT/REJECT hanya berlaku untuk autentikasi dekripsi. Guard membatasi plaintext dekripsi; enkripsi melaporkan transfer ciphertext/tag dan tidak menyatakan keputusan autentikasi.
 
-## 7.7 secure_tiny_top.sv
+### 7.7 `secure_tiny_top.sv`
 
-Purpose:
+**Tujuan:** mengintegrasikan seluruh modul SECURE-TINY menjadi satu IP perangkat keras tingkat atas.
 
-Integrate all SECURE-TINY modules into one top-level hardware IP.
+## 8. Prinsip Antarmuka
 
----
+Implementasi awal harus mengutamakan kemudahan verifikasi. Capaian RTL pertama tidak memerlukan antarmuka AXI/Avalon lengkap untuk produksi. Antarmuka fungsional internal dapat memakai sinyal kendali dan data sinkron sederhana. Antarmuka host yang lebih lengkap dapat ditambahkan setelah kebenaran kriptografi dibuktikan, agar kerumitan antarmuka tidak menghambat verifikasi kriptografi.
 
-# 8. Interface Philosophy
+### 8.1 Kontrak RTL Awal
 
-The initial implementation should prioritize verification simplicity.
+IP awal menggunakan satu clock, satu transaksi pada satu waktu, dan akselerator iteratif. Port tingkat atas mencakup `clk`, reset sinkron aktif-rendah `rst_n`, perintah (`start`, `decrypt`, `key[127:0]`, `nonce[127:0]`, `ad_length[31:0]`, `data_length[31:0]`, `received_tag[127:0]`), aliran byte AD/pesan yang terpisah, aliran byte keluaran, handshake tag, dan status. Arah serta nama port yang menjadi acuan tercantum pada `docs/module_spec.md`. Profil IP ini tidak memiliki bus AXI/Avalon/HPS, antrean, sinyal `last`, atau perintah yang saling tumpang tindih.
 
-The first RTL milestone does not require a complete production-grade AXI/Avalon interface.
+Perintah diterima pada tepi naik clock ketika `start=1` dan `busy=0`; masukan perintah disimpan pada tepi tersebut. Sinyal start saat sibuk diabaikan. Setelah perintah diterima, pemanggil mengirim tepat `ad_length` byte AD, lalu tepat `data_length` byte pesan (plaintext untuk enkripsi, ciphertext untuk dekripsi). Byte berpindah hanya pada tepi naik ketika `valid && ready`; pengirim mempertahankan `valid` dan `data` sampai transfer terjadi. Pengendali tidak menerima byte pesan sebelum seluruh AD diterima. Panjang nol melewati fase aliran tersebut. Tidak ada penanda `last`; batas fase ditentukan oleh panjang yang diumumkan. Dalam vektor internal packed, byte indeks nol menempati `[7:0]`.
 
-The internal functional interface may use simple synchronous control/data signals.
+`MAX_DATA_BYTES` adalah parameter elaborasi positif yang wajib diberikan dan tidak memiliki nilai bawaan. Parameter ini membatasi panjang AD dan pesan secara terpisah. Profil proyek DE10-Nano menggunakan 16 byte untuk masing-masing. Nilai yang melebihi kapasitas ditolak sebelum data aliran diterima: `command_error` dan `done` berpulsa selama satu siklus, `busy` tetap rendah, dan status autentikasi tidak dinyatakan. `command_error` bukan `reject` autentikasi. Kapasitas yang dikonfigurasi tidak membuktikan klaim penggunaan sumber daya atau timing.
 
-A more complete host interface can be added after cryptographic correctness has been established.
+Pada enkripsi, ciphertext dari core ditransfer per byte melalui `out_valid/out_ready`. Setelah byte ciphertext terakhir diterima (atau segera setelah core selesai untuk pesan kosong), tag disajikan melalui `tag_valid/tag_ready` dan ditahan hingga transfer. `done` berpulsa dan `busy` turun setelah handshake tag. Pada dekripsi, seluruh calon plaintext tetap di dalam sampai tag hasil hitung diperiksa. Jika cocok, `auth_result_valid` dan `accept` aktif, `reject` tetap rendah, lalu plaintext dapat ditransfer melalui `out_valid/out_ready`. `done` berpulsa setelah byte plaintext terakhir diterima (atau segera setelah verifikasi berhasil untuk pesan kosong). Jika tidak cocok, `auth_result_valid` dan `reject` aktif, `accept` tetap rendah, tidak ada byte plaintext yang dikeluarkan, dan transaksi berakhir dengan pulsa `done` satu siklus. Status autentikasi hanya didefinisikan untuk dekripsi dan dipertahankan sampai perintah `start` baru diterima saat idle atau reset; enkripsi tidak mengaktifkan `auth_result_valid`, `accept`, atau `reject`.
 
-This prevents interface complexity from blocking cryptographic verification.
+`busy` aktif sejak transaksi diterima sampai seluruh handshake keluaran selesai. `done` adalah pulsa satu siklus yang menunjukkan penyelesaian transaksi sesuai ketentuan di atas. Reset sinkron aktif-rendah membatalkan operasi dan membersihkan `busy`, sinyal valid aliran/tag, status autentikasi, `command_error`, dan `done`. Perintah tidak diantrekan. Arah sinyal dan batas modul ditetapkan dalam `docs/module_spec.md`.
 
-### 8.1 Initial RTL Contract
+Pengendali menampung AD dan pesan yang dideklarasikan sebelum menjalankan core dengan vektor packed. Permutasi menjalankan satu ronde pada setiap siklus aktif. Perangkat lunak atau sistem pemanggil bertanggung jawab memberikan nonce yang unik untuk setiap enkripsi dengan key yang sama; IP tidak membuat ataupun mencatat riwayat nonce. Pembungkus bus dan pemetaan pin transaksi khusus board merupakan pekerjaan integrasi berikutnya. Kesiapan build FPGA memerlukan kompilasi Quartus yang berhasil untuk target DE10-Nano, laporan resource/timing aktual, serta keluaran pemrograman yang tercatat. Pengujian fisik board merupakan hasil terpisah.
 
-The initial IP is a single-clock, single-transaction, iterative accelerator. Its top-level ports are `clk`, synchronous active-low `rst_n`, command (`start`, `decrypt`, `key[127:0]`, `nonce[127:0]`, `ad_length[31:0]`, `data_length[31:0]`, `received_tag[127:0]`), separate AD/message byte streams, a byte output stream, tag handshake, and status. The authoritative port directions and names are listed in `docs/module_spec.md`. There is no AXI/Avalon/HPS bus, queue, `last` signal, or overlapping command in this IP profile.
+## 9. Persyaratan Verifikasi
 
-A command is accepted on a rising clock edge when `start=1` and `busy=0`; command inputs are latched on that edge. A start while busy is ignored. After acceptance, the caller sends exactly `ad_length` AD bytes, then exactly `data_length` message bytes (plaintext for encryption, ciphertext for decryption). For each stream, a byte transfers only on a rising edge with `valid && ready`; the producer holds `valid` and `data` stable until transfer. The controller does not accept message bytes until AD is complete. A zero length skips that stream phase. There is no `last` marker; declared lengths determine phase boundaries. For packed internal vectors, byte index zero occupies `[7:0]`.
+Verifikasi wajib dilakukan. Modul belum dianggap selesai hanya karena berhasil dikompilasi.
 
-`MAX_DATA_BYTES` is a required positive elaboration parameter with no default. It independently bounds AD length and message length. The DE10-Nano project profile uses 16 bytes for each. A value above capacity is rejected before accepting stream data: `command_error` and `done` pulse for one cycle, `busy` stays low, and authentication status is not asserted. `command_error` is not an authentication `reject`. No resource or timing claim is inferred from the configured capacity.
+Tahapan verifikasi yang diwajibkan:
 
-For encryption, the core's ciphertext is transferred byte-by-byte through `out_valid/out_ready`. After the final ciphertext byte is accepted (or immediately after core completion for an empty message), the tag is presented through `tag_valid/tag_ready` and held stable until transfer. `done` pulses and `busy` deasserts after the tag handshake. For decryption, the complete candidate plaintext remains internal until the calculated tag has been checked. On match, `auth_result_valid` and `accept` assert, `reject` remains low, and plaintext may then transfer through `out_valid/out_ready`; `done` pulses after the final plaintext byte is accepted (immediately after successful verification for an empty message). On mismatch, `auth_result_valid` and `reject` assert, `accept` remains low, no plaintext byte is emitted, and the transaction completes with a one-cycle `done` pulse. Authentication status is defined for decryption only and is held until a new idle `start` or reset; encryption does not assert `auth_result_valid`, `accept`, or `reject`.
+1. Kompilasi RTL.
+2. Testbench tingkat unit.
+3. Testbench integrasi.
+4. Perbandingan dengan Known Answer Test/referensi.
+5. Pengujian enkripsi dan dekripsi valid.
+6. Pengujian tag autentikasi tidak valid.
+7. Pengujian ciphertext yang diubah.
+8. Pengujian perilaku reset.
+9. Pengujian urutan start/busy/done.
+10. Pemeriksaan waveform.
 
-`busy` covers an accepted transaction through its output handshakes. `done` is a one-cycle pulse indicating transaction completion as defined above. Synchronous active-low reset aborts the current operation and clears `busy`, stream/tag valid, authentication status, `command_error`, and `done`. No command is queued. Exact signal directions and module boundaries are defined in `docs/module_spec.md`.
+## 10. Prinsip Verifikasi
 
-The controller buffers declared AD and message before launching the packed-vector core. The permutation processes one round per active clock. Caller software/system is responsible for supplying a nonce that is unique for each encryption under a given key; the IP neither generates nor tracks nonces. The bus wrapper and board-specific transaction pin mapping are later integration work. FPGA-build readiness requires a successful Quartus compile for the DE10-Nano target, with actual resource/timing reports and generated programming output recorded; physical board testing is a separate result.
+Gunakan implementasi perangkat lunak/referensi tepercaya sebagai pembanding independen:
 
----
+```text
+Masukan → model referensi Python → hasil yang diharapkan
+Masukan → RTL DUT                 → hasil perangkat keras
+```
 
-# 9. Verification Requirements
+Bandingkan hasil RTL dengan hasil yang diharapkan. Jika sama, catat PASS; jika berbeda, catat FAIL dan lakukan penelusuran masalah. Keluaran kriptografi yang diharapkan tidak boleh dibuat-buat; gunakan vektor referensi tepercaya.
 
-Verification is mandatory.
+## 11. Metrik Kinerja
 
-A module is not considered complete merely because it compiles.
+Metrik berikut hanya boleh diukur setelah implementasi terkait benar-benar dijalankan.
 
-Required verification stages:
+**Fungsional:** kebenaran enkripsi, kebenaran dekripsi, kebenaran autentikasi, dan tingkat penolakan gangguan data.
 
-1. RTL compilation
-2. Unit-level testbench
-3. Integration testbench
-4. Known Answer Test/reference comparison
-5. Valid encryption/decryption test
-6. Invalid authentication-tag test
-7. Modified ciphertext test
-8. Reset behavior test
-9. Start/busy/done sequencing test
-10. Waveform inspection
+**Perangkat keras:** Logic Elements/ALM, flip-flop, M10K, dan blok DSP.
 
----
+**Timing:** frekuensi clock/Fmax, latensi dalam siklus clock, dan perkiraan waktu pemrosesan.
 
-# 10. Verification Philosophy
+**Kinerja:** throughput dan hubungan antara resource dengan kinerja.
 
-Use a trusted software/reference implementation as an independent oracle.
+Hasil numerik tidak boleh dikarang sebelum pengukuran.
 
-Flow:
+## 12. Target FPGA
 
-Input
-→ Python/reference model
-→ expected result
+Platform evaluasi yang dituju adalah DE10-Nano. Alur berikut merupakan konsep integrasi sistem mendatang, bukan jalur RTL yang sudah diterapkan atau prasyarat build FPGA:
 
-Input
-→ RTL DUT
-→ hardware result
+```text
+HPS ARM Cortex-A9 → antarmuka host/kendali → fabric FPGA → akselerator SECURE-TINY
+```
 
-Compare:
+Pengembangan awal tidak mensyaratkan kepemilikan fisik DE10-Nano. Simulasi RTL dapat dilakukan tanpa perangkat keras. Kompilasi Quartus, laporan resource/timing khusus perangkat, dan pembuatan berkas pemrograman merupakan tahapan wajib untuk menyatakan build FPGA siap; semuanya berbeda dari simulasi RTL.
 
-RTL result == expected result
+Pengujian fisik board merupakan tahap validasi tambahan ketika perangkat keras tersedia. DE10-Nano menjadi target kompilasi Quartus khusus perangkat, pelaporan resource/timing, dan pembuatan berkas pemrograman. Pengujian fisik membutuhkan board dan antarmuka transaksi yang dapat digunakan. Kontrak RTL awal tidak mencakup integrasi HPS; HPS/Avalon dan pemetaan pin transaksi fisik tetap menjadi pekerjaan integrasi selanjutnya. Tetapkan `MAX_DATA_BYTES` secara eksplisit pada setiap elaborasi dan catat nilainya bersama hasil sintesis.
 
-If equal:
+## 13. Posisi Kebaruan
 
-PASS
+SECURE-TINY tidak mengklaim menciptakan algoritma kriptografi baru. Kebaruan proyek ditempatkan pada tingkat arsitektur/sistem perangkat keras:
 
-If different:
+1. integrasi pemrosesan enkripsi terautentikasi dengan logika keputusan autentikasi;
+2. Hardware Authentication Guard yang dinyatakan secara eksplisit;
+3. arsitektur IP modular yang dapat digunakan kembali;
+4. eksplorasi resource dan kinerja;
+5. pemindahan pemrosesan enkripsi terautentikasi ke perangkat keras; dan
+6. perilaku keamanan yang dapat diukur melalui skenario autentikasi valid/tidak valid.
 
-FAIL and debug.
+Proyek tidak boleh membuat klaim tanpa dukungan, seperti implementasi perangkat keras Ascon pertama, implementasi Ascon FPGA pertama, algoritma kriptografi baru, area yang pasti paling rendah, atau throughput yang pasti paling tinggi.
 
-Expected cryptographic outputs must never be fabricated; use trusted reference vectors.
+Dalam ruang lingkup ini, Hardware Authentication Guard adalah gerbang digital yang dikendalikan hasil verifikasi tag AEAD. Guard tidak mendeteksi gangguan fisik, mengurangi kebocoran side-channel, atau menghapus key secara aman. Sifat-sifat tersebut belum diterapkan atau dievaluasi dalam profil IP ini dan tidak boleh diklaim.
 
----
+## 14. Kemampuan Pengembangan
 
-# 11. Performance Metrics
+Arsitektur sebaiknya memungkinkan pengembangan berikutnya berupa antarmuka data lebih lebar, antarmuka streaming, penyangga FIFO, antarmuka AXI/Avalon, pemrosesan multi-blok, paralelisasi untuk kinerja, implementasi terserialisasi untuk penghematan area, integrasi protokol komunikasi aman, dan implementasi ASIC melalui alur desain fisik sumber terbuka.
 
-The following metrics should be measured only after actual implementation:
+Implementasi pertama harus cukup kecil agar dapat diverifikasi dalam jadwal hackathon.
 
-### Functional
+## 15. Perangkat Pengembangan
 
-* encryption correctness
-* decryption correctness
-* authentication correctness
-* tamper rejection rate
+**Pengembangan utama:** VS Code, SystemVerilog, Icarus Verilog/Verilator, GTKWave, Python, dan Git.
 
-### Hardware
+**Implementasi FPGA:** Intel Quartus Prime; Platform Designer jika diperlukan.
 
-* Logic Elements / ALM
-* Flip-Flops
-* M10K
-* DSP Blocks
+**Alur ASIC opsional:** LibreLane dan PDK sumber terbuka yang didukung alur terpilih.
 
-### Timing
+## 16. Strategi Pengembangan
 
-* clock frequency / Fmax
-* latency in clock cycles
-* estimated processing time
+Pengembangan harus dilakukan bertahap dan setiap tahap diverifikasi sebelum tahap berikutnya dimulai:
 
-### Performance
+1. dasar RTL;
+2. permutasi Ascon;
+3. core Ascon;
+4. kendali AEAD;
+5. verifikasi tag;
+6. Authentication Guard;
+7. integrasi tingkat atas;
+8. verifikasi dan kasus tepi;
+9. sintesis FPGA dan analisis resource; dan
+10. desain fisik ASIC opsional.
 
-* throughput
-* resource/performance relationship
+## 17. Kriteria Penyelesaian
 
-No numerical result may be invented before measurement.
+Satu modul hanya dinyatakan selesai jika kode sumber tersedia, dapat dikompilasi, memiliki testbench, berhasil disimulasikan, perilaku yang diharapkan telah diperiksa, hasil telah dicatat, dan tidak ada kegagalan tanpa penjelasan.
 
----
+Proyek dinyatakan terverifikasi pada tingkat RTL hanya jika RTL tingkat atas dapat dikompilasi, simulasi integrasi lulus, hasil kriptografi cocok dengan referensi/KAT tepercaya, autentikasi valid diterima, autentikasi tidak valid ditolak, serta waveform terkait telah diperiksa.
 
-# 12. FPGA Target
+Build FPGA DE10-Nano hanya dinyatakan siap setelah Quartus berhasil mengompilasi proyek Cyclone V yang dikonfigurasi, laporan Fitter dan Timing Analyzer disimpan, timing memenuhi constraint proyek 50 MHz, dan berkas pemrograman `.sof` berhasil dibuat. Nilai resource harus berasal dari keluaran Quartus; ambang penggunaan resource atau klaim efisiensi komparatif tidak boleh dikarang. Status fungsi pada board terpisah dan memerlukan DE10-Nano sungguhan serta jalur transaksi fisik/host yang terdokumentasi.
 
-The target evaluation platform is DE10-Nano.
+## 18. Penyesuaian Proposal
 
-The following is a future system-integration concept, not an implemented RTL path or an FPGA-build prerequisite:
+Proposal akhir harus mengikuti susunan resmi berikut:
 
-HPS ARM Cortex-A9
-→ host/control interface
-→ FPGA fabric
-→ SECURE-TINY accelerator
+1. Ringkasan Eksekutif
+2. Latar Belakang dan Pernyataan Masalah
+3. Rancangan Chip yang Diusulkan
+4. Solusi dan Arsitektur Sistem
+5. Modul RTL
+6. Estimasi Sumber Daya FPGA
+7. Perangkat Lunak dan Alat Desain
+8. Rencana Pengujian
+9. Metrik Keberhasilan
+10. Referensi
+11. Lampiran
 
-The initial development does not depend on physical possession of a DE10-Nano.
-
-RTL simulation can be performed without physical hardware. Quartus compile, device-specific resource/timing reporting, and programming-file generation are required project stages for FPGA-build readiness; they are distinct from RTL simulation.
-
-Physical board testing is an additional validation stage when hardware access is available.
-
-The DE10-Nano is the target for device-specific Quartus compile, resource/timing reporting, and programming-file generation. Physical board testing requires the board and a usable transaction interface. The initial RTL contract does not include HPS integration; HPS/Avalon and physical transaction-pin mapping remain later integration work. Select `MAX_DATA_BYTES` explicitly for each elaboration and record that value with synthesis results.
-
----
-
-# 13. Novelty Positioning
-
-SECURE-TINY does not claim to invent a new cryptographic algorithm.
-
-The project novelty is positioned at the hardware architecture/system level:
-
-1. integration of authenticated-encryption processing and authentication decision logic;
-2. explicit Hardware Authentication Guard;
-3. modular reusable IP architecture;
-4. resource/performance exploration;
-5. hardware offloading of authenticated-encryption processing;
-6. measurable security behavior through valid/invalid authentication scenarios.
-
-The project must avoid unsupported claims such as:
-
-* first Ascon hardware implementation;
-* first FPGA Ascon implementation;
-* new cryptographic algorithm;
-* guaranteed lowest area;
-* guaranteed highest throughput.
-
-The Hardware Authentication Guard in this scope is a digital gate controlled by the AEAD tag-verification result. It does not detect physical tampering, mitigate side-channel leakage, or securely erase keys. Those properties are not implemented or evaluated by this IP profile and must not be claimed.
-
----
-
-# 14. Scalability
-
-The architecture should allow future extensions:
-
-* wider data interface;
-* streaming interface;
-* FIFO buffering;
-* AXI/Avalon interface;
-* multi-block processing;
-* performance-oriented parallelism;
-* area-oriented serialized implementation;
-* integration with secure communication protocol;
-* ASIC implementation through an open-source physical-design flow.
-
-The first implementation should remain intentionally small enough to be verified within the hackathon schedule.
-
----
-
-# 15. Toolchain
-
-Primary development:
-
-* VS Code
-* SystemVerilog
-* Icarus Verilog / Verilator
-* GTKWave
-* Python
-* Git
-
-FPGA implementation:
-
-* Intel Quartus Prime
-* Platform Designer if required
-
-Optional ASIC flow:
-
-* LibreLane
-* open-source PDK supported by the selected flow
-
----
-
-# 16. Development Strategy
-
-Development must be incremental.
-
-Phase 1:
-RTL fundamentals
-
-Phase 2:
-Ascon permutation
-
-Phase 3:
-Ascon core
-
-Phase 4:
-AEAD control
-
-Phase 5:
-Tag verification
-
-Phase 6:
-Authentication Guard
-
-Phase 7:
-Top-level integration
-
-Phase 8:
-Verification and corner cases
-
-Phase 9:
-FPGA synthesis/resource analysis
-
-Phase 10:
-Optional ASIC physical design
-
-Development is incremental; verify each phase before beginning the next.
-
----
-
-# 17. Definition of Done
-
-A module is DONE only if:
-
-* source code exists;
-* code compiles;
-* testbench exists;
-* simulation runs;
-* expected behavior is checked;
-* results are recorded;
-* no unexplained failure remains.
-
-The project is considered RTL-verified only when:
-
-* top-level RTL compiles;
-* integration simulation passes;
-* cryptographic results match trusted reference/KAT data;
-* valid authentication is accepted;
-* invalid authentication is rejected;
-* relevant waveforms have been inspected.
-
-The DE10-Nano FPGA build is considered ready only when Quartus compiles the configured Cyclone V project, the Fitter and Timing Analyzer reports are saved, timing meets the 50 MHz project constraint, and the `.sof` programming file is generated. Resource values must be reported from Quartus output; no fabricated utilization threshold or comparative efficiency claim is allowed. Board-level functionality is a distinct status that requires an actual DE10-Nano and a documented physical/host transaction path.
-
----
-
-# 18. Proposal Alignment
-
-The final proposal must map the project to the official proposal structure:
-
-1. Executive Summary
-2. Background & Problem Statement
-3. Proposed Chip Design
-4. Solution & System Architecture
-5. RTL Modules
-6. FPGA Resource Estimation
-7. Software & Design Tools
-8. Testing Plan
-9. Success Metrics
-10. References
-11. Appendix
-
-All proposal claims must distinguish between:
-
-* planned targets,
-* simulation results,
-* synthesis results,
-* hardware results.
-
-Do not present planned values as measured results.
+Semua klaim proposal harus membedakan target yang direncanakan, hasil simulasi, hasil sintesis, dan hasil perangkat keras. Nilai yang direncanakan tidak boleh disajikan seolah-olah sudah diukur.
