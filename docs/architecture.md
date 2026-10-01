@@ -48,4 +48,6 @@ Tidak ada klaim area, Fmax, latensi, throughput, atau daya sebelum pengukuran pa
 
 `rst_n` adalah reset aktif-rendah sinkron terhadap `clk`. Reset membatalkan transaksi dan menurunkan seluruh sinyal `valid`/status sesuai kontrak RTL.
 
+Caller bertanggung jawab memakai nonce yang unik untuk setiap enkripsi dengan key yang sama. IP menerima nonce dari caller dan tidak membuat atau menyimpan riwayat nonce. Hardware Authentication Guard hanya meloloskan plaintext dekripsi setelah tag cocok; guard ini bukan sensor tamper fisik atau mitigasi side-channel.
+
 Top-level bersifat board-independent. Proyek Quartus menetapkan device DE10-Nano, clock 50 MHz, reset board, serta virtual pins untuk seluruh interface IP. Konfigurasi itu menyiapkan elaborasi/sintesis FPGA; virtual pins tidak menyediakan jalur host yang dapat dipakai untuk mengirim transaksi pada papan. Integrasi Avalon/HPS atau pemetaan antarmuka ke pin ekspansi dan uji papan adalah langkah tersendiri.

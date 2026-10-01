@@ -162,7 +162,7 @@ SECURE-TINY/
 └── vectors/    sampel ACVP NIST dan supplemental KAT Ascon-C
 ```
 
-`docs/PRD.md` berisi spesifikasi utama; `PRD.md` di root menyediakan versi berbahasa Indonesia. Dokumen arsitektur, spesifikasi modul, verifikasi, hasil, dan peta file tersedia di `docs/`.
+`docs/PRD.md` adalah satu-satunya PRD dan sumber requirement produk. Dokumen arsitektur, spesifikasi modul, verifikasi, hasil, dan peta file tersedia di `docs/`.
 
 ## Rencana pengembangan
 

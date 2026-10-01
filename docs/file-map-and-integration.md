@@ -52,7 +52,6 @@ Host/HPS pada diagram hanya konteks integrasi. Tidak ada AXI, Avalon, DMA, parse
 | File | Fungsi |
 |---|---|
 | `.gitignore` | Mengecualikan cache, artefak simulasi/build, file credential, dan konfigurasi lokal dari Git. |
-| `PRD.md` | Persyaratan proyek dalam Bahasa Indonesia. `docs/PRD.md` merupakan versi acuan utama berbahasa Inggris. |
 | `README.md` | Pengenalan proyek, status, arsitektur ringkas, toolchain, perintah simulasi/sintesis, dan peta repositori. |
 | `Makefile` | Alias command untuk beberapa test dan langkah Yosys/Quartus. Target `make test` belum mencakup seluruh tujuh runner; gunakan `scripts/run_all_tests.ps1` untuk regression lengkap. |
 
@@ -60,7 +59,7 @@ Host/HPS pada diagram hanya konteks integrasi. Tidak ada AXI, Avalon, DMA, parse
 
 | File | Fungsi |
 |---|---|
-| `docs/PRD.md` | PRD utama dan kontrak produk, termasuk scope, antarmuka transaksi, target DE10-Nano, metrik, dan definisi selesai. |
+| `docs/PRD.md` | Satu-satunya PRD dan sumber requirement produk, termasuk scope, kontrak transaksi, target DE10-Nano, metrik, dan definisi selesai. |
 | `docs/architecture.md` | Arsitektur yang direalisasikan, urutan transaksi, perilaku autentikasi, reset, batas kapasitas, dan keterbatasan integrasi host. |
 | `docs/module_spec.md` | Kontrak port dan perilaku tiap modul RTL, termasuk handshake, urutan byte, status, dan kondisi error. |
 | `docs/verification.md` | Rencana dan cakupan verifikasi, sumber vector, serta batas klaim pengujian. |
