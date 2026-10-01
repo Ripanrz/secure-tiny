@@ -1,6 +1,6 @@
 # Hasil Verifikasi SECURE-TINY
 
-Regresi simulasi utama, lint Verilator, dan sintesis Yosys generik dijalankan ulang pada 2026-10-01; percobaan build Quartus juga diperiksa pada tanggal tersebut. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar dijalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
+Regresi simulasi utama, lint Verilator, dan sintesis Yosys generik dijalankan ulang pada 2026-10-01, termasuk pengulangan setelah audit dokumentasi; percobaan build Quartus yang lebih lama tercatat pada tanggal yang sama. Atas arahan pemilik proyek, pekerjaan Quartus dan pengembangan/pengujian DE10-Nano kini ditahan sementara. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar dijalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
 
 VCD dan log di `sim/` adalah keluaran skrip yang dapat dibuat ulang dan dikecualikan dari repositori publik. Nama artefak pada tabel menunjukkan lokasi keluaran lokal; jalankan perintah yang dicantumkan untuk membuatnya kembali.
 
@@ -70,3 +70,5 @@ Proyek Quartus disiapkan untuk Cyclone V `5CSEBA6U23I7`, parameter 16 byte, cloc
 - Integrasi Avalon/HPS atau pemetaan pin antarmuka transaksi: belum ditentukan/diterapkan.
 
 Jumlah 20.887 sel adalah hasil pemetaan generik Yosys, bukan jumlah ALM/LE Cyclone V, sehingga tidak boleh digunakan sebagai klaim penggunaan sumber daya FPGA.
+
+Pada pengulangan sintesis Yosys 1 Oktober 2026, proses berakhir dengan kode keluar 0, menghasilkan 20.887 sel generik, dan `check` melaporkan 0 masalah. Keluaran ABC juga memuat satu pesan akses berkas sementara yang sedang dipakai proses lain; sintesis tetap menyelesaikan seluruh tahap dan menghasilkan laporan akhir. Catat pesan itu sebagai peringatan lingkungan Windows, bukan sebagai metrik FPGA atau bukti kompilasi Quartus.

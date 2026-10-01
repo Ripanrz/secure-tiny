@@ -168,6 +168,24 @@ Pembungkus HPS/Avalon dan pin transaksi fisik berada di luar IP awal ini.
 
 Pengendali memiliki penyangga masukan AD/pesan berkapasitas terbatas dan mengatur core, modul tag, handshake keluaran, serta guard. Core mempertahankan hasil packed saat pengendali mengirimkannya kepada pemanggil. Pembentuk tag menangkap tag akhir dari core; modul ini tidak menghitung tag kedua. Pemeriksa membandingkan tag hasil hitung dengan tag yang diterima; modul ini tidak menjalankan pemrosesan AEAD.
 
+### 6.1 Dasar keamanan rancangan (security-by-design)
+
+Keamanan harus menjadi batasan arsitektur sejak awal, bukan fitur tempelan. Persyaratan dan klaim keamanan mengikuti model berikut:
+
+**Aset yang dilindungi:** key, state internal yang diturunkan dari key, plaintext/calon plaintext, serta integritas ciphertext, tag, dan Associated Data (AD). Nonce bukan rahasia, tetapi keunikannya untuk setiap enkripsi dengan key yang sama merupakan tanggung jawab pemanggil.
+
+**Batas kepercayaan:** pemanggil memasok key, nonce, panjang, AD, data, dan tag. IP memproses transaksi satu clock-domain. IP awal tidak mencakup host/HPS, pertukaran key, penyimpanan key tahan gangguan, sensor fisik, atau protokol jaringan. Model awal mencakup masukan digital yang salah/berubah dan autentikasi yang gagal; serangan fisik, fault injection, side-channel daya/EM, dan keamanan board berada di luar ruang lingkup yang telah diverifikasi.
+
+**Invarian keamanan wajib:**
+
+1. Dekripsi tidak boleh menampilkan plaintext sebagai keluaran sah sebelum verifikasi tag berhasil.
+2. Tag/ciphertext yang tidak valid harus gagal secara tertutup: tidak ada handshake plaintext dan status dekripsi menunjukkan REJECT.
+3. Perintah di luar kapasitas, reset, atau error kendali tidak boleh membuka keluaran plaintext yang belum terautentikasi.
+4. Setiap register/buffer yang menyimpan key atau calon plaintext dan lama penyimpanannya harus didokumentasikan sebelum mengklaim perlindungan lifecycle. Penghapusan aman tidak boleh diklaim hanya karena reset RTL menulis nol.
+5. Setiap perubahan streaming, memori, atau interface harus mempertahankan invarian di atas atau merevisi requirement dan rencana verifikasi secara eksplisit.
+
+RTL/testbench saat ini mendukung dan menguji penahanan plaintext pada dekripsi sebelum autentikasi serta penolakan tag/ciphertext yang salah pada kasus yang tercakup. RTL belum memiliki bukti clear khusus semua key/state/calon plaintext pada setiap akhir transaksi. Tidak ada mitigasi side-channel atau gangguan fisik yang diimplementasikan atau diuji; semua itu tetap di luar klaim keamanan proyek.
+
 ## 7. Modul RTL
 
 ### 7.1 `ascon_permutation.sv`
@@ -290,18 +308,11 @@ Pengembangan awal tidak mensyaratkan kepemilikan fisik DE10-Nano. Simulasi RTL d
 
 Pengujian fisik board merupakan tahap validasi tambahan ketika perangkat keras tersedia. DE10-Nano menjadi target kompilasi Quartus khusus perangkat, pelaporan resource/timing, dan pembuatan berkas pemrograman. Pengujian fisik membutuhkan board dan antarmuka transaksi yang dapat digunakan. Kontrak RTL awal tidak mencakup integrasi HPS; HPS/Avalon dan pemetaan pin transaksi fisik tetap menjadi pekerjaan integrasi selanjutnya. Tetapkan `MAX_DATA_BYTES` secara eksplisit pada setiap elaborasi dan catat nilainya bersama hasil sintesis.
 
-## 13. Posisi Kebaruan
+## 13. Posisi Kebaruan dan Kontribusi yang Diusulkan
 
-SECURE-TINY tidak mengklaim menciptakan algoritma kriptografi baru. Kebaruan proyek ditempatkan pada tingkat arsitektur/sistem perangkat keras:
+SECURE-TINY tidak mengklaim algoritma kriptografi baru atau novelty yang sudah dibuktikan. Implementasi hardware Ascon dan guard autentikasi telah ada dalam prior-art; proyek ini menggunakan integrasi modular, penahanan plaintext sebelum autentikasi, serta verifikasi yang dapat diulang sebagai fokus engineering. Itu belum membuktikan bahwa desainnya baru, lebih kecil, lebih cepat, atau lebih aman daripada karya terdahulu.
 
-1. integrasi pemrosesan enkripsi terautentikasi dengan logika keputusan autentikasi;
-2. Hardware Authentication Guard yang dinyatakan secara eksplisit;
-3. arsitektur IP modular yang dapat digunakan kembali;
-4. eksplorasi resource dan kinerja;
-5. pemindahan pemrosesan enkripsi terautentikasi ke perangkat keras; dan
-6. perilaku keamanan yang dapat diukur melalui skenario autentikasi valid/tidak valid.
-
-Proyek tidak boleh membuat klaim tanpa dukungan, seperti implementasi perangkat keras Ascon pertama, implementasi Ascon FPGA pertama, algoritma kriptografi baru, area yang pasti paling rendah, atau throughput yang pasti paling tinggi.
+Kontribusi yang akan diuji adalah implementasi Ascon-AEAD128 yang sesuai NIST SP 800-232, kontrak antarmuka dan keluaran dekripsi fail-closed yang diuji, serta laporan resource/timing Cyclone V yang dapat direproduksi jika Quartus berhasil dijalankan. Klaim kontribusi komparatif baru dapat dibuat setelah tinjauan prior-art dan pengukuran pada konfigurasi setara. Proyek tidak boleh mengklaim implementasi Ascon hardware pertama, algoritma baru, area paling rendah, throughput tertinggi, atau ketahanan keamanan yang belum diuji.
 
 Dalam ruang lingkup ini, Hardware Authentication Guard adalah gerbang digital yang dikendalikan hasil verifikasi tag AEAD. Guard tidak mendeteksi gangguan fisik, mengurangi kebocoran side-channel, atau menghapus key secara aman. Sifat-sifat tersebut belum diterapkan atau dievaluasi dalam profil IP ini dan tidak boleh diklaim.
 
@@ -344,18 +355,12 @@ Build FPGA DE10-Nano hanya dinyatakan siap setelah Quartus berhasil mengompilasi
 
 ## 18. Penyesuaian Proposal
 
-Proposal akhir harus mengikuti susunan resmi berikut:
+Proposal mengikuti lima bagian wajib secara berurutan:
 
-1. Ringkasan Eksekutif
-2. Latar Belakang dan Pernyataan Masalah
-3. Rancangan Chip yang Diusulkan
-4. Solusi dan Arsitektur Sistem
-5. Modul RTL
-6. Estimasi Sumber Daya FPGA
-7. Perangkat Lunak dan Alat Desain
-8. Rencana Pengujian
-9. Metrik Keberhasilan
-10. Referensi
-11. Lampiran
+1. **Ringkasan Ide / Executive Summary:** masalah, solusi, chip, target pengguna, dan dampak; target pengguna atau dampak yang belum divalidasi harus disebut sebagai sasaran, bukan hasil.
+2. **Latar Belakang & Rumusan Masalah / Problem Statement:** kebutuhan chip, rumusan masalah, serta gap terhadap solusi yang tersedia dengan batas bukti yang jelas.
+3. **Proposed Chip Design:** fungsi, arsitektur dan diagram blok, input/output, pemrosesan, memori, interface/komunikasi, pertimbangan daya, security-by-design, pendekatan RTL, ISA jika relevan, IP yang digunakan, strategi verifikasi/simulasi/pengujian, target FPGA/ASIC, technology node jika relevan, serta metrik target yang belum diukur.
+4. **Referensi:** standar, publikasi, dokumentasi, desain chip, dan sumber vektor yang benar-benar dipakai.
+5. **Lampiran:** rencana perubahan/pengembangan selama bootcamp tiga hari, identitas dan peran anggota tim, bukti pendukung, dan informasi tambahan yang diminta panitia. Data identitas tim yang belum diserahkan harus dibiarkan sebagai isian, tidak dikarang.
 
-Semua klaim proposal harus membedakan target yang direncanakan, hasil simulasi, hasil sintesis, dan hasil perangkat keras. Nilai yang direncanakan tidak boleh disajikan seolah-olah sudah diukur.
+Security-by-design harus menjadi bagian awal Section 3, mencakup aset, batas kepercayaan, asumsi, invarian, serta keterbatasan. Semua klaim proposal harus membedakan target yang direncanakan, hasil simulasi, hasil sintesis Quartus, estimasi daya, dan hasil perangkat keras. Nilai yang direncanakan tidak boleh disajikan seolah-olah sudah diukur.

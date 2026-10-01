@@ -8,13 +8,21 @@ Repositori proyek: [github.com/Ripanrz/secure-tiny](https://github.com/Ripanrz/s
 
 Proyek memusatkan pekerjaan pada jalur data RTL dan bukti fungsional. Klaim efisiensi belum dibuat karena penggunaan sumber daya dan timing FPGA belum diukur. Status pengujian dan batas hasil terbaru tercantum di [`docs/results.md`](docs/results.md); ruang lingkup dan persyaratan proyek tercantum di [`docs/PRD.md`](docs/PRD.md).
 
+**Status kerja:** atas arahan pemilik proyek, tahap Quartus dan pengembangan/pengujian pada DE10-Nano ditahan sementara. Verifikasi lokal RTL, dokumentasi, dan persiapan proposal diteruskan. Penahanan ini tidak mengubah requirement target FPGA di PRD dan tidak berarti build FPGA telah lulus.
+
 Draf proposal teknis tersedia di [`docs/proposal-draft.md`](docs/proposal-draft.md). Peta fungsi file dan komunikasi antarmodul tersedia di [`docs/file-map-and-integration.md`](docs/file-map-and-integration.md). Hasil Quartus yang belum tersedia ditandai TBD.
+
+Draf proposal disusun mengikuti lima bagian yang diminta kompetisi: ringkasan ide, latar belakang dan rumusan masalah, rancangan chip, referensi, serta lampiran. Identitas tim dan pembagian peran masih berupa isian karena datanya belum diberikan.
 
 ## Latar belakang dan ruang lingkup
 
 Perangkat edge dan IoT perlu melindungi kerahasiaan data sekaligus mendeteksi perubahan pada pesan dan metadata terkait. SECURE-TINY menguji fungsi itu sebagai IP enkripsi terautentikasi berbasis Ascon-AEAD128. Tantangan utamanya **Hardware Cryptography Accelerator**; **Secure Communication** menjadi fokus pendukung. Proyek ini belum mencakup elemen keamanan lengkap, protokol jaringan, pertukaran kunci, bus HPS/Avalon, atau sensor gangguan fisik.
 
-PRD mengacu pada NIST SP 800-232 final. Ascon-AEAD128 adalah algoritma standar yang digunakan; kebaruan proyek terletak pada integrasi IP modular dan penjagaan keluaran dekripsi yang menahan plaintext sampai autentikasi berhasil, bukan pada algoritma kriptografi baru.
+PRD mengacu pada NIST SP 800-232 final. Ascon-AEAD128 adalah algoritma standar yang digunakan. Proyek tidak mengklaim novelty yang telah terbukti: integrasi IP modular dan penjagaan keluaran dekripsi adalah fokus implementasi yang perlu dibandingkan dengan prior-art dan diukur pada target FPGA.
+
+### Dasar keamanan rancangan
+
+Keamanan diperlakukan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh menghasilkan transfer plaintext. Key, state internal, dan calon plaintext adalah aset yang harus dipertimbangkan. Saat ini nonce dikelola pemanggil, sementara pembersihan semua salinan rahasia, mitigasi side-channel, fault injection, dan tampering fisik belum diterapkan atau dibuktikan. Perilaku penahanan plaintext telah diuji pada skenario simulasi yang tercatat; cakupan dan batas klaim dijelaskan di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/results.md`](docs/results.md).
 
 ## Fitur dan status saat ini
 
@@ -70,7 +78,7 @@ Saat enkripsi, core menghasilkan ciphertext dan tag. Saat dekripsi, calon plaint
 - **Verilator**: lint/elaborasi statis top-level RTL untuk pemeriksaan tambahan.
 - **GTKWave**: melihat file waveform VCD.
 - **Yosys**: sintesis generik RTL untuk pemeriksaan struktur.
-- **Intel Quartus Prime Lite**: mendukung Cyclone V; diperlukan untuk kompilasi target, laporan resource/timing, dan pembuatan `.sof`; belum tersedia pada sesi verifikasi yang tercatat.
+- **Intel Quartus Prime Lite 25.1 untuk Windows**: pilihan awal yang disarankan untuk target proyek ini, bersama paket dukungan perangkat Cyclone V. Quartus Prime Lite mendukung Cyclone V dan tersedia tanpa biaya lisensi untuk alur yang dibutuhkan; pastikan pemilih perangkat memuat `5CSEBA6U23I7`. Quartus belum tersedia pada sesi verifikasi yang tercatat.
 - **Python**: model referensi dan pemeriksa vektor.
 - **VS Code**: editor yang dapat dipakai untuk melihat RTL, skrip, dan dokumen.
 - **Git**: pengelolaan versi source dan dokumentasi.
@@ -132,6 +140,27 @@ Jika perangkat Quartus tidak ada di `PATH`, berikan folder `bin64` melalui `-Qua
 
 Hanya laporan kompilasi Quartus yang sukses boleh dipakai untuk mengisi data resource, timing, dan pembuatan berkas pemrograman FPGA.
 
+#### Panduan Quartus untuk tahap berikutnya (ditahan sementara)
+
+Langkah di bawah disimpan sebagai panduan untuk nanti. Sesuai arahan pemilik proyek, instalasi, compile, analisis metrik, dan pengembangan DE10-Nano tidak dikerjakan pada tahap ini.
+
+Gunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows) dari situs Intel/Altera. Saat mengunduh atau memasang, pilih:
+
+1. perangkat lunak Quartus Prime Lite;
+2. dukungan perangkat **Cyclone V** (`cyclonev-25.1std.0.1129.qdz` pada paket 25.1).
+
+Tidak perlu memilih dukungan keluarga FPGA lain untuk build RTL saat ini. Lite dipilih karena mendukung Cyclone V tanpa memerlukan lisensi berbayar untuk alur yang dibutuhkan proyek. Standard juga mendukung Cyclone V, tetapi tidak diperlukan sebagai pilihan awal. Jangan pilih Pro untuk proyek ini; tabel dukungan vendor tidak mencantumkan Cyclone V sebagai keluarga target Pro. [Matriks edisi dan perangkat Quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime/resource.html) · [Paket dukungan Cyclone V 25.1](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows).
+
+Setelah pemasangan, temukan `quartus_sh.exe` dan folder `bin64` pada direktori instalasi. Jalankan dari PowerShell pada root proyek:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_project.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_quartus.ps1 -QuartusSh 'C:\path\to\quartus_sh.exe'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_quartus_metrics.ps1 -QuartusBin 'C:\path\to\quartus\bin64'
+```
+
+`build_quartus.ps1` meminta alur compile penuh; `build_quartus_metrics.ps1` menjalankan map, fit, dan timing serta mengurai laporan yang dikenali skrip. Baca laporan Quartus asli dan pastikan Assembler menghasilkan `.sof`. Skrip ekstraksi metrik tidak menggantikan pemeriksaan laporan dan tidak membuat `.sof` sendiri. Pemasangan Quartus juga tidak menambahkan jalur transaksi host ke desain: port transaksi masih berupa virtual pins.
+
 ### 4. Buka waveform dengan GTKWave
 
 Testbench menghasilkan VCD di `sim/`. Untuk top-level:
@@ -168,10 +197,16 @@ SECURE-TINY/
 
 ## Rencana pengembangan
 
-1. Jalankan Quartus Prime Lite pada Cyclone V dan simpan hasil Fitter serta Timing Analyzer.
-2. Tentukan antarmuka host dan pemetaan pin fisik sebelum menguji transaksi pada DE10-Nano.
-3. Rancang dan verifikasi penghapusan aman jika menjadi persyaratan produk.
-4. Lakukan evaluasi side-channel dan gangguan fisik sebelum membuat klaim ketahanan terhadap serangan tersebut.
+Urutan kerja yang disarankan agar hasil tidak tercampur:
+
+1. **Bekukan baseline RTL:** simpan commit/versi, parameter 16 byte, hasil regresi, dan konfigurasi QSF/SDC saat ini.
+2. **Bangun baseline Quartus:** catat versi Quartus, perangkat, peringatan, ALM/register/memori, Fmax/slack, serta hasil `.sof` jika compile penuh berhasil. Jangan memakai sel generik Yosys sebagai resource Cyclone V.
+3. **Pilih satu hipotesis optimasi:** misalnya pengurangan buffer atau perubahan jadwal permutasi. Tentukan metrik yang akan membuktikan manfaatnya sebelum mengubah RTL.
+4. **Ubah secara bertahap:** jelaskan dampak antarmuka dan keamanan; jalankan regresi KAT, kasus tepi, lint, lalu Quartus lagi.
+5. **Pertimbangkan arsitektur aliran data setelah baseline.** Dekripsi tetap harus menahan calon plaintext sampai tag valid; aliran langsung ke konsumen tidak boleh membuka plaintext sebelum autentikasi.
+6. **Uji board hanya setelah interface fisik/host tersedia.** `.sof` dan compile Quartus saja bukan bukti transaksi bekerja di DE10-Nano.
+
+Glosarium singkat: **clock** mengatur kapan nilai register berubah; **FSM** adalah urutan keadaan kendali; **valid/ready** berarti transfer terjadi saat keduanya aktif pada tepi clock; **simulasi** memeriksa perilaku model RTL; **sintesis** mengubah RTL menjadi logika; **Fitter** memetakan logika ke FPGA; **timing** memeriksa apakah jalur logika selesai dalam batas periode clock; **PPA** berarti daya, performa, dan area/resource. Lihat [`docs/architecture.md`](docs/architecture.md) untuk trade-off arsitektur dan [`docs/verification.md`](docs/verification.md) untuk gerbang verifikasi.
 
 ## Lisensi dan atribusi
 
@@ -186,4 +221,4 @@ Kode sumber dan dokumentasi SECURE-TINY dilisensikan berdasarkan [Lisensi MIT](L
 5. Terasic, [halaman produk DE10-Nano dan panduan pengguna](https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046&PartNo=4).
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
-Tanggal akses rujukan daring: 30 September 2026.
+Tanggal akses rujukan daring: 1 Oktober 2026.

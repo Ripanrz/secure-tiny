@@ -30,3 +30,48 @@ Waveform minimum untuk transaksi AEAD: `clk`, `rst_n`, `start`, `busy`, masukan 
 ## Batas klaim
 
 Vektor ACVP untuk uji informal tidak dengan sendirinya menyatakan validasi sertifikasi. Pengujian fungsional tidak membuktikan keamanan implementasi terhadap side-channel, injeksi kesalahan, atau seluruh kondisi fisik. Laporkan hanya hasil yang benar-benar diamati.
+
+## Verifikasi security-by-design
+
+Setiap properti keamanan harus ditautkan ke aset, batas interface, dan bukti pengujian. Status berikut merangkum implementasi saat ini; “sudah diuji” hanya berarti skenario yang tercatat di `docs/results.md`.
+
+| Invarian/keputusan | Bukti yang diperlukan | Status sekarang |
+|---|---|---|
+| Plaintext dekripsi tidak tersedia sebelum tag cocok | Assertion/waveform urutan verifikasi dan handshake output | Diuji pada skenario integrasi tercatat |
+| Tag/ciphertext salah tidak menghasilkan transfer plaintext | Test negatif menghitung transfer output dan memeriksa REJECT | Diuji pada skenario terarah tercatat |
+| Panjang di luar kapasitas dan reset tidak membuka plaintext | Uji reset/error di tiap fase dan hitung transfer output | Reset/error tertentu tercatat; bukan evaluasi fisik |
+| Keunikan nonce untuk key yang sama | Kontrak caller dan dokumentasi batas IP | Tanggung jawab caller; IP tidak menyimpan riwayat nonce |
+| Key/calon plaintext dibersihkan pada akhir transaksi | Inventaris register, pengujian clear untuk sukses/reject/error/reset, dan regresi KAT setelah clear | Belum diimplementasikan/diukur sebagai lifecycle property |
+| Side-channel, fault injection, tamper fisik | Threat model dan pengukuran serangan/countermeasure yang sesuai | Di luar cakupan bukti saat ini; tidak boleh diklaim |
+
+Security-by-design tidak berarti seluruh threat sudah dimitigasi. Untuk menambahkan clear key/data atau staging privat, terlebih dahulu tetapkan sinyal/status dan semua jalur terminal, jelaskan perubahan RTL, lalu tambahkan testbench sebelum menulis klaim keberhasilan.
+
+## Gerbang untuk perubahan arsitektur mendatang
+
+Daftar ini adalah rencana verifikasi untuk perubahan yang belum diterapkan. Jangan menandai item sebagai lulus sebelum testbench dan run aktual tersedia.
+
+### Sebelum mengubah RTL
+
+1. Bekukan commit baseline dan catat parameter, perintah regresi, versi tool, dan hasil Quartus jika sudah tersedia.
+2. Tuliskan hipotesis terukur, misalnya jumlah register turun pada kapasitas tertentu dengan KAT tetap cocok.
+3. Tentukan apakah kontrak port berubah. Bila berubah, perbarui PRD/spesifikasi port dan semua pemanggil/testbench terkait sebelum menyatakan antarmuka stabil.
+
+### Jika controller/core diubah menjadi streaming
+
+- Uji AD kosong, pesan kosong, panjang parsial, batas blok rate, beberapa blok, dan panjang maksimum yang dikonfigurasi.
+- Uji stall pada input AD, input pesan, output data, dan output tag; data serta `valid` harus bertahan sampai handshake.
+- Uji urutan fase AD lalu pesan, panjang yang tidak cocok dengan jumlah transfer, reset pada setiap fase, dan transaksi berikutnya setelah sukses/reject.
+- Untuk dekripsi, assertion harus memastikan tidak ada handshake plaintext sebelum verifikasi tag berhasil. Pada tag/ciphertext salah, jumlah byte plaintext keluar harus nol.
+- Jika plaintext ditampung di staging, uji bahwa staging tidak dapat diamati dari interface sebelum commit dan dibatalkan/dibersihkan saat reject sesuai kontrak yang didefinisikan.
+- Jika memakai verifikasi lalu dekripsi dua tahap, uji agar ciphertext/AD yang dipakai tahap kedua identik dengan yang diverifikasi; perubahan input di antaranya harus mustahil atau ditolak.
+
+### Jika lifecycle key/data diubah
+
+- Identifikasi semua register yang menyimpan key, state turunan, ciphertext, dan calon plaintext.
+- Uji clear pada sukses, reject, reset, error, serta pembatalan transaksi jika pembatalan ditambahkan.
+- Buktikan transaksi berikutnya tetap cocok dengan KAT setelah clear.
+- Klaim hanya pembersihan register RTL yang diuji. Jangan menyebutnya penghapusan aman terhadap serangan fisik tanpa metode pengujian yang sesuai.
+
+### Perbandingan PPA
+
+Baseline dan kandidat harus memakai device `5CSEBA6U23I7`, versi Quartus yang sama, SDC yang sama, nilai `MAX_DATA_BYTES` yang sama, serta konfigurasi compile yang setara. Catat ALM, register, memori, Fmax/slack, dan siklus transaksi. Angka lintas device, tool, parameter, atau standar Ascon yang berbeda tidak boleh disajikan sebagai perbandingan langsung.

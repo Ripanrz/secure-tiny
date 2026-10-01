@@ -1,8 +1,9 @@
 POWERSHELL ?= powershell.exe
 
-.PHONY: test test-counter test-ascon-permutation test-ascon-core test-top test-vectors lint-verilator synth-yosys check-quartus-project build-quartus
+.PHONY: test test-counter test-ascon-permutation test-ascon-core test-tag-auth test-top test-top-kat test-vectors lint-verilator synth-yosys check-quartus-project build-quartus
 
-test: test-counter test-ascon-permutation test-ascon-core test-top test-vectors
+test:
+	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1
 
 test-counter:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_counter.ps1
@@ -13,8 +14,14 @@ test-ascon-permutation:
 test-ascon-core:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_ascon_core.ps1
 
+test-tag-auth:
+	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_tag_auth_modules.ps1
+
 test-top:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_secure_tiny_top.ps1
+
+test-top-kat:
+	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_secure_tiny_kat.ps1
 
 test-vectors:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_python_reference.ps1

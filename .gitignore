@@ -38,6 +38,7 @@ quartus/db/
 quartus/incremental_db/
 quartus/output_files/
 quartus/*.qws
+quartus/secure_tiny_metrics.csv
 build/
 dist/
 out/

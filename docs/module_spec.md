@@ -50,6 +50,17 @@ Jika `ad_length` atau `data_length` melebihi `MAX_DATA_BYTES`, perintah segera d
 
 `MAX_DATA_BYTES` harus positif dan dipilih sesuai batas elaborasi serta sumber daya target. Build awal menetapkan 16. Penggunaan penyangga dan resource meningkat seiring kapasitas; angka resource FPGA harus diukur lewat Quartus. Pemanggil bertanggung jawab agar nonce tidak digunakan ulang untuk enkripsi lain dengan key yang sama; IP tidak membuat maupun mencatat nonce.
 
+## Invarian keamanan dan batas saat ini
+
+Persyaratan keamanan bersumber dari PRD §6.1. Kontrak RTL yang harus dipertahankan:
+
+- Pada dekripsi, `out_valid` tidak boleh menyatakan plaintext sebelum `tag_verifier` menyatakan cocok dan `authentication_guard` memberi izin.
+- Pada tag/ciphertext salah, tidak boleh ada transfer plaintext; `auth_result_valid` dan `reject` menyatakan keputusan penolakan.
+- Reset dan perintah di luar kapasitas tidak boleh melepaskan calon plaintext.
+- Pemanggil bertanggung jawab menjaga keunikan nonce untuk key yang sama; IP tidak memiliki nonce manager atau key lifecycle host.
+
+Batas implementasi yang diketahui: guard menahan plaintext dari interface, tetapi spesifikasi RTL saat ini belum mensyaratkan atau membuktikan clear khusus seluruh key/state/calon plaintext pada akhir setiap transaksi. Jangan menyebut mekanisme ini secure zeroization. Pengujian side-channel, fault injection, tamper fisik, dan keamanan hasil sintesis/gate-level juga belum menjadi bukti proyek.
+
 ## Antarmuka yang belum termasuk dalam IP
 
 Protokol bus, DMA, antrean, transaksi paralel, transfer parsial berbasis `last`, dan integrasi HPS tidak termasuk modul tingkat atas ini. Berkas Quartus menetapkan antarmuka IP sebagai pin virtual untuk sintesis. Pemetaan fisik kendali transaksi perlu ditentukan sebelum pengujian fungsional dari host pada DE10-Nano.

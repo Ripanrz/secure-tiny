@@ -53,7 +53,7 @@ Host/HPS pada diagram hanya konteks integrasi. Tidak ada AXI, Avalon, DMA, parse
 |---|---|
 | `.gitignore` | Mengecualikan cache, artefak simulasi/build, file credential, dan konfigurasi lokal dari Git. |
 | `README.md` | Pengenalan proyek, status, arsitektur ringkas, perangkat pengembangan, perintah simulasi/sintesis, dan peta repositori. |
-| `Makefile` | Alias perintah untuk beberapa pengujian dan langkah Yosys/Quartus. Target `make test` belum mencakup ketujuh skrip; gunakan `scripts/run_all_tests.ps1` untuk regresi lengkap. |
+| `Makefile` | Alias perintah untuk regresi lengkap, pengujian individual, lint, sintesis Yosys, dan alur Quartus. Target `make test` memanggil `scripts/run_all_tests.ps1`. |
 
 ## 3. Dokumentasi (`docs/`)
 
@@ -165,4 +165,4 @@ build_quartus.ps1 ──────────> pemeriksaan awal ──> kompi
 synth_yosys.ps1 ────────────> sintesis generik dan log (bukan Quartus)
 ```
 
-Untuk rincian port/status dan hasil pengukuran, lihat [`module_spec.md`](module_spec.md), [`verification.md`](verification.md), dan [`results.md`](results.md). Status saat dokumen ini dibuat: regresi RTL sebelumnya lulus; pemeriksaan awal Quartus lulus; kompilasi Quartus, resource/timing FPGA, bitstream, dan pengujian board belum terverifikasi.
+Untuk rincian port/status dan hasil pengukuran, lihat [`module_spec.md`](module_spec.md), [`verification.md`](verification.md), dan [`results.md`](results.md). Regresi RTL telah dijalankan ulang pada 1 Oktober 2026. Atas arahan pemilik proyek, tahap Quartus dan pengembangan/pengujian DE10-Nano sedang ditahan; kompilasi Quartus, resource/timing FPGA, bitstream, dan pengujian board tetap belum terverifikasi.
