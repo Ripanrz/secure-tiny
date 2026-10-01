@@ -80,7 +80,7 @@ Runner membutuhkan OSS CAD Suite. Atur `$env:OSS_CAD_SUITE` ke lokasi instalasi 
 ### 1. Buka PowerShell di folder proyek
 
 ```powershell
-Set-Location '<path-to-project>\SECURE-TINY'
+Set-Location '<path-to-project>\secure-tiny'
 $env:OSS_CAD_SUITE = 'C:\tools\oss-cad-suite'
 ```
 
