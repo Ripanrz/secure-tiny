@@ -4,6 +4,10 @@ module tb_secure_tiny_top;
     localparam int unsigned MAX_DATA_BYTES = 16;
     localparam logic [127:0] FULL_BLOCK_CIPHERTEXT =
         128'he37452ce8ea4d07cee4aa4d289d270e7;
+    // Ascon-C v1.3.0 KAT Count 35: PT=00, AD=00, CT=25 || tag.
+    localparam logic [127:0] AD_KAT_TAG =
+        128'h30222973f620badc1785acd40e704beb;
+    localparam logic [7:0] AD_KAT_CIPHERTEXT = 8'h25;
 
     logic clk = 1'b0;
     logic rst_n = 1'b0;
@@ -224,6 +228,37 @@ module tb_secure_tiny_top;
         #1;
         out_ready = 1'b0;
         wait_for_done();
+
+        // KAT Count 35 is the valid control case for modified-AD rejection.
+        ad_length = 1;
+        data_length = 1;
+        received_tag = AD_KAT_TAG;
+        launch(1'b1);
+        send_one_ad_byte(8'h00);
+        send_one_byte(AD_KAT_CIPHERTEXT);
+        while (!auth_result_valid) begin
+            @(posedge clk);
+            #1;
+            if (out_valid && !auth_result_valid)
+                $fatal(1, "plaintext appeared before AD KAT authentication");
+        end
+        if (!accept || reject || !out_valid || out_data !== 8'h00)
+            $fatal(1, "valid AD KAT was not accepted with expected plaintext");
+        @(negedge clk);
+        out_ready = 1'b1;
+        @(posedge clk);
+        #1;
+        out_ready = 1'b0;
+        wait_for_done();
+
+        // Change only AD while retaining the KAT ciphertext and tag.
+        launch(1'b1);
+        send_one_ad_byte(8'h01);
+        send_one_byte(AD_KAT_CIPHERTEXT);
+        wait_for_done();
+        if (!auth_result_valid || accept || !reject || out_valid)
+            $fatal(1, "modified AD was not rejected without plaintext");
+        ad_length = 0;
 
         // A modified tag must reject and produce no plaintext transfer.
         received_tag = 128'h47f103dde1f838d4b551fc41f5f1589e;

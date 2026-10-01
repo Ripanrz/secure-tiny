@@ -107,7 +107,7 @@ Implementasi minimum harus mencakup:
 * integrasi tingkat atas;
 * rangkaian uji RTL (testbench);
 * verifikasi fungsional;
-* pengujian fungsional terhadap ciphertext yang diubah dan tag tidak valid (kasus gangguan digital);
+* pengujian fungsional terhadap AD/ciphertext yang diubah dan tag tidak valid (kasus gangguan digital);
 * pembuatan waveform;
 * kompilasi Quartus untuk target Cyclone V DE10-Nano;
 * laporan aktual penggunaan sumber daya FPGA dan timing untuk konfigurasi build; serta
@@ -179,12 +179,12 @@ Keamanan harus menjadi batasan arsitektur sejak awal, bukan fitur tempelan. Pers
 **Invarian keamanan wajib:**
 
 1. Dekripsi tidak boleh menampilkan plaintext sebagai keluaran sah sebelum verifikasi tag berhasil.
-2. Tag/ciphertext yang tidak valid harus gagal secara tertutup: tidak ada handshake plaintext dan status dekripsi menunjukkan REJECT.
+2. AD/tag/ciphertext yang tidak valid harus gagal secara tertutup: tidak ada handshake plaintext dan status dekripsi menunjukkan REJECT.
 3. Perintah di luar kapasitas, reset, atau error kendali tidak boleh membuka keluaran plaintext yang belum terautentikasi.
 4. Setiap register/buffer yang menyimpan key atau calon plaintext dan lama penyimpanannya harus didokumentasikan sebelum mengklaim perlindungan lifecycle. Penghapusan aman tidak boleh diklaim hanya karena reset RTL menulis nol.
 5. Setiap perubahan streaming, memori, atau interface harus mempertahankan invarian di atas atau merevisi requirement dan rencana verifikasi secara eksplisit.
 
-RTL/testbench saat ini mendukung dan menguji penahanan plaintext pada dekripsi sebelum autentikasi serta penolakan tag/ciphertext yang salah pada kasus yang tercakup. RTL belum memiliki bukti clear khusus semua key/state/calon plaintext pada setiap akhir transaksi. Tidak ada mitigasi side-channel atau gangguan fisik yang diimplementasikan atau diuji; semua itu tetap di luar klaim keamanan proyek.
+RTL/testbench saat ini mendukung dan menguji penahanan plaintext pada dekripsi sebelum autentikasi serta penolakan AD/tag/ciphertext yang salah pada kasus yang tercakup. RTL belum memiliki bukti clear khusus semua key/state/calon plaintext pada setiap akhir transaksi. Tidak ada mitigasi side-channel atau gangguan fisik yang diimplementasikan atau diuji; semua itu tetap di luar klaim keamanan proyek.
 
 ## 7. Modul RTL
 
@@ -267,9 +267,10 @@ Tahapan verifikasi yang diwajibkan:
 5. Pengujian enkripsi dan dekripsi valid.
 6. Pengujian tag autentikasi tidak valid.
 7. Pengujian ciphertext yang diubah.
-8. Pengujian perilaku reset.
-9. Pengujian urutan start/busy/done.
-10. Pemeriksaan waveform.
+8. Pengujian AD yang diubah dengan ciphertext dan tag KAT tetap.
+9. Pengujian perilaku reset.
+10. Pengujian urutan start/busy/done.
+11. Pemeriksaan waveform.
 
 ## 10. Prinsip Verifikasi
 

@@ -90,7 +90,7 @@ Semua jalur sekuensial memakai `clk` dan reset sinkron aktif-rendah `rst_n`. Con
 | `tb/tb_ascon_permutation.sv` | Menguji hasil permutasi p8/p12 serta kendali start/busy/done/error. |
 | `tb/tb_ascon_core.sv` | Membaca seluruh 1.089 rekaman KAT Ascon-C dan membandingkan enkripsi serta dekripsi pada core RTL (2.178 transaksi). |
 | `tb/tb_tag_auth_modules.sv` | Menguji handshake pembentuk tag, perbandingan pemeriksa tag, keputusan guard, reset/pembersihan, dan penahanan keluaran. |
-| `tb/tb_secure_tiny_top.sv` | Uji integrasi terarah: KAT, handshake/jeda, terima/tolak, tidak ada plaintext saat ditolak, start saat sibuk, reset pada beberapa fase, serta panjang AD/data yang melebihi kapasitas. |
+| `tb/tb_secure_tiny_top.sv` | Uji integrasi terarah: KAT, handshake/jeda, terima/tolak, perubahan AD/tag/ciphertext tanpa plaintext, start saat sibuk, reset pada beberapa fase, serta panjang AD/data yang melebihi kapasitas. |
 | `tb/tb_secure_tiny_kat.sv` | Sapuan 289 pasangan panjang AD/pesan dari 0 sampai 16 byte untuk enkripsi dan dekripsi pada modul tingkat atas (578 transaksi) terhadap KAT. Turut memeriksa urutan ciphertext/tag dan plaintext setelah autentikasi. |
 
 ## 6. Model dan vektor (`python/`, `vectors/`)

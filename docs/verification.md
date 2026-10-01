@@ -17,7 +17,7 @@ Pembanding normatif adalah set vektor resmi NIST ACVP di direktori [Ascon-AEAD12
 | Penanganan tag dan guard | Penahanan keluaran pembentuk tag, perbandingan tag penuh, hasil cocok/tidak cocok, keputusan guard, pembersihan dan reset | `tb/tb_tag_auth_modules.sv` dan `sim/tag_auth_modules.vcd` |
 | Integrasi tingkat atas | Seluruh 289 pasangan panjang AD/pesan 0–16 byte dari KAT, enkripsi/dekripsi melalui aliran data, urutan ciphertext-tag, keluaran plaintext setelah autentikasi | `tb/tb_secure_tiny_kat.sv`, total 578 transaksi, serta `sim/secure_tiny_kat.vcd` |
 | AEAD tingkat atas | KAT enkripsi dan dekripsi terhadap pembanding; AD/pesan kosong dan panjang parsial | Identitas vektor, keluaran RTL, keluaran rujukan, hasil perbandingan |
-| Authentication Guard | Tag benar diterima; tag salah dan ciphertext berubah ditolak; tidak ada keluaran plaintext valid saat ditolak | Status accept/reject, jumlah byte keluaran, waveform |
+| Authentication Guard | Tag benar diterima; tag salah, ciphertext berubah, dan AD berubah ditolak; tidak ada keluaran plaintext valid saat ditolak | Status accept/reject, jumlah byte keluaran, waveform; kasus AD memakai KAT Ascon-C Count 35 sebagai kontrol valid dan mengubah AD saja |
 | Ketahanan kendali | Reset saat menerima data, core aktif, verifikasi tag aktif, data keluaran tertahan, dan tag menunggu handshake; AD/data melebihi kapasitas; penahanan keluaran; urutan start/busy/done | `tb/tb_secure_tiny_top.sv`; assertion/log dan `sim/secure_tiny_top.vcd` |
 | Sintesis target | Elaborasi/sintesis Quartus dengan nilai `MAX_DATA_BYTES` tercatat | Versi alat, perangkat DE10-Nano, laporan resource/timing aktual |
 
@@ -61,7 +61,7 @@ Daftar ini adalah rencana verifikasi untuk perubahan yang belum diterapkan. Jang
 - Uji AD kosong, pesan kosong, panjang parsial, batas blok rate, beberapa blok, dan panjang maksimum yang dikonfigurasi.
 - Uji stall pada input AD, input pesan, output data, dan output tag; data serta `valid` harus bertahan sampai handshake.
 - Uji urutan fase AD lalu pesan, panjang yang tidak cocok dengan jumlah transfer, reset pada setiap fase, dan transaksi berikutnya setelah sukses/reject.
-- Untuk dekripsi, assertion harus memastikan tidak ada handshake plaintext sebelum verifikasi tag berhasil. Pada tag/ciphertext salah, jumlah byte plaintext keluar harus nol.
+- Untuk dekripsi, assertion harus memastikan tidak ada handshake plaintext sebelum verifikasi tag berhasil. Pada AD/tag/ciphertext salah, jumlah byte plaintext keluar harus nol.
 - Jika plaintext ditampung di staging, uji bahwa staging tidak dapat diamati dari interface sebelum commit dan dibatalkan/dibersihkan saat reject sesuai kontrak yang didefinisikan.
 - Jika memakai verifikasi lalu dekripsi dua tahap, uji agar ciphertext/AD yang dipakai tahap kedua identik dengan yang diverifikasi; perubahan input di antaranya harus mustahil atau ditolak.
 

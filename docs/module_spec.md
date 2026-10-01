@@ -55,7 +55,7 @@ Jika `ad_length` atau `data_length` melebihi `MAX_DATA_BYTES`, perintah segera d
 Persyaratan keamanan bersumber dari PRD §6.1. Kontrak RTL yang harus dipertahankan:
 
 - Pada dekripsi, `out_valid` tidak boleh menyatakan plaintext sebelum `tag_verifier` menyatakan cocok dan `authentication_guard` memberi izin.
-- Pada tag/ciphertext salah, tidak boleh ada transfer plaintext; `auth_result_valid` dan `reject` menyatakan keputusan penolakan.
+- Pada AD/tag/ciphertext salah, tidak boleh ada transfer plaintext; `auth_result_valid` dan `reject` menyatakan keputusan penolakan.
 - Reset dan perintah di luar kapasitas tidak boleh melepaskan calon plaintext.
 - Pemanggil bertanggung jawab menjaga keunikan nonce untuk key yang sama; IP tidak memiliki nonce manager atau key lifecycle host.
 

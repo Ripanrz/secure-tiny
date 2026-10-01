@@ -37,7 +37,7 @@ Model aset, batas kepercayaan, invarian keamanan, dan batas klaim normatif dijel
 2. Setelah perintah diterima, pengendali menerima tepat `ad_length` byte AD, lalu `data_length` byte pesan/ciphertext. Transfer terjadi hanya ketika `valid && ready` pada tepi naik clock. Panjang nol tidak memerlukan transfer.
 3. Byte pertama ditempatkan pada `[7:0]` dalam vektor packed penyangga. `MAX_DATA_BYTES` membatasi masing-masing panjang AD dan pesan, bukan jumlah gabungannya.
 4. Core menjalankan inisialisasi, absorpsi AD, pemrosesan pesan, dan finalisasi NIST SP 800-232. Permutasi berjalan secara iteratif satu ronde per siklus aktif; urutan ronde dan transformasi mengikuti standar.
-5. Enkripsi mengeluarkan ciphertext melalui handshake terlebih dahulu. `tag_valid` baru ditawarkan setelah byte ciphertext terakhir diterima (atau sesudah core selesai untuk pesan kosong), lalu tag menunggu handshake `tag_ready`. Dekripsi menahan seluruh calon plaintext sampai verifikasi tag berakhir. Jika tag salah, tidak ada byte plaintext yang dikeluarkan.
+5. Enkripsi mengeluarkan ciphertext melalui handshake terlebih dahulu. `tag_valid` baru ditawarkan setelah byte ciphertext terakhir diterima (atau sesudah core selesai untuk pesan kosong), lalu tag menunggu handshake `tag_ready`. Dekripsi menahan seluruh calon plaintext sampai verifikasi tag berakhir. Jika AD, tag, atau ciphertext salah, tidak ada byte plaintext yang dikeluarkan pada kasus yang diuji.
 6. `done` adalah pulsa satu siklus setelah hasil enkripsi diterima atau setelah seluruh byte plaintext terautentikasi diterima. Penolakan dekripsi dan perintah di luar kapasitas juga mengakhiri transaksi dengan pulsa `done`. Panjang di luar kapasitas menghasilkan `command_error`.
 
 ## Konfigurasi kapasitas dan biaya

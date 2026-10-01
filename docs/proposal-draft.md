@@ -75,11 +75,33 @@ Hipotesis pengembangan yang paling relevan adalah pemrosesan AD/pesan per blok d
 
 Streaming, serialisasi, pengaturan jumlah ronde per siklus, fault detection, dan masking telah dikenal sebagai keluarga pendekatan hardware Ascon. Karena itu proposal tidak menyebut pendekatan umum tersebut sebagai hal baru. Klaim kebaruan SECURE-TINY harus dibatasi pada implementasi dan hasil eksperimen spesifik setelah prior-art review serta pengukuran target.
 
+#### Audit klaim kebaruan
+
+| ID | Gagasan yang dinilai | Implementasi dan bukti yang tersedia | Bukti yang belum tersedia | Rumusan yang aman |
+|---|---|---|---|---|
+| N1 | Integrasi IP AEAD Ascon | `ascon_core`, pengendali, dan top-level terintegrasi; 1.089 KAT Ascon-C lulus pada core dan 289 pasangan panjang lulus di top-level. | Perbandingan setara dengan implementasi hardware Ascon terdahulu dan hasil PPA pada device yang sama. | “Implementasi IP Ascon-AEAD128 modular dengan kontrak transaksi yang diuji.” |
+| N2 | Keputusan autentikasi perangkat keras | `tag_verifier` dan `authentication_guard` menghasilkan ACCEPT/REJECT; uji valid, tag salah, ciphertext berubah, dan AD berubah tersedia. | Perbandingan kebaruan terhadap guard pada desain sebelumnya; analisis waktu konstan atau bukti tahan serangan fisik. | “Guard digital mencegah pelepasan plaintext pada skenario autentikasi gagal yang diuji.” |
+| N3 | Security-by-design pada jalur data | Invarian tahan-plaintext sebelum autentikasi ditulis pada PRD/kontrak modul dan diuji pada top-level. | Pembersihan seluruh salinan key/state/plaintext, uji fault injection, side-channel, gangguan fisik, dan bukti gate-level. | “Batas pelepasan plaintext menjadi persyaratan desain dan diverifikasi pada simulasi RTL.” |
+| N4 | Pemisahan core kriptografi dan interface pemanggil | Core, controller, dan interface satu transaksi dipisahkan secara modular. | Wrapper HPS/Avalon, jalur host fisik DE10-Nano, dan demonstrasi board belum tersedia. | “IP memiliki interface sinkron internal; integrasi host merupakan pekerjaan lanjutan.” |
+| N5 | Arsitektur berorientasi verifikasi | KAT referensi, sapuan panjang, pemeriksa Python, simulasi unit/integrasi, lint, serta sintesis Yosys generik tersedia. | Belum ada validasi ACVP bersertifikat; pembandingan formal/cross-tool lengkap dan pengukuran PPA target belum dilakukan. | “Regresi lokal dapat diulang dan hasilnya dicatat; ini bukan sertifikasi.” |
+| N6 | Portabilitas menuju FPGA/ASIC | RTL SystemVerilog lolos Verilator dan sintesis generik Yosys; tidak ada primitive vendor khusus yang diketahui pada jalur core. | Build Quartus, pemeriksaan/lint LibreLane, PDK, timing fisik, DRC/LVS, dan hasil ASIC belum tersedia. | “RTL telah diperiksa dengan tool generik; kesiapan ASIC belum dibuktikan.” |
+
+#### Pembeda yang dapat dan belum dapat dipertahankan
+
+| Aspek | Yang dapat dinyatakan dari bukti sekarang | Yang belum dapat diklaim |
+|---|---|---|
+| Fungsi | Ascon-AEAD128 satu transaksi, AD/pesan terbatas, dan guard pelepasan plaintext | Algoritma/primitive baru atau fitur keamanan fisik |
+| Verifikasi | KAT Ascon-C pada RTL, ACVP sample pada model Python, serta uji top-level termasuk perubahan AD | Sertifikasi NIST atau cakupan seluruh implementasi/serangan |
+| Resource dan performa | Latensi siklus simulasi untuk skenario tertentu; jumlah sel generik Yosys dicatat terpisah | ALM/Fmax/daya/throughput Cyclone V, atau klaim lebih kecil/cepat dari prior-art |
+| Prior-art | Katalog implementasi Ascon resmi menunjukkan implementasi hardware lain telah ada [8] | Peringkat kebaruan atau pembandingan numerik tanpa eksperimen setara |
+
+Dengan bukti ini, kontribusi yang paling kuat adalah rekayasa yang dapat diulang dan pemeriksaan batas pelepasan plaintext. Nilai kebaruan kompetitif masih belum pasti sampai tinjauan karya terdahulu terstruktur serta baseline Quartus yang setara selesai.
+
 ### Security Design sebagai dasar arsitektur
 
 Desain memulai dari aset dan batas kepercayaan, bukan menambahkan label keamanan setelah datapath selesai. Aset yang dipertimbangkan adalah key, state internal yang diturunkan dari key, plaintext/calon plaintext, serta integritas ciphertext, tag, dan AD. Pemanggil dipercaya memasok key dan bertanggung jawab atas keunikan nonce untuk key yang sama; IP tidak mengelola riwayat nonce. Batas threat model tahap ini adalah masukan digital yang salah/berubah dan autentikasi gagal. Serangan fisik, fault injection, side-channel daya/EM, dan keamanan fabrikasi berada di luar evaluasi saat ini.
 
-Invarian utama adalah plaintext dekripsi tidak boleh terlihat melalui interface sebelum tag cocok; tag/ciphertext salah harus berakhir dengan REJECT dan nol transfer plaintext; reset, error kendali, serta panjang di luar kapasitas tidak boleh membuka plaintext. Testbench integrasi yang tercatat menguji sebagian invarian tersebut untuk skenario yang tercantum dalam `docs/results.md`. Pembersihan seluruh salinan key/state/calon plaintext pada akhir setiap transaksi belum diterapkan atau diverifikasi. Karena itu draf tidak mengklaim secure zeroization, mitigasi side-channel, atau perlindungan tamper fisik.
+Invarian utama adalah plaintext dekripsi tidak boleh terlihat melalui interface sebelum tag cocok; tag/AD/ciphertext salah harus berakhir dengan REJECT dan nol transfer plaintext; reset, error kendali, serta panjang di luar kapasitas tidak boleh membuka plaintext. Testbench integrasi menguji kasus terarah perubahan AD memakai ciphertext dan tag KAT yang tetap, selain skenario pada `docs/results.md`. Pembersihan seluruh salinan key/state/calon plaintext pada akhir setiap transaksi belum diterapkan atau diverifikasi. Karena itu draf tidak mengklaim secure zeroization, mitigasi side-channel, atau perlindungan tamper fisik.
 
 ```mermaid
 flowchart LR
@@ -229,14 +251,14 @@ Versi yang tercatat: Icarus `14.0 (devel) (s20260301-500-g2e81fcccb-dirty)` dan 
 
 ### 3.3 Strategi Verifikasi, Simulasi, dan Pengujian
 
-Strategi pengujian menghubungkan kebutuhan keamanan dengan pemeriksaan yang dapat diamati: KAT memastikan hasil algoritma; test integrasi memeriksa handshake dan urutan transaksi; test negatif mengubah tag/ciphertext dan menghitung keluaran plaintext; waveform dipakai untuk meninjau urutan verifikasi/pelepasan. Ini validasi fungsional RTL, bukan pengujian side-channel, serangan fisik, sertifikasi, ataupun board.
+Strategi pengujian menghubungkan kebutuhan keamanan dengan pemeriksaan yang dapat diamati: KAT memastikan hasil algoritma; test integrasi memeriksa handshake dan urutan transaksi; test negatif mengubah AD, tag, atau ciphertext dan memeriksa keluaran plaintext. Ini validasi fungsional RTL, bukan pengujian side-channel, serangan fisik, sertifikasi, ataupun board.
 
 ### Rencana pengujian
 
 1. Kompilasi dan simulasi counter serta permutasi.
 2. Bandingkan core RTL dengan KAT enkripsi/dekripsi.
 3. Uji pembentuk/pemeriksa/guard secara unit: handshake, penahanan keluaran, cocok/tidak cocok, reset, dan izin plaintext.
-4. Uji integrasi: AD saja, pesan parsial dan satu blok penuh, jeda, start saat sibuk, reset, batas panjang, tag salah, dan ciphertext berubah.
+4. Uji integrasi: AD saja, pesan parsial dan satu blok penuh, jeda, start saat sibuk, reset, batas panjang, tag salah, ciphertext berubah, serta AD berubah dengan ciphertext/tag KAT tetap.
 5. Periksa VCD untuk clock/reset, handshake, status core, keluaran, tag, serta keputusan autentikasi.
 6. Jalankan sintesis generik dan pemeriksaan awal proyek; setelah Quartus tersedia, kompilasi Cyclone V dan catat laporan resource/timing. Pengujian board menunggu antarmuka transaksi yang dapat diakses.
 
@@ -247,14 +269,14 @@ Strategi pengujian menghubungkan kebutuhan keamanan dengan pemeriksaan yang dapa
 | Permutasi | p8/p12 dan kontrol: PASS |
 | Core RTL dibandingkan dengan KAT Ascon-C v1.3.0 | 1.089 rekaman × enkripsi/dekripsi = 2.178 transaksi lulus; total 121.308 siklus; maksimum 88 siklus/transaksi; kapasitas uji 32 byte |
 | Unit tag/authentication guard | Handshake pembentuk tag, pembanding penuh, keputusan terima/tolak/reset: lulus |
-| Modul tingkat atas | KAT, jeda, AD saja, pesan 16 byte, dekripsi valid, penolakan tag/ciphertext, start saat sibuk, reset di fase penerimaan/core/verifikasi/pengiriman data/pengiriman tag, serta AD/data melebihi kapasitas: lulus |
+| Modul tingkat atas | KAT, jeda, AD saja, pesan 16 byte, dekripsi valid, penolakan tag/ciphertext/AD berubah, start saat sibuk, reset di fase penerimaan/core/verifikasi/pengiriman data/pengiriman tag, serta AD/data melebihi kapasitas: lulus |
 | Model Python dibandingkan dengan sampel NIST ACVP | 14 kasus berukuran kelipatan byte: lulus |
 | Model Python dibandingkan dengan KAT Ascon-C | 1.089 rekaman, enkripsi/dekripsi: lulus |
 | Sapuan KAT pasangan panjang tingkat atas | 289 pasangan panjang (0–16 byte) untuk enkripsi/dekripsi; 578 transaksi lulus |
 | Sintesis generik Yosys, kapasitas 16 | 20.887 sel generik; `check` menemukan nol masalah |
 | Quartus dan perangkat keras | Belum dijalankan/belum dilakukan |
 
-Enam skenario terarah modul tingkat atas mencatat 45, 50, 96, 41, 41, dan 41 siklus. Sapuan KAT tingkat atas menjalankan 578 transaksi dengan total 51.019 siklus dan maksimum 150 siklus per transaksi; rentang ini mencakup pengiriman masukan byte melalui handshake. Angka tersebut merupakan hasil simulasi, bukan throughput kontinu atau hasil timing FPGA.
+Delapan skenario terarah modul tingkat atas mencatat 45, 50, 96, 41, 53, 53, 41, dan 41 siklus. Dua transaksi 53 siklus adalah kontrol KAT dengan AD valid dan pengujian AD berubah. Sapuan KAT tingkat atas menjalankan 578 transaksi dengan total 51.019 siklus dan maksimum 150 siklus per transaksi; rentang ini mencakup pengiriman masukan byte melalui handshake. Angka tersebut merupakan hasil simulasi, bukan throughput kontinu atau hasil timing FPGA.
 
 ```mermaid
 xychart-beta
@@ -270,7 +292,7 @@ Grafik merangkum kasus tingkat atas yang berbeda beserta pola handshake masing-m
 
 Keberhasilan security-by-design pada scope saat ini berarti invarian interface yang didefinisikan pada bagian rancangan dipertahankan: tidak ada plaintext dekripsi sebelum tag cocok dan tidak ada plaintext pada transaksi yang ditolak. Keamanan lifecycle key/calon plaintext, side-channel, fault injection, serta tampering fisik belum dibuktikan dan tidak boleh dianggap tercapai.
 
-**Tercapai pada tingkat simulasi:** seluruh 1.089 rekaman KAT Ascon-C yang dipakai cocok pada core RTL untuk enkripsi/dekripsi; skenario tingkat atas yang diuji menerima tag valid dan menolak tag/ciphertext yang diubah tanpa mengeluarkan plaintext; rangkaian uji otomatis lulus; proyek Quartus lolos pemeriksaan awal statis.
+**Tercapai pada tingkat simulasi:** seluruh 1.089 rekaman KAT Ascon-C yang dipakai cocok pada core RTL untuk enkripsi/dekripsi; skenario tingkat atas yang diuji menerima tag valid dan menolak AD/tag/ciphertext yang diubah tanpa mengeluarkan plaintext; rangkaian uji otomatis lulus; proyek Quartus sebelumnya lolos pemeriksaan awal statis.
 
 **Belum tercapai:** kompilasi Quartus, angka penggunaan sumber daya/timing Cyclone V, berkas pemrograman, transaksi dari host/pin nyata, dan demonstrasi DE10-Nano. Angka FPGA hanya boleh diisi berdasarkan laporan Quartus aktual. Proyek ini tidak mengklaim sertifikasi kriptografi, ketahanan terhadap side-channel/injeksi kesalahan, konsumsi daya, atau percepatan dibandingkan perangkat lunak.
 
@@ -300,6 +322,8 @@ Keberhasilan security-by-design pada scope saat ini berarti invarian interface y
 10. Intel, [Quartus Prime editions and supported devices](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime/resource.html), informasi dukungan Cyclone V pada Lite Edition.
 11. Intel, [Sumber daya baris perintah dan skrip Tcl Quartus Prime](https://www.intel.com/content/www/us/en/support/programmable/support-resources/design-guidance/quartus-support.html), dokumentasi alur baris perintah dan pembuatan laporan melalui skrip.
 12. Intel/Altera, [Quartus Prime Lite Edition 25.1 untuk Windows dan paket dukungan Cyclone V](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows). Diperiksa untuk rekomendasi tool pada 1 Oktober 2026.
+13. Ascon Team, [Implementations](https://ascon.isec.tugraz.at/implementations.html). Katalog ini mencantumkan implementasi hardware reference, protected, energy-efficient, serta co-processor; laman tersebut juga mengingatkan bahwa sebagian implementasi pihak ketiga dapat memakai versi submission, bukan standar NIST final.
+14. Hannes Groß, Erich Wenger, Christoph Dobraunig, dan Christoph Ehrenhöfer, **Side-Channel and Fault Resistant ASCON Implementation: A Detailed Hardware Evaluation**, IEEE ISVLSI 2024, [DOI: 10.1109/ISVLSI61997.2024.00063](https://doi.org/10.1109/ISVLSI61997.2024.00063). Rujukan prior-art untuk countermeasure side-channel/fault dan evaluasi ASIC/FPGA; tidak dipakai sebagai pembanding angka langsung karena konfigurasi dan versi algoritmanya belum dinormalisasi terhadap SECURE-TINY.
 
 Tanggal akses rujukan daring: 1 Oktober 2026.
 

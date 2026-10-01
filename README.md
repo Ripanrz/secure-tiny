@@ -31,6 +31,7 @@ Keamanan diperlakukan sebagai batas arsitektur: plaintext dekripsi tidak boleh k
 - Masukan AD dan pesan selebar satu byte dengan handshake `valid/ready`.
 - Pembentuk tag, pembanding tag 128-bit, dan Hardware Authentication Guard.
 - Plaintext dekripsi baru tersedia sesudah tag terverifikasi; tag/ciphertext salah ditolak tanpa mengeluarkan plaintext.
+- Perubahan AD saja, dengan ciphertext dan tag KAT tetap, ditolak tanpa mengeluarkan plaintext pada uji integrasi terarah.
 - Testbench core membandingkan RTL dengan 1.089 rekaman KAT Ascon-C v1.3.0 untuk enkripsi dan dekripsi (2.178 transaksi; kapasitas testbench 32 byte).
 - Testbench tingkat atas menggunakan kapasitas 16 byte sesuai profil proyek Quartus; 289 pasangan panjang AD/pesan diuji untuk enkripsi dan dekripsi (578 transaksi).
 - Pengendali menampung seluruh AD dan pesan sebelum memulai core; rancangan ini bukan akselerator aliran data kontinu.
