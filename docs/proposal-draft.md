@@ -1,6 +1,8 @@
 # Draf Proposal SECURE-TINY
 
-> **Status dokumen:** draf teknis untuk ditinjau dan disesuaikan oleh tim sebelum dikirim ke panitia. Kami memakai kata “kami” sebagai sudut pandang tim. Bagian identitas personal yang belum diberikan, seperti NIM dan program studi, tetap ditandai untuk dilengkapi. Dosen pembimbing sengaja dikosongkan sesuai arahan tim.
+> **Catatan Tim:** Dokumen ini masih berstatus draf awal untuk ditinjau, dilengkapi, dan disesuaikan bersama oleh tim demi kelancaran proses finalisasi proposal.
+
+Pilihan 3 (Satu Kalimat):
 
 ## 1. Ringkasan Ide / Executive Summary
 
