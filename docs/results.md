@@ -1,5 +1,7 @@
 # Hasil Verifikasi SECURE-TINY
 
+> **Cara membaca angka:** ALM (*Adaptive Logic Module*) dan register menunjukkan sumber daya FPGA yang dipakai pada konfigurasi ini. Fmax adalah frekuensi maksimum yang dilaporkan untuk jalur yang dianalisis; karena pin transaksi masih virtual, angka tersebut belum berarti seluruh masukan/keluaran board sudah memenuhi timing. Analogi sederhananya: kita sudah mengukur kecepatan mesin di dalam bengkel, tetapi belum mengukur seluruh jalur kabel pada pemasangan akhir. Kepanjangan istilah lain ada di [glosarium](glossary.md).
+
 Kami menjalankan ulang regresi simulasi utama, lint Verilator, sintesis Yosys generik, dan build penuh Quartus pada 2026-10-01. Build Quartus untuk Cyclone V berhasil, tetapi pengujian transaksi pada board masih menunggu antarmuka fisik dan akses DE10-Nano. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar kami jalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
 
 Kami menyimpan VCD dan log di `sim/` sebagai keluaran skrip yang dapat dibuat ulang dan mengecualikannya dari repositori publik. Nama artefak pada tabel menunjukkan lokasi keluaran lokal.

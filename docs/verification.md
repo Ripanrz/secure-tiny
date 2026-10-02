@@ -1,5 +1,7 @@
 # Rencana Verifikasi SECURE-TINY
 
+> **Ringkasan untuk pembaca baru:** testbench adalah program yang bertindak seperti pengguna chip: memberi masukan, lalu memeriksa jawaban. KAT (*Known Answer Test*) ibarat lembar soal dengan kunci jawaban tepercaya. Lulus simulasi berarti model RTL memberikan hasil yang diharapkan pada kasus yang diuji; itu sendiri bukan bukti chip fisik atau sertifikasi. Lihat [glosarium](glossary.md) untuk kepanjangan istilah.
+
 ## Rujukan kriptografi
 
 Kami menggunakan Ascon-AEAD128 dalam **NIST SP 800-232 final, Agustus 2025** sebagai acuan normatif: [halaman publikasi NIST](https://csrc.nist.gov/pubs/sp/800/232/final), [PDF final](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-232.pdf). Kami tidak mencampur vektor dari spesifikasi submission Ascon terdahulu dengan standar final.

@@ -1,5 +1,7 @@
 # Peta File dan Integrasi SECURE-TINY
 
+> **Gambaran sederhana:** pengendali seperti petugas yang mengatur antrean, core Ascon seperti mesin pengunci, permutasi seperti langkah hitung berulang di dalam mesin, dan guard seperti petugas yang memeriksa segel sebelum menyerahkan hasil dekripsi. Bagian ini memetakan file yang membentuk jalur tersebut. Istilah teknis dan kepanjangannya dijelaskan di [glosarium](glossary.md).
+
 Dalam panduan ini kami menjelaskan struktur sumber proyek, fungsi file teknis, dan jalur komunikasi antarmodul.
 
 ## 1. Gambaran integrasi

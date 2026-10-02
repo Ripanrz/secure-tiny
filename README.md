@@ -6,9 +6,11 @@ Kami mengembangkan SECURE-TINY sebagai IP akselerator untuk enkripsi/dekripsi te
 
 Repositori proyek: [github.com/Ripanrz/secure-tiny](https://github.com/Ripanrz/secure-tiny).
 
+**Penjelasan singkat:** SECURE-TINY seperti mesin pengunci paket. Mesin mengunci pesan dan membuat “segel” bernama tag. Saat pesan dibuka, rangkaian memeriksa segel lebih dulu; jika tidak cocok, plaintext tidak diberikan sebagai hasil yang sah. Analogi ini hanya untuk memahami alur kerja, bukan klaim perlindungan dari semua serangan. Istilah seperti AEAD (*Authenticated Encryption with Associated Data*), RTL (*Register Transfer Level*), dan ALM (*Adaptive Logic Module*) dijelaskan dengan bahasa sederhana di [glosarium](docs/glossary.md).
+
 Kami memusatkan pekerjaan pada jalur data RTL dan bukti fungsional. Build Quartus kami kini memberi baseline 2.464 ALM dan Fmax 79,72 MHz untuk konfigurasi 16 byte; kami belum mengklaim efisiensi komparatif, dan analisis I/O belum lengkap karena port transaksi memakai virtual pins. Kami mencatat bukti dan batas hasil di [`docs/results.md`](docs/results.md), serta ruang lingkup di [`docs/PRD.md`](docs/PRD.md).
 
-**Status kerja:** kami telah menyelesaikan kompilasi penuh Quartus Prime Lite 25.1 untuk Cyclone V `5CSEBA6U23I7`, termasuk Fitter, Timing Analyzer, Assembler, dan berkas `.sof`. Kami menunda pengujian fisik DE10-Nano serta integrasi antarmuka transaksi host karena belum tersedia board dan jalur fisik transaksi. Quartus terpasang di `C:\altera_lite\25.1std`; detail hasil serta peringatannya ada di [`docs/results.md`](docs/results.md).
+**Status kerja:** kami telah menyelesaikan kompilasi penuh Quartus Prime Lite 25.1 untuk Cyclone V `5CSEBA6U23I7`, termasuk Fitter (penempatan logika ke sumber daya FPGA), Timing Analyzer (pemeriksaan batas waktu sinyal), Assembler, dan berkas `.sof` (berkas konfigurasi FPGA). Kami menunda pengujian fisik DE10-Nano serta integrasi antarmuka transaksi host karena belum tersedia board dan jalur fisik transaksi. Quartus terpasang di `C:\altera_lite\25.1std`; detail hasil serta peringatannya ada di [`docs/results.md`](docs/results.md).
 
 Kami menyimpan draf proposal teknis di [`docs/proposal-draft.md`](docs/proposal-draft.md) dan peta fungsi file serta komunikasi antarmodul di [`docs/file-map-and-integration.md`](docs/file-map-and-integration.md). Kami menandai hasil yang belum diukur—misalnya daya dan kinerja pada board—sebagai TBD.
 

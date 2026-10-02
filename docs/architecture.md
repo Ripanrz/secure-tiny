@@ -1,5 +1,7 @@
 # Arsitektur RTL SECURE-TINY
 
+> **Cara membaca alurnya:** bayangkan loket yang menerima semua bagian paket, memasukkannya ke baki sementara, lalu meminta mesin kriptografi memprosesnya. Pengendali mengatur urutan kerja, core menghitung hasil, dan guard menahan plaintext dekripsi sampai tag cocok. `valid/ready` seperti serah-terima barang: byte berpindah hanya ketika pengirim dan penerima sama-sama siap pada detak clock. Kepanjangan istilah seperti RTL (*Register Transfer Level*) dan FSM (*Finite State Machine*) ada di [glosarium](glossary.md).
+
 ## Identitas dan sumber kebenaran
 
 Produk yang kami rancang adalah **SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**.

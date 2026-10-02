@@ -1,5 +1,7 @@
 # Draf Proposal SECURE-TINY
 
+> **Penjelasan singkat untuk pembaca umum:** kami membuat blok perangkat keras yang mengunci pesan sekaligus menghasilkan tag pemeriksa. Saat membuka pesan, blok menahan plaintext sampai tag cocok. Tag bisa dibayangkan seperti segel paket yang menunjukkan apakah isi atau data terkait berubah. Istilah dan kepanjangannya tersedia di [glosarium](glossary.md); nama standar dan nilai teknis tetap mengikuti sumber resminya.
+
 > **Catatan Tim:** Dokumen ini masih berstatus draf awal untuk ditinjau, dilengkapi, dan disesuaikan bersama oleh tim demi kelancaran proses finalisasi proposal.
 
 Pilihan 3 (Satu Kalimat):

@@ -1,5 +1,7 @@
 # Dokumen Persyaratan Produk (PRD)
 
+> **Ringkasan untuk pembaca baru:** SECURE-TINY adalah blok perangkat keras yang membantu mengunci pesan dan memeriksa apakah pesan berubah. Bayangkan pesan sebagai paket dan tag sebagai segel: penerima hanya mendapat plaintext setelah segelnya cocok. AD (*Associated Data*, data terkait) ikut diperiksa, tetapi tetap terlihat. Istilah teknis dan kepanjangannya tersedia di [glosarium](glossary.md).
+
 ## 1. Identitas Proyek
 
 **Nama proyek:** SECURE-TINY

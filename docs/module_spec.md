@@ -1,5 +1,7 @@
 # Spesifikasi Modul RTL SECURE-TINY
 
+> **Panduan untuk pembaca baru:** sinyal `valid` berarti “data sudah tersedia”, sedangkan `ready` berarti “saya siap menerima”. Seperti menyerahkan paket di loket, transfer terjadi saat kedua sisi siap pada tepi clock. Buffer adalah baki sementara; proyek mengumpulkan AD dan pesan di sana sebelum pemrosesan. Kepanjangan istilah teknis tersedia di [glosarium](glossary.md).
+
 Di dokumen ini kami menetapkan kontrak implementasi RTL saat ini. Semua modul sekuensial menggunakan `clk` dan reset aktif-rendah sinkron `rst_n`. Key, nonce, dan tag masing-masing selebar 128 bit sesuai Ascon-AEAD128 NIST SP 800-232 final. Kami mewajibkan parameter `MAX_DATA_BYTES` ditentukan saat elaborasi; parameter ini membatasi panjang AD dan pesan secara terpisah.
 
 ## Kaidah antarmuka
