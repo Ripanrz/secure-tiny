@@ -119,7 +119,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_
 
 Kami memakai lint Verilator untuk memeriksa elaborasi dan peringatan RTL; lint tidak membuktikan hasil Quartus atau kebenaran kriptografi. Skrip mengambil `bin\verilator_bin.exe` dari OSS CAD Suite dan mengatur `VERILATOR_ROOT` serta `PATH` secara lokal.
 
-Kami menyimpan log sintesis generik di `sim/yosys_secure_tiny_16.log`. Angka 20.887 sel merupakan **sel generik Yosys**, bukan ALM/LE Cyclone V. Pemeriksaan awal kami hanya memeriksa konsistensi berkas dan penetapan statis.
+Hasil sintesis generik Yosys yang pernah kami ukur dicatat di [`docs/results.md`](docs/results.md): 20.887 sel generik, bukan ALM/LE Cyclone V. Log sintesis lokal lama dibersihkan saat regresi 2 Oktober 2026 dan tidak dijalankan ulang pada tahap tersebut.
 
 Pada lingkungan build kami, Quartus/Tcl salah menormalisasi path langsung di bawah folder profil Windows. Karena itu, kami memetakan root repositori ke drive sementara `R:` sebelum menjalankan build penuh:
 

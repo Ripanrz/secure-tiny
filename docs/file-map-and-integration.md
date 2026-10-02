@@ -145,11 +145,11 @@ Rangkaian uji RTL menggunakan berkas KAT Ascon-C. Vektor ACVP lokal saat ini dip
 | `sim/tag_auth_modules.vcd` | Bentuk gelombang pembentuk tag, pemeriksa tag, dan guard. |
 | `sim/secure_tiny_top.vcd` | Bentuk gelombang pengujian integrasi terarah modul tingkat atas. |
 | `sim/secure_tiny_kat.vcd` | Bentuk gelombang contoh sapuan KAT tingkat atas; berkas memuat transaksi awal agar ukurannya terkendali. |
-| `sim/verilator_secure_tiny_16.log` | Keluaran lint/elaborasi Verilator modul tingkat atas untuk parameter 16 byte. |
-| `sim/yosys_secure_tiny_16.log` | Log sintesis generik Yosys untuk parameter 16. |
-| `sim/yosys_cyclonev_16.log` | Log percobaan pemetaan Cyclone V dengan Yosys. Percobaan berhenti pada assertion internal ABC9 dan tidak menghasilkan angka resource Cyclone V yang sah. |
+| `sim/verilator_secure_tiny_16.log` | Nama keluaran lint/elaborasi Verilator untuk parameter 16 byte. Log historisnya dibersihkan pada 2 Oktober 2026; lint tidak dijalankan ulang dalam regresi simulasi terbaru. |
+| `sim/yosys_secure_tiny_16.log` | Nama log sintesis generik Yosys untuk parameter 16. Log historisnya dibersihkan pada 2 Oktober 2026; sintesis tidak dijalankan ulang dalam regresi simulasi terbaru. |
+| `sim/yosys_cyclonev_16.log` | Nama log percobaan pemetaan Cyclone V dengan Yosys yang pernah dihentikan oleh assertion internal ABC9; tidak menghasilkan angka resource Cyclone V yang sah. Log lokal historisnya dibersihkan pada 2 Oktober 2026. |
 
-Berkas `.vvp`, VCD, dan log adalah keluaran skrip yang dapat dibuat ulang. `.gitignore` mengecualikannya dari repositori; jalankan pengujian, lint, atau sintesis untuk membuat artefak lokal tersebut.
+Berkas `.vvp`, VCD, dan log adalah keluaran skrip yang dapat dibuat ulang. `.gitignore` mengecualikannya dari repositori. Regresi terbaru membuat ulang VCD serta `sim/regression_20261002.log`; berkas `.vvp` dan cache Python dibersihkan setelahnya. Jalankan pengujian, lint, atau sintesis terkait untuk membuat artefak lokal.
 
 ## 10. Alur perintah utama
 

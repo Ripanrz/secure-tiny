@@ -2,7 +2,25 @@
 
 > **Cara membaca angka:** ALM (*Adaptive Logic Module*) dan register menunjukkan sumber daya FPGA yang dipakai pada konfigurasi ini. Fmax adalah frekuensi maksimum yang dilaporkan untuk jalur yang dianalisis; karena pin transaksi masih virtual, angka tersebut belum berarti seluruh masukan/keluaran board sudah memenuhi timing. Analogi sederhananya: kita sudah mengukur kecepatan mesin di dalam bengkel, tetapi belum mengukur seluruh jalur kabel pada pemasangan akhir. Kepanjangan istilah lain ada di [glosarium](glossary.md).
 
-Kami menjalankan ulang regresi simulasi utama, lint Verilator, sintesis Yosys generik, dan build penuh Quartus pada 2026-10-01. Build Quartus untuk Cyclone V berhasil, tetapi pengujian transaksi pada board masih menunggu antarmuka fisik dan akses DE10-Nano. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar kami jalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik.
+## Regresi simulasi terbaru — 2 Oktober 2026
+
+Kami membersihkan berkas simulasi lama yang dapat dibuat ulang dan cache Python, lalu menjalankan ulang regresi penuh pada source commit `7963afdb650377aa8344f7462f6409217c6cac57`. Perintah: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1`. OSS CAD Suite: `C:\Users\arpan\Downloads\chipset_peruri\oss-cad-suite-windows-x64-20260929\oss-cad-suite`; Icarus Verilog: `14.0 (devel) (s20260301-500-g2e81fcccb-dirty)`; Python: `3.11.6`. Ketujuh runner berakhir dengan kode keluar `0`, dengan ringkasan `PASS: all SECURE-TINY test scripts completed`.
+
+| Hasil terbaru | Bukti yang dibuat ulang |
+|---|---|
+| Counter, permutasi, dan modul tag/guard | PASS; `sim/counter.vcd`, `sim/ascon_permutation.vcd`, `sim/tag_auth_modules.vcd` |
+| KAT core RTL | PASS; 1.089 KAT Ascon-C masing-masing untuk enkripsi dan dekripsi (2.178 transaksi), total 121.308 siklus, maksimum 88 siklus; `sim/ascon_core.vcd` |
+| Uji terarah tingkat atas | PASS; pengujian tag/ciphertext/AD salah, plaintext ditahan sampai autentikasi, handshake stall, start ketika sibuk, reset beberapa fase, dan panjang di atas kapasitas; `sim/secure_tiny_top.vcd` |
+| Sapuan KAT tingkat atas | PASS; 289 pasangan panjang 0–16 byte, enkripsi dan dekripsi (578 transaksi), total 51.019 siklus, maksimum 150 siklus; `sim/secure_tiny_kat.vcd` |
+| Model Python terhadap NIST ACVP | PASS untuk 14 kasus byte-aligned. Checker melewati 226 dari 240 kasus sampel karena panjang bit-nya bukan kelipatan 8; kasus tersebut tidak didukung checker byte-aligned ini. |
+| Model Python terhadap KAT Ascon-C | PASS untuk 1.089 kasus bertag penuh, enkripsi dan dekripsi. |
+| Regresi keseluruhan | 7/7 runner PASS; 0 runner gagal; 0 runner terlewat; kode keluar `0`. Tidak tersedia total gabungan kasus unik karena sebagian pengujian menggunakan pasangan KAT yang sama pada lapisan berbeda. |
+
+Log konsol terbaru disimpan secara lokal di `sim/regression_20261002.log`; semua waveform di atas dibuat pada run ini. Analisis berkas `sim/secure_tiny_top.vcd` mengonfirmasi dua dekripsi valid hanya menawarkan plaintext setelah ACCEPT dan tiga pengujian perubahan AD/tag/ciphertext menghasilkan REJECT tanpa `out_valid`. Berkas tersebut memuat sinyal clock, reset, start, mode, busy/done, valid/ready, ciphertext/plaintext, tag, hasil verifikasi, status autentikasi, dan fase controller. Waktu siklus waveform ini mencakup uji terarah; hasilnya hanya bukti simulasi RTL.
+
+Icarus menampilkan peringatan `constant selects in always_* processes are not fully supported` pada permutasi/core, dan menjelaskan bahwa proses menjadi peka terhadap semua bit vektor terkait. Seluruh assertion tetap aktif dan run selesai dengan kode 0. Tidak ada source RTL, testbench, nilai KAT, expected result, atau reference model yang diubah pada pengulangan ini.
+
+Kami sebelumnya menjalankan lint Verilator, sintesis Yosys generik, dan build penuh Quartus pada 2026-10-01. Build Quartus untuk Cyclone V berhasil, tetapi pengujian transaksi pada board masih menunggu antarmuka fisik dan akses DE10-Nano. `PASS` (lulus) hanya merujuk pemeriksaan yang benar-benar kami jalankan; status tersebut bukan validasi sertifikasi atau bukti keamanan implementasi fisik. Simulasi terbaru yang dicatat di atas tidak menjalankan ulang lint, Yosys, atau Quartus.
 
 Kami menyimpan VCD dan log di `sim/` sebagai keluaran skrip yang dapat dibuat ulang dan mengecualikannya dari repositori publik. Nama artefak pada tabel menunjukkan lokasi keluaran lokal.
 
@@ -28,11 +46,11 @@ Kami menyimpan VCD dan log di `sim/` sebagai keluaran skrip yang dapat dibuat ul
 | KAT pasangan panjang tingkat atas | PASS (lulus): 289 pasangan panjang AD/pesan (masing-masing 0–16 byte), untuk enkripsi dan dekripsi (578 transaksi); transfer diuji melalui antarmuka satu byte tingkat atas dan setiap data/tag dibandingkan dengan KAT | `tb/tb_secure_tiny_kat.sv`; `sim/secure_tiny_kat.vcd`; sumber KAT Ascon-C v1.3.0 |
 | Model Python dibandingkan dengan ACVP | PASS (lulus): 14 kasus berukuran kelipatan byte yang dipilih dari sampel NIST ACVP SP 800-232 | `python/check_ascon_acvp_sample.py`; data di `vectors/ascon_aead128_*.json` |
 | Model Python dibandingkan dengan KAT | PASS (lulus): seluruh 1.089 kasus bertag penuh dari berkas Ascon-C v1.3.0, enkripsi dan dekripsi | `python/check_ascon_c_kat.py`; berkas KAT di `vectors/ascon_c_v1.3.0_ref/LWC_AEAD_KAT_128_128.txt` |
-| Lint Verilator modul tingkat atas | PASS (lulus): elaborasi `secure_tiny_top` dengan `MAX_DATA_BYTES=16`, 9 modul, kode keluar 0 tanpa peringatan | `scripts/lint_verilator.ps1`; Verilator 5.053; `sim/verilator_secure_tiny_16.log` |
-| Sintesis generik | PASS (lulus): hierarchy/proc/check/synth Yosys; `check` melaporkan 0 masalah | `sim/yosys_secure_tiny_16.log`; konfigurasi `MAX_DATA_BYTES=16`; 20.887 sel generik |
+| Lint Verilator modul tingkat atas | PASS (lulus) pada run historis 1 Oktober 2026: elaborasi `secure_tiny_top` dengan `MAX_DATA_BYTES=16`, 9 modul, kode keluar 0 tanpa peringatan. Tidak diulang pada regresi simulasi 2 Oktober. | `scripts/lint_verilator.ps1`; Verilator 5.053; log lokal lama dibersihkan pada 2 Oktober 2026 |
+| Sintesis generik | PASS (lulus) pada run historis 1 Oktober 2026: hierarchy/proc/check/synth Yosys; `check` melaporkan 0 masalah. Tidak diulang pada regresi simulasi 2 Oktober. | Konfigurasi `MAX_DATA_BYTES=16`; 20.887 sel generik; log lokal lama dibersihkan pada 2 Oktober 2026 |
 | Pemeriksaan portabilitas RTL | Pemeriksaan statis kata kunci primitive/vendor pada `rtl/` tidak menemukan kecocokan; Verilator dan sintesis generik Yosys sebelumnya lulus. Ini hanya pemeriksaan awal, bukan bukti siap ASIC | Sumber `rtl/*.sv`; tidak ada primitive khusus yang dikenal pada jalur RTL saat pemeriksaan |
 | LibreLane/ASIC | BELUM DIJALANKAN: `librelane` dan `openroad` tidak ada di PATH; direktori konfigurasi `librelane/`, `asic/`, `openlane/`, dan `config.json` tidak ditemukan di root proyek | Tidak ada flow, PDK, node, timing fisik, DRC/LVS, atau hasil layout yang diverifikasi; pemeriksaan tidak menyimpulkan status seluruh instalasi PDK mesin |
-| Percobaan pemetaan Cyclone V dengan Yosys ALM | DIHENTIKAN: Yosys berhenti karena assertion internal AIGER2 pada tahap ABC9; tidak menghasilkan angka ALM yang dapat digunakan | `sim/yosys_cyclonev_16.log`; bukan hasil Quartus dan bukan bukti RTL gagal/lulus untuk perangkat |
+| Percobaan pemetaan Cyclone V dengan Yosys ALM | DIHENTIKAN pada percobaan historis: Yosys berhenti karena assertion internal AIGER2 pada tahap ABC9; tidak menghasilkan angka ALM yang dapat digunakan. Tidak diulang pada regresi simulasi 2 Oktober. | Bukan hasil Quartus dan bukan bukti RTL gagal/lulus untuk perangkat; log lokal lama dibersihkan pada 2 Oktober 2026 |
 | Pemeriksaan awal proyek DE10-Nano | PASS (lulus): QPF/QSF/SDC, tujuh sumber RTL, target perangkat, parameter, pin clock/reset, dan constraint 50 MHz konsisten | `scripts/check_quartus_project.ps1` |
 | Build penuh Quartus Cyclone V | PASS (lulus): Analysis & Synthesis, Fitter, Assembler, dan Timing Analyzer; kode keluar `0`, 0 error, 5 warning | `quartus/output_files/secure_tiny.flow.rpt`; `quartus/output_files/secure_tiny.done` |
 | Pembuatan berkas konfigurasi | PASS (lulus): Assembler membuat `.sof` untuk perangkat target | `quartus/output_files/secure_tiny.sof` (6.690.378 byte; artefak lokal yang dikecualikan Git) |

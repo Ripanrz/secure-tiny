@@ -2,6 +2,24 @@
 
 > **Ringkasan untuk pembaca baru:** testbench adalah program yang bertindak seperti pengguna chip: memberi masukan, lalu memeriksa jawaban. KAT (*Known Answer Test*) ibarat lembar soal dengan kunci jawaban tepercaya. Lulus simulasi berarti model RTL memberikan hasil yang diharapkan pada kasus yang diuji; itu sendiri bukan bukti chip fisik atau sertifikasi. Lihat [glosarium](glossary.md) untuk kepanjangan istilah.
 
+## Catatan eksekusi terbaru
+
+Pada **2 Oktober 2026 sekitar 08.42 WIB**, kami membersihkan hasil simulasi dan cache Python yang dapat dibuat ulang, lalu menjalankan seluruh regresi pada source commit `7963afdb650377aa8344f7462f6409217c6cac57`. Perintah yang dijalankan ialah `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1` dengan OSS CAD Suite dari variabel `OSS_CAD_SUITE`. Seluruh **7 dari 7 runner** selesai dengan kode keluar 0; log run tersimpan lokal di `sim/regression_20261002.log`.
+
+Run itu menghasilkan ulang VCD dan berkas kompilasi Icarus di `sim/`. Analisis VCD tingkat atas menemukan clock, reset, start, mode, busy/done, handshake data, keluaran, tag, hasil autentikasi, ACCEPT, REJECT, dan fase controller. Untuk transaksi terarah, dua dekripsi valid baru menawarkan plaintext ketika hasil autentikasi menyatakan ACCEPT. Tiga dekripsi dengan AD, tag, atau ciphertext yang diubah menyatakan REJECT tanpa `out_valid`. Pemeriksaan ini adalah analisis berkas waveform hasil simulasi, bukan pengujian fisik.
+
+| Bagian yang dijalankan | Hasil eksekusi 2 Oktober 2026 |
+|---|---|
+| Counter, permutasi, dan unit tag/guard | PASS; pemeriksaan reset/hitung, p8/p12 dan kendali permutasi, handshake pembentuk tag, pembanding tag penuh, serta keputusan guard selesai tanpa `$fatal`. |
+| KAT core RTL | PASS; 1.089 rekaman KAT Ascon-C pada enkripsi dan dekripsi, total 2.178 transaksi; total 121.308 siklus, maksimum 88 siklus. |
+| Uji terarah top-level | PASS; valid decrypt, penolakan perubahan AD/tag/ciphertext tanpa plaintext, stall/backpressure, start saat sibuk, reset pada tahap menerima/core/verifikasi/menunggu keluaran/tag, dan panjang AD/pesan di atas kapasitas. |
+| Sapuan KAT top-level | PASS; 289 pasangan panjang AD/pesan 0–16 byte pada enkripsi dan dekripsi, total 578 transaksi; total 51.019 siklus, maksimum 150 siklus. Ini mencakup AD kosong, pesan kosong, dan panjang maksimum antarmuka. |
+| Model Python terhadap ACVP | PASS untuk 14 kasus byte-aligned. Dari 240 kasus dalam berkas sampel, 226 kasus non-byte-aligned sengaja tidak dijalankan oleh checker Python saat ini; jadi angka ini bukan hasil seluruh 240 kasus dan bukan validasi ACVP resmi. |
+| Model Python terhadap KAT Ascon-C | PASS; 1.089 kasus bertag penuh, masing-masing diuji untuk enkripsi dan dekripsi. |
+| Kegagalan / runner terlewat | 0 kegagalan dan 0 runner terlewat. Runner tidak menyediakan satu total gabungan untuk semua pemeriksaan internal, sehingga kami melaporkan hitungan transaksi per suite agar tidak menjumlahkan kasus yang saling tumpang tindih. |
+
+Icarus Verilog yang digunakan adalah `14.0 (devel) (s20260301-500-g2e81fcccb-dirty)` dan Python OSS CAD Suite `3.11.6`. Icarus mengeluarkan pesan peringatan bahwa `constant selects in always_*` tidak didukung sepenuhnya; pesannya menyatakan sensitivitas diperluas ke seluruh vektor terkait. Tidak ada testbench yang diubah untuk run ini, tidak ada perubahan RTL, KAT, expected result, atau model referensi, dan tidak ada testbench yang dinyatakan lulus hanya berdasarkan kompilasi.
+
 ## Rujukan kriptografi
 
 Kami menggunakan Ascon-AEAD128 dalam **NIST SP 800-232 final, Agustus 2025** sebagai acuan normatif: [halaman publikasi NIST](https://csrc.nist.gov/pubs/sp/800/232/final), [PDF final](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-232.pdf). Kami tidak mencampur vektor dari spesifikasi submission Ascon terdahulu dengan standar final.
