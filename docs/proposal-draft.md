@@ -4,7 +4,6 @@
 
 > **Catatan Tim:** Dokumen ini masih berstatus draf awal untuk ditinjau, dilengkapi, dan disesuaikan bersama oleh tim demi kelancaran proses finalisasi proposal.
 
-Pilihan 3 (Satu Kalimat):
 
 ## 1. Ringkasan Ide / Executive Summary
 
