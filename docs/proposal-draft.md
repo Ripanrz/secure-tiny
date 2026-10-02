@@ -60,6 +60,45 @@ Kontribusi rekayasa yang kami ajukan adalah:
 
 Ini adalah klaim kontribusi integrasi dan proses verifikasi, bukan kebaruan algoritmik. Klaim bahwa desain kami lebih kecil, lebih cepat, lebih hemat daya, atau lebih aman daripada implementasi pembanding **belum dapat dibuat** tanpa benchmark yang disetarakan (algoritma/versi, parameter, device, tool, constraint, dan model ancaman).
 
+### 2.4 Perbandingan dengan desain/IP yang telah dipublikasikan
+
+Tabel ini membandingkan fakta yang tersedia pada sumber publik. Baris resource dan latensi berasal dari platform, versi, serta cara mengukur yang berbeda; nilainya **bukan peringkat** dan tidak boleh dibaca sebagai perbandingan PPA langsung.
+
+| Parameter | Ascon bit-serial Tiny Tapeout SKY26c [11] | RTL Ascon SP 800-232, rprimas [12] | OpenTitan AES HWIP dengan GCM [13], [14] | SECURE-TINY |
+|---|---|---|---|---|
+| Primitive / AEAD | Permutasi Ascon SP 800-232; implementasi proyek memetakan protokol AEAD-128 | Ascon-AEAD128 dan mode Ascon lain | AES-128/192/256; GCM opsional saat elaborasi | Ascon-AEAD128 |
+| Enkripsi/dekripsi | Rangkaian uji meliputi AEAD-128; project page tidak menjelaskan batas hardware/software seluruh operasi | Mendukung Ascon-AEAD128; tersedia keluaran `auth/auth_valid` | Enkripsi/dekripsi GCM didukung dalam mode hardware; API software mengatur fase GCM | Enkripsi/dekripsi RTL dan tag check |
+| Keputusan autentikasi | Lokasi/kontrak keputusan tag tidak dijelaskan lengkap pada project page | Sinyal autentikasi tersedia; kebijakan pelepasan plaintext sebelum verifikasi tidak diklaim di sini | Panduan GCM meminta software membaca tag akhir dan membandingkannya dengan tag yang diharapkan | Pembanding tag dan ACCEPT/REJECT pada RTL; plaintext tidak ditawarkan melalui handshake sebelum ACCEPT pada skenario uji |
+| Arsitektur datapath | Lima shift register 64-bit, satu S-box bersama 5-bit; satu ronde terdiri dari dua lintasan 64 siklus | Parameter bus 32/64-bit dan unrolling 1/2/4 ronde | 16 S-box paralel untuk implementasi unmasked; GCM memakai AES, GHASH, dan fase yang dikendalikan software | State Ascon 320-bit; permutasi iteratif satu ronde per siklus aktif |
+| Lebar / serialisasi | Antarmuka kolom 5-bit per siklus; host sinkron dengan clock | BDI/BDO 32 atau 64 bit dengan ready/valid | Register/CSR blok 128-bit, dihubungkan ke interconnect SoC | Antarmuka byte 8-bit dengan valid/ready |
+| Interface dan buffering | Interface lap 64-siklus; tidak ada buffer data on-chip, host menjalankan padding, urutan blok, dan penjadwalan | Interface NIST LWC Hardware API; sumber publik tidak memberi angka buffer yang setara | Peripheral bus CSR; data, key, status; pilihan key sideload dari Key Manager; hingga tiga blok data GCM dapat berada pada tahapan berbeda | Satu transaksi; controller menampung AD dan data terpisah, maksimum 16 byte masing-masing pada konfigurasi build |
+| Security boundary | State crypto berada di RTL; penjadwalan/protokol ditangani host; evaluasi fisik tidak dinyatakan di halaman proyek | Reference hardware API; versi dan countermeasure berbeda antar konfigurasi | Produk SoC dengan masking opsional, key sideload, serta countermeasure kontrol FI yang terdokumentasi | Key masuk langsung dari pemanggil; tiada key manager, masking, sensor tamper, atau interface host board |
+| Platform / proses | Proyek pada shuttle Tiny Tapeout SKY26c; process node dan hasil uji silikon tidak dinyatakan pada halaman proyek | SystemVerilog; target dan process PPA tidak dilaporkan pada README yang dirujuk | IP OpenTitan; dokumentasi menyebut sudah ditape-out pada Earl Grey 1.0.0; angka node tidak dipakai di sini | Quartus Prime Lite 25.1, Cyclone V `5CSEBA6U23I7`; belum diuji pada DE10-Nano fisik |
+| Area/resource | Pemakaian dua tile dinyatakan pada uraian proyek; bukan angka GE/ALM yang dapat dibandingkan | Tidak tersedia pada README yang dirujuk | Tidak tersedia pada spesifikasi fungsi yang dirujuk | 2.464 ALM, 2.800 register, 0 M10K, 0 DSP dari Quartus |
+| Latensi / throughput | Permutasi p8 1.024 siklus dan p12 1.536 siklus; clock proyek 50 MHz; waktu AEAD end-to-end tidak dilaporkan | Untuk varian v1 32-bit/1-round: 41 siklus untuk AD/data kosong, 99 siklus untuk 32B pesan + 32B AD, 1.587 siklus untuk 1.024B + 1.024B; frekuensi/throughput tidak dilaporkan pada tabel tersebut | 12 siklus per blok AES-128 unmasked, 56 siklus masked; ini bukan latensi total GCM | Simulasi core KAT: maksimum 88 siklus per transaksi pada suite; top-level: 41–150 siklus pada kasus/sweep tertentu termasuk pengiriman byte; Fmax jalur teranalisis 79,72 MHz, tetapi bukan throughput aplikasi |
+| Power | Tidak dilaporkan | Tidak dilaporkan | Tidak dinyatakan di spesifikasi fungsi yang dirujuk | Belum diukur |
+| Verifikasi | 8 KAT end-to-end pada test utama serta sweep 1.113 KAT melalui interface pada direktori verifikasi | Testbench Cocotb, simulasi Verilator, dan sintesis Yosys disebut pada README | Regression/DV OpenTitan tersedia; rincian di dokumentasi vendor | 1.089 KAT RTL Ascon-C untuk enkripsi/dekripsi (2.178 transaksi), 578 transaksi top-level; 14 sampel ACVP memeriksa model Python; bukan sertifikasi ACVP |
+| Skalabilitas yang terdokumentasi | Desain menghemat area dengan memindahkan buffering dan pengaturan protokol ke host | Bus/unrolling dapat dipilih; tabel siklus mencakup pesan sampai 1.024 byte | Banyak mode AES, GCM compile-time optional, context save/restore | Kapasitas elaborasi tetap; konfigurasi yang dibangun 16 byte AD + 16 byte pesan; satu transaksi |
+
+**Batas keterbandingan:** Tiny Tapeout melaporkan siklus permutasi dan tile pada platformnya; RTL rprimas melaporkan siklus AEAD dengan antarmuka berbeda; OpenTitan melaporkan siklus blok cipher, bukan GCM lengkap. SECURE-TINY melaporkan ALM pada Cyclone V serta siklus testbench yang memasukkan overhead handshaking. GE, tile, ALM, cycle count, dan Fmax tidak boleh disejajarkan tanpa implementasi, tool, perangkat, konfigurasi, dan definisi pengukuran yang sama. Rincian pengukuran SECURE-TINY ada di `docs/results.md`.
+
+Sebagai pembanding tambahan yang memakai pendekatan berbeda, Steinegger dan Primas mengintegrasikan operasi Ascon-p sebagai ekstensi instruksi RISC-V, bukan accelerator AEAD mandiri; mereka melaporkan 4,7 kGE dan sekitar 2 siklus/byte, atau sekitar 4 siklus/byte dengan proteksi [15]. Hasil itu adalah konteks arsitektur CPU-coupled dan mendahului standar final SP 800-232, bukan angka pembanding langsung untuk RTL FPGA SECURE-TINY.
+
+### 2.5 Problem gap dan competitive positioning
+
+Sumber publik menunjukkan bahwa pilihan existing berkisar dari datapath serial yang mengandalkan host untuk protokol AEAD, core Ascon dengan interface blok dan konfigurasi lebar/unrolling, hingga accelerator SoC AES-GCM yang terhubung ke bus dan bergantung pada software untuk mengatur fase GCM serta membandingkan tag [11]–[14]. Tidak ada satu pun fakta tersebut yang membuktikan bahwa pasar tidak memiliki hardware tag guard. Kami juga belum melakukan wawancara calon pengguna atau mendapat workload aplikasi PERURI yang menetapkan ukuran pesan tertentu.
+
+Karena itu, problem SECURE-TINY kami persempit menjadi **kebutuhan demonstrator IP Ascon-AEAD128 mandiri untuk transaksi pendek dengan alur byte yang sederhana, urutan AEAD diatur di hardware, dan keputusan autentikasi tersedia di interface serta mengendalikan pelepasan plaintext**. Ini adalah kebutuhan dan trade-off yang kami pilih untuk proyek, bukan klaim gap industri yang telah tervalidasi. Batas 16 byte adalah konfigurasi demonstrasi/build sekarang; kami belum membuktikan bahwa ukuran ini mewakili workload edge atau PERURI.
+
+| Aspek posisi | Pendekatan yang tercatat pada pembanding | Pilihan SECURE-TINY dan konsekuensinya |
+|---|---|---|
+| Letak pengaturan protokol | Host menjadwalkan tahap AEAD pada proyek Tiny Tapeout; software menjalankan tahap GCM OpenTitan; beberapa core menyediakan interface blok LWC | Controller RTL mengatur satu transaksi AEAD lengkap setelah menerima byte AD dan data; kontrol lebih mandiri, tetapi memakai buffer register dan membatasi ukuran transaksi |
+| Mode pemrosesan | Dari bit-serial sangat hemat IO hingga datapath blok 32/64-bit dan 16 S-box paralel | Interface luar 8-bit, sementara core mengolah vektor packed dan permutasi satu ronde/siklus; trade-off area dan latency belum dibandingkan pada kondisi sama |
+| Verifikasi autentikasi | LWC core menyediakan status autentikasi; OpenTitan GCM meminta software membandingkan tag akhir | RTL menghasilkan `accept/reject`; skenario reject menguji tidak adanya handshake plaintext. Ini pembeda pada kontrak IP yang kami implementasikan, bukan mekanisme kriptografi baru |
+| Target | TinyTapeout chip tile atau SoC OpenTitan; core rprimas bersifat reusable dengan LWC API | Cyclone V DE10-Nano sebagai target build; virtual pins membuat jalur host/pin fisik belum ada |
+
+**Penilaian:** diferensiasi yang paling dapat dipertahankan adalah kontrak transaksi dan penahanan keluaran plaintext pada IP kecil yang diuji, bukan adanya Ascon, controller, atau blok bernama `authentication_guard`. Kekuatan kompetitifnya saat ini **modest/terbatas**: hasil implementasi dan verifikasi cukup konkret untuk proposal rekayasa, tetapi belum ada bukti bahwa batas kapasitas 16 byte, penggunaan resource, atau security wrapper unggul atas desain lain. Agar positioning makin kuat, tim perlu menunjukkan use case dan workload, serta menjalankan pembanding pada interface/kapasitas/device/constraint yang setara.
+
 ## 3. Proposed Chip Design
 
 ### 3.1 Fungsi dan arsitektur chip
@@ -189,6 +228,16 @@ Jadwal proyek mencatat tenggat 6 Oktober 2026. Pekerjaan sampai RTL, simulasi, s
 [9] Ascon Team, “Ascon-C v1.3.0,” *GitHub repository*, file `crypto_aead/ascon128av13/LWC_AEAD_KAT_128_128.txt`. [Online]. Available: https://github.com/ascon/ascon-c/tree/v1.3.0. [Accessed: Oct. 1, 2026]. Digunakan sebagai sumber tambahan KAT; implementasi C tidak disalin ke RTL.
 
 [10] Terasic Technologies, “DE10-Nano Development Kit.” [Online]. Available: https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046. [Accessed: Oct. 1, 2026].
+
+[11] P. Ullas, “162 Ascon bit-serial permutation engine,” Tiny Tapeout SKY26c project page, [Online]. Available: https://tinytapeout.com/chips/ttsky26c/tt_um_pranavUl_ascon_aead128. [Accessed: Oct. 2, 2026]. Deskripsi proyek melaporkan arsitektur bit-serial, interface lap, serta test vector; itu bukan laporan uji silikon independen.
+
+[12] R. Primas, “Hardware Design of Ascon (SP 800-232),” GitHub repository `rprimas/ascon-verilog`, [Online]. Available: https://github.com/rprimas/ascon-verilog. [Accessed: Oct. 2, 2026]. Siklus dan konfigurasi varian di tabel dikutip dari README repository; resource/frekuensi tidak tersedia pada bagian yang dirujuk.
+
+[13] lowRISC, “AES HWIP Technical Specification,” *OpenTitan Documentation*, [Online]. Available: https://opentitan.org/book/hw/ip/aes/. [Accessed: Oct. 2, 2026].
+
+[14] lowRISC, “Programmer’s Guide: Galois/Counter Mode (GCM),” *OpenTitan Documentation*, [Online]. Available: https://opentitan.org/book/hw/ip/aes/doc/programmers_guide.html. [Accessed: Oct. 2, 2026].
+
+[15] S. Steinegger and R. Primas, “A Fast and Compact RISC-V Accelerator for Ascon and Friends,” *Cryptology ePrint Archive*, Paper 2020/1083, 2020. [Online]. Available: https://eprint.iacr.org/2020/1083. [Accessed: Oct. 2, 2026]. Sumber ini adalah desain instruksi ekstensi Ascon-p yang dilaporkan 4.7 kGE dan sekitar 2 cycles/byte (sekitar 4 cycles/byte dengan proteksi), tetapi mendahului standar SP 800-232 final dan tidak dibandingkan langsung dengan SECURE-TINY.
 
 ## 5. Lampiran
 
