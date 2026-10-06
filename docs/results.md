@@ -1,5 +1,25 @@
 # Hasil Verifikasi SECURE-TINY
 
+## Validasi ulang untuk proposal final — 6 Oktober 2026
+
+Perintah dan hasil berikut dijalankan ulang pada working tree saat ini, setelah penambahan komentar belajar berbahasa Indonesia. Tidak ada perubahan fungsional RTL pada working tree dibanding sumber RTL regresi 2 Oktober; pemeriksaan ulang dilakukan agar proposal memakai bukti terbaru, bukan menyalin status lama sebagai run baru.
+
+| Tahap | Hasil aktual 6 Okt 2026 | Sebelum/perubahan |
+|---|---|---|
+| Regresi Icarus + model Python | PASS, 7/7 runner, exit code 0. Core: 2.178 transaksi, 121.308 siklus, maksimum 88; top-level: 578 transaksi, 51.019 siklus, maksimum 150. KAT/ACVP hit count sama dengan run 2 Okt. | Sama dengan run 2 Okt. Kasus ACVP non-byte-aligned tetap dilewati (226/240); bukan sertifikasi ACVP. Log baru `sim/regression_20261006.log`; waveform unit dan top-level dibuat ulang di `sim/`. |
+| Advisory simulasi | Icarus mengeluarkan pesan `constant selects in always_* processes are not fully supported`; keterangannya menyatakan proses menjadi peka terhadap semua bit vector terkait. Runner menyelesaikan seluruh assertion dan exit code 0. | Sama jenis advisory dengan run terdahulu; tetap dicatat sebagai keterbatasan tool. |
+| Verilator lint | PASS, Verilator 5.053, 0 warning; top-level `secure_tiny_top`, `MAX_DATA_BYTES=16`. | Lint historis 1 Okt juga PASS; log baru `sim/verilator_secure_tiny_16.log`. |
+| Yosys generik | PASS, Yosys 0.69+156; `check` melaporkan 0 masalah; 20.937 sel generik. Run kedua yang diulang untuk memastikan hitungan memberikan hasil yang sama. | Catatan 1 Okt sebelumnya 20.887 sel. Selisih +50 belum dapat dijelaskan dari log lama yang sudah dibersihkan; tidak ditafsirkan sebagai perubahan ALM atau regresi FPGA. Log run baru `sim/yosys_secure_tiny_16.log`. |
+| Quartus Cyclone V | Full compile PASS, 0 error/5 warning; 2.464 ALM (6% dari 41.910), 2.800 register, 0 RAM/M10K, 0 DSP. Fmax 79,72 MHz untuk clock teranalisis; setup slack +7,456 ns, hold slack +0,338 ns pada slow 1100 mV/100°C. | Sama dengan hasil Quartus 1 Okt. Baru dijalankan ulang pada 6 Okt memakai Quartus Prime Lite 25.1, `5CSEBA6U23I7`, `MAX_DATA_BYTES=16`, clock constraint 50 MHz. |
+| Constraint/bitstream | 616 transaction pins tetap virtual. Quartus menyatakan desain belum fully constrained untuk setup/hold I/O. Assembler membuat `.sof` 6.690.378 byte; SHA-256 `D49CD7D1AB67C963D93CC399FCBB4835A818B56F6DA71E43596412F1E20F4112`. Power Analyzer tidak dijalankan karena `FLOW_ENABLE_POWER_ANALYZER` tidak diaktifkan. | Sebelum: `.sof` tercatat 6.690.378 byte dengan SHA-256 berbeda. Berkas konfigurasi bukan bukti telah diprogram ke board. |
+| DE10-Nano fisik / software baseline | Tidak diuji; belum ada transaksi board atau benchmark software-versus-RTL pada HPS yang sama. | Tetap belum dilakukan. Tidak ada hasil real-time, daya, atau energi board. |
+
+### Perbandingan sebelum dan sesudah validasi
+
+Fungsi yang disimulasikan, jumlah kasus, siklus testbench, resource Quartus, slack clock, dan Fmax sama antara catatan terdahulu dan validasi 6 Oktober. Validasi ini memperkuat keterulangan baseline, bukan menunjukkan peningkatan performa desain. Satu perbedaan angka, yaitu hitungan sel generik Yosys `20.887 → 20.937`, tidak dipakai sebagai klaim perubahan desain: log terdahulu sudah tidak tersedia untuk audit opsi/seed/tool environment, sedangkan dua run Yosys baru stabil pada 20.937. Metrik FPGA yang relevan di proposal tetap berasal dari laporan Quartus Cyclone V.
+
+Build Quartus tetap menggunakan Auto Fit dan melewatkan optimasi tertentu demi mengurangi waktu kompilasi. Timing Analyzer juga tidak menganalisis 616 port transaksi sebagai pin fisik. Karena itu, `Fmax` serta slack yang tercatat menggambarkan clock/path yang dianalisis, bukan sign-off interface board. Tidak ada pengujian bitstream pada DE10-Nano.
+
 > **Cara membaca angka:** ALM (*Adaptive Logic Module*) dan register menunjukkan sumber daya FPGA yang dipakai pada konfigurasi ini. Fmax adalah frekuensi maksimum yang dilaporkan untuk jalur yang dianalisis; karena pin transaksi masih virtual, angka tersebut belum berarti seluruh masukan/keluaran board sudah memenuhi timing. Analogi sederhananya: kita sudah mengukur kecepatan mesin di dalam bengkel, tetapi belum mengukur seluruh jalur kabel pada pemasangan akhir. Kepanjangan istilah lain ada di [glosarium](glossary.md).
 
 ## Regresi simulasi terbaru — 2 Oktober 2026
