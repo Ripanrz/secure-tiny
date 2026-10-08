@@ -1,10 +1,14 @@
-"""Small, readable Ascon-AEAD128 model derived from NIST SP 800-232.
+"""Model Python Ascon-AEAD128 yang mudah dibaca untuk pembanding pengujian.
 
-This is test tooling, not RTL or a production cryptographic implementation.
-NIST ACVP vectors remain the expected-result source.
+Fungsi menerima key, nonce, AD, dan pesan/ciphertext, lalu mengembalikan
+ciphertext+tag atau plaintext/None. Implementasi ini untuk verifikasi, bukan
+RTL atau produk kriptografi, dan bukan sumber nilai harapan: KAT/ACVP menjadi
+acuan independen. Rumus mengikuti NIST SP 800-232.
 """
 
+# Mask menjaga hasil operasi Python tetap selebar satu word Ascon (64 bit).
 MASK64 = (1 << 64) - 1
+# Konstanta ronde SP 800-232; p[n] mengambil n konstanta terakhir dari tabel.
 ROUND_CONSTANTS = (
     0x3C, 0x2D, 0x1E, 0x0F, 0xF0, 0xE1, 0xD2, 0xC3,
     0xB4, 0xA5, 0x96, 0x87, 0x78, 0x69, 0x5A, 0x4B,
@@ -13,23 +17,29 @@ IV = 0x00001000808C0001
 
 
 def _ror(value: int, amount: int) -> int:
+    """Rotasi kanan word 64-bit; hasil dipotong agar lebarnya tetap 64 bit."""
+    # Ascon memakai rotasi, bukan shift yang membuang bit dari ujung word.
     return ((value >> amount) | (value << (64 - amount))) & MASK64
 
 
 def permute(state: list[int], rounds: int) -> list[int]:
+    """Jalankan p[rounds] pada lima word state dan kembalikan state baru."""
     if not 1 <= rounds <= 16:
         raise ValueError("rounds must be from 1 through 16")
     s0, s1, s2, s3, s4 = state
     for constant in ROUND_CONSTANTS[16 - rounds:]:
+        # Tambahkan konstanta pada word ketiga sebelum lapisan nonlinear.
         s2 ^= constant
 
         x0, x1, x2, x3, x4 = s0, s1, s2, s3, s4
+        # S-box 5-bit diterapkan paralel pada setiap posisi bit lima word.
         y0 = (x4 & x1) ^ x3 ^ (x2 & x1) ^ x2 ^ (x1 & x0) ^ x1 ^ x0
         y1 = x4 ^ (x3 & x2) ^ (x3 & x1) ^ x3 ^ (x2 & x1) ^ x2 ^ x1 ^ x0
         y2 = (x4 & x3) ^ x4 ^ x2 ^ x1 ^ MASK64
         y3 = (x4 & x0) ^ x4 ^ (x3 & x0) ^ x3 ^ x2 ^ x1 ^ x0
         y4 = (x4 & x1) ^ x4 ^ x3 ^ (x1 & x0) ^ x1
 
+        # Lapisan difusi linear mencampur bit melalui rotasi word 64-bit.
         s0 = (y0 ^ _ror(y0, 19) ^ _ror(y0, 28)) & MASK64
         s1 = (y1 ^ _ror(y1, 61) ^ _ror(y1, 39)) & MASK64
         s2 = (y2 ^ _ror(y2, 1) ^ _ror(y2, 6)) & MASK64
@@ -39,14 +49,18 @@ def permute(state: list[int], rounds: int) -> list[int]:
 
 
 def _word(block: bytes) -> int:
+    """Ubah byte little-endian menjadi satu word Ascon 64-bit."""
+    # Byte pertama menjadi byte paling rendah, sesuai pemetaan state Ascon.
     return int.from_bytes(block, "little")
 
 
 def _padded_word(block: bytes) -> int:
+    """Tambahkan delimiter 1 tepat setelah byte terakhir pada word parsial."""
     return _word(block) ^ (1 << (8 * len(block)))
 
 
 def _absorb_ad(state: list[int], ad: bytes) -> None:
+    """Serap AD per rate 16 byte, pad blok akhir, lalu pisahkan domain."""
     if ad:
         full_blocks, tail_size = divmod(len(ad), 16)
         for index in range(full_blocks):
@@ -66,7 +80,7 @@ def _absorb_ad(state: list[int], ad: bytes) -> None:
                 state[1] ^= _padded_word(tail[8:])
         state[:] = permute(state, 8)
 
-    # Domain-separation bit is state bit 319.
+    # Bit pemisah domain berada di bit 319 (bit 63 pada word state[4]).
     state[4] ^= 1 << 63
 
 
@@ -77,6 +91,7 @@ def encrypt(
     plaintext: bytes,
     second_key: bytes | None = None,
 ) -> tuple[bytes, bytes]:
+    """Enkripsi AEAD dan hasilkan ciphertext serta tag 128-bit."""
     if len(key) != 16 or len(nonce) != 16:
         raise ValueError("key and nonce must each contain 16 bytes")
 
@@ -85,9 +100,11 @@ def encrypt(
             raise ValueError("second key must contain 16 bytes")
         nonce = bytes(a ^ b for a, b in zip(nonce, second_key))
 
+    # Pecah key dan nonce menjadi dua word 64-bit untuk state lima word.
     k0, k1 = _word(key[:8]), _word(key[8:])
     n0, n1 = _word(nonce[:8]), _word(nonce[8:])
     state = permute([IV, k0, k1, n0, n1], 12)
+    # Injeksi key setelah p[12] menyelesaikan inisialisasi standar.
     state[3] ^= k0
     state[4] ^= k1
     _absorb_ad(state, ad)
@@ -96,6 +113,8 @@ def encrypt(
     ciphertext = bytearray()
     for index in range(full_blocks):
         block = plaintext[index * 16:(index + 1) * 16]
+        # XOR plaintext dengan rate menghasilkan ciphertext; ciphertext
+        # kemudian diserap ke state sebelum ronde p[8] berikutnya.
         state[0] ^= _word(block[:8])
         state[1] ^= _word(block[8:])
         ciphertext.extend(state[0].to_bytes(8, "little"))
@@ -103,6 +122,8 @@ def encrypt(
         state[:] = permute(state, 8)
 
     tail = plaintext[full_blocks * 16:]
+    # Blok parsial dipad dengan delimiter 1; panjang 8 byte tepat mengisi
+    # word pertama sehingga delimiter masuk ke word kedua.
     if tail_size < 8:
         state[0] ^= _padded_word(tail)
     else:
@@ -114,6 +135,7 @@ def encrypt(
     partial_state = state[0].to_bytes(8, "little") + state[1].to_bytes(8, "little")
     ciphertext.extend(partial_state[:tail_size])
 
+    # Finalisasi memasukkan key kembali dan mengubah state menjadi tag 128-bit.
     state[2] ^= k0
     state[3] ^= k1
     state[:] = permute(state, 12)
@@ -130,6 +152,7 @@ def decrypt(
     tag_bits: int = 128,
     second_key: bytes | None = None,
 ) -> bytes | None:
+    """Verifikasi ciphertext/tag; kembalikan plaintext hanya jika tag cocok."""
     if len(key) != 16 or len(nonce) != 16:
         raise ValueError("key and nonce must each contain 16 bytes")
     if not 1 <= tag_bits <= 128:
@@ -141,6 +164,7 @@ def decrypt(
             raise ValueError("second key must contain 16 bytes")
         nonce = bytes(a ^ b for a, b in zip(nonce, second_key))
 
+    # Inisialisasi dan penyerapan AD harus sama dengan jalur enkripsi.
     k0, k1 = _word(key[:8]), _word(key[8:])
     n0, n1 = _word(nonce[:8]), _word(nonce[8:])
     state = permute([IV, k0, k1, n0, n1], 12)
@@ -149,15 +173,21 @@ def decrypt(
     _absorb_ad(state, ad)
 
     full_blocks, tail_size = divmod(len(ciphertext), 16)
+    # Model menghitung plaintext sementara di memori Python, tetapi API hanya
+    # mengembalikannya setelah tag akhir terbukti cocok.
     plaintext = bytearray()
     for index in range(full_blocks):
         block = ciphertext[index * 16:(index + 1) * 16]
         c0, c1 = _word(block[:8]), _word(block[8:])
+        # XOR menghasilkan calon plaintext, sedangkan state menyerap kembali
+        # ciphertext (bukan plaintext) agar tag dihitung sesuai AEAD.
         plaintext.extend((state[0] ^ c0).to_bytes(8, "little"))
         plaintext.extend((state[1] ^ c1).to_bytes(8, "little"))
         state[0], state[1] = c0, c1
         state[:] = permute(state, 8)
 
+    # Blok akhir ditangani terpisah karena panjangnya mungkin tidak penuh;
+    # bagian yang tidak dikirim tetap dipertahankan untuk pemrosesan delimiter.
     tail = ciphertext[full_blocks * 16:]
     c0 = _word(tail[:8])
     p0 = state[0] ^ c0
@@ -176,6 +206,8 @@ def decrypt(
         state[1] = (state[1] & ~((1 << (8 * (tail_size - 8))) - 1)) | c1
         state[1] ^= 1 << (8 * (tail_size - 8))
 
+    # Hitung tag dengan finalisasi yang sama, lalu bandingkan hanya bit yang
+    # ditentukan tag_bits. Model mengembalikan plaintext hanya bila cocok.
     state[2] ^= k0
     state[3] ^= k1
     state[:] = permute(state, 12)

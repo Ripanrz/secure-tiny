@@ -1,3 +1,5 @@
+# Ekstrak metrik dari laporan Quartus yang ada. Script ini menjalankan map/fit/STA
+# sebelum ekstraksi; angka harus selalu dipasangkan dengan report dan konfigurasi.
 param(
     [string]$Project = 'secure_tiny',
     [string]$QuartusBin = ''
@@ -13,6 +15,7 @@ $ClockName = 'FPGA_CLK1_50'
 & (Join-Path $PSScriptRoot 'check_quartus_project.ps1')
 
 function Resolve-QuartusTool([string]$Name) {
+    # Cari executable dari folder yang diberikan atau dari PATH.
     if (-not [string]::IsNullOrWhiteSpace($QuartusBin)) {
         $candidate = Join-Path $QuartusBin "$Name.exe"
         if (Test-Path -LiteralPath $candidate -PathType Leaf) {
@@ -41,6 +44,7 @@ if ($Missing.Count -gt 0) {
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 Push-Location $QuartusProjectDir
 try {
+    # Jalankan tiga tahap agar laporan resource dan timing berasal dari compile ini.
     foreach ($stage in @('quartus_map', 'quartus_fit', 'quartus_sta')) {
         $logPath = Join-Path $OutputDir "$ProjectRevision.$($stage.Replace('quartus_', '')).log"
         Write-Output "RUN $stage $Project"
@@ -62,6 +66,8 @@ if ($ReportFiles.Count -eq 0) {
 }
 
 function Find-ReportMetric([string]$LabelPattern, [string]$ValuePattern, [string]$MetricName) {
+    # Ambil metrik dari laporan Quartus terbaru dan simpan baris asal agar angka
+    # dapat ditelusuri. Jika format laporan berubah, tandai sebagai belum terbaca.
     foreach ($report in ($ReportFiles | Sort-Object LastWriteTime -Descending)) {
         foreach ($line in [IO.File]::ReadLines($report.FullName)) {
             if ($line -match $LabelPattern) {
@@ -93,6 +99,7 @@ $Metrics = @(
     Find-ReportMetric '(?i)Total registers' '(?i)Total registers.*?(?<value>[\d,]+)(?:\s*/|\s*;|\s*$)' 'Registers used'
 )
 
+# Fmax dicari terpisah karena nilainya harus cocok dengan nama clock pada SDC.
 $FmaxMetric = $null
 foreach ($report in ($ReportFiles | Sort-Object LastWriteTime -Descending)) {
     foreach ($line in [IO.File]::ReadLines($report.FullName)) {

@@ -1,3 +1,5 @@
+# Periksa konsistensi file Quartus tanpa menjalankan kompilasi: target, sumber,
+# parameter, pin clock/reset, port virtual, dan constraint clock.
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $QuartusDir = Join-Path $ProjectRoot 'quartus'
@@ -28,11 +30,13 @@ $requiredAssignments = @(
     'set_location_assignment PIN_AH17 -to rst_n'
 )
 foreach ($assignment in $requiredAssignments) {
+    # Pastikan pengaturan utama tetap sesuai target build baseline.
     if (-not ($qsf -contains $assignment)) {
         throw "Required QSF assignment is missing: $assignment"
     }
 }
 
+# Port transaksi sengaja virtual sampai interface board/host ditentukan.
 $virtualPorts = @(
     'start', 'decrypt', '"key[*]"', '"nonce[*]"', '"ad_length[*]"',
     '"data_length[*]"', '"received_tag[*]"', 'ad_valid', 'ad_ready',

@@ -1,10 +1,12 @@
 `timescale 1ns/1ps
 
+// Testbench terarah untuk antarmuka top-level. Memeriksa KAT enkripsi/dekripsi,
+// stall output/tag, input AD, reset pada transaksi aktif, dan kasus reject.
 module tb_secure_tiny_top;
     localparam int unsigned MAX_DATA_BYTES = 16;
     localparam logic [127:0] FULL_BLOCK_CIPHERTEXT =
         128'he37452ce8ea4d07cee4aa4d289d270e7;
-    // Ascon-C v1.3.0 KAT Count 35: PT=00, AD=00, CT=25 || tag.
+    // Ascon-C v1.3.0 KAT Count 35: PT=00, AD=00, CT=25 diikuti tag.
     localparam logic [127:0] AD_KAT_TAG =
         128'h30222973f620badc1785acd40e704beb;
     localparam logic [7:0] AD_KAT_CIPHERTEXT = 8'h25;
@@ -45,6 +47,7 @@ module tb_secure_tiny_top;
 
     task automatic launch(input logic decrypt_mode);
         begin
+            // Perintah diterima hanya ketika start tinggi dan DUT tidak sibuk.
             @(negedge clk);
             decrypt = decrypt_mode;
             start = 1'b1;
@@ -59,6 +62,7 @@ module tb_secure_tiny_top;
 
     task automatic send_one_byte(input logic [7:0] value);
         begin
+            // Pertahankan valid/data sampai DUT mengangkat ready.
             @(negedge clk);
             data_in = value;
             data_valid = 1'b1;
@@ -70,6 +74,7 @@ module tb_secure_tiny_top;
 
     task automatic send_one_ad_byte(input logic [7:0] value);
         begin
+            // Handshake AD terpisah; kontrak DUT meminta AD sebelum data pesan.
             @(negedge clk);
             ad_data = value;
             ad_valid = 1'b1;
@@ -90,6 +95,7 @@ module tb_secure_tiny_top;
     task automatic wait_for_done;
         integer cycles;
         begin
+            // Laporkan latency transaksi dan hentikan simulasi bila DUT deadlock.
             cycles = 0;
             while (!done && cycles < 500) begin
                 @(posedge clk);
@@ -107,6 +113,7 @@ module tb_secure_tiny_top;
 
     task automatic abort_with_reset;
         begin
+            // Pastikan reset membatalkan transaksi dan mencabut status/output.
             @(negedge clk);
             rst_n = 1'b0;
             start = 1'b0;
@@ -131,7 +138,7 @@ module tb_secure_tiny_top;
         #1;
         rst_n = 1'b1;
 
-        // Encrypt KAT Count 34: plaintext 00 -> ciphertext E7 plus tag.
+        // Enkripsi KAT Count 34: plaintext 00 menghasilkan ciphertext E7 dan tag.
         launch(1'b0);
         send_one_byte(8'h00);
         wait(out_valid);
@@ -166,7 +173,7 @@ module tb_secure_tiny_top;
         tag_ready = 1'b0;
         wait_for_done();
 
-        // KAT Count 2 exercises a padded AD-only operation.
+        // KAT Count 2 menguji pemrosesan AD dan padding saat pesan kosong.
         ad_length = 1;
         data_length = 0;
         launch(1'b0);
@@ -181,7 +188,7 @@ module tb_secure_tiny_top;
         tag_ready = 1'b0;
         wait_for_done();
 
-        // KAT Count 529 exercises the external byte stream across one full block.
+        // KAT Count 529 menguji stream eksternal sepanjang satu blok penuh.
         ad_length = 0;
         data_length = 16;
         launch(1'b0);
@@ -208,7 +215,7 @@ module tb_secure_tiny_top;
         tag_ready = 1'b0;
         wait_for_done();
 
-        // Valid decryption must expose plaintext only after ACCEPT.
+        // Dekripsi valid baru boleh menawarkan plaintext setelah ACCEPT.
         data_length = 1;
         received_tag = 128'h47f103dde1f838d4b551fc41f5f1589f;
         out_ready = 1'b0;
@@ -229,7 +236,7 @@ module tb_secure_tiny_top;
         out_ready = 1'b0;
         wait_for_done();
 
-        // KAT Count 35 is the valid control case for modified-AD rejection.
+        // KAT Count 35 menjadi kontrol valid untuk uji perubahan AD.
         ad_length = 1;
         data_length = 1;
         received_tag = AD_KAT_TAG;
@@ -251,7 +258,7 @@ module tb_secure_tiny_top;
         out_ready = 1'b0;
         wait_for_done();
 
-        // Change only AD while retaining the KAT ciphertext and tag.
+        // Ubah hanya AD; ciphertext dan tag KAT tetap sebagai pembanding.
         launch(1'b1);
         send_one_ad_byte(8'h01);
         send_one_byte(AD_KAT_CIPHERTEXT);
@@ -260,7 +267,7 @@ module tb_secure_tiny_top;
             $fatal(1, "modified AD was not rejected without plaintext");
         ad_length = 0;
 
-        // A modified tag must reject and produce no plaintext transfer.
+        // Tag yang diubah harus ditolak tanpa transfer plaintext.
         received_tag = 128'h47f103dde1f838d4b551fc41f5f1589e;
         launch(1'b1);
         send_one_byte(8'he7);
@@ -268,7 +275,7 @@ module tb_secure_tiny_top;
         if (!auth_result_valid || accept || !reject || out_valid)
             $fatal(1, "modified tag was not rejected without plaintext");
 
-        // A modified ciphertext with the original tag is also rejected.
+        // Ciphertext yang diubah dengan tag asli juga harus ditolak.
         received_tag = 128'h47f103dde1f838d4b551fc41f5f1589f;
         launch(1'b1);
         send_one_byte(8'hee);
@@ -276,7 +283,7 @@ module tb_secure_tiny_top;
         if (!auth_result_valid || accept || !reject || out_valid)
             $fatal(1, "modified ciphertext was not rejected without plaintext");
 
-        // Start while busy is ignored; reset then aborts the waiting command.
+        // Start saat sibuk diabaikan; reset membatalkan transaksi yang aktif.
         launch(1'b0);
         @(negedge clk);
         start = 1'b1;
@@ -287,7 +294,7 @@ module tb_secure_tiny_top;
             $fatal(1, "start while busy changed the active transaction");
         abort_with_reset();
 
-        // Reset also aborts each long-running or output-wait phase.
+        // Reset juga membatalkan fase proses dan fase yang menunggu output.
         data_length = 0;
         launch(1'b0);
         wait(dut.controller.core_busy);
@@ -308,7 +315,7 @@ module tb_secure_tiny_top;
         wait(tag_valid);
         abort_with_reset();
 
-        // Oversized commands fail before accepting any stream data.
+        // Perintah terlalu panjang ditolak sebelum byte stream diterima.
         data_length = 1;
         @(negedge clk);
         ad_length = MAX_DATA_BYTES + 1;
@@ -319,7 +326,7 @@ module tb_secure_tiny_top;
         if (!command_error || !done || busy || auth_result_valid)
             $fatal(1, "oversized command did not report command_error");
 
-        // Oversized message length is rejected independently of AD length.
+        // Panjang pesan di luar kapasitas ditolak terpisah dari panjang AD.
         @(posedge clk);
         #1;
         if (command_error || done)

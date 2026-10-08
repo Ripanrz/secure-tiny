@@ -1,5 +1,8 @@
 `timescale 1ns/1ps
 
+// Testbench core AEAD yang membaca KAT Ascon-C dari file tepercaya.
+// Setiap record dijalankan dalam mode enkripsi dan dekripsi; ciphertext,
+// plaintext dan tag dibandingkan, sementara latency dihitung dalam siklus.
 module tb_ascon_core;
     localparam int unsigned MAX_DATA_BYTES = 32;
 
@@ -58,6 +61,8 @@ module tb_ascon_core;
     task automatic wait_done;
         integer timeout_cycles;
         begin
+            // Timeout mencegah deadlock tersembunyi; hitung siklus dari start
+            // sampai pulsa done dan pastikan transaksi valid tidak error.
             timeout_cycles = 0;
             while (!done && timeout_cycles < 400) begin
                 @(posedge clk);
@@ -76,6 +81,7 @@ module tb_ascon_core;
 
     task automatic begin_transaction(input logic decrypt_mode);
         begin
+            // Beri start satu siklus, lalu tunggu hasil sebelum transaksi baru.
             @(negedge clk);
             decrypt = decrypt_mode;
             start = 1'b1;
@@ -99,6 +105,7 @@ module tb_ascon_core;
 
     task automatic fetch_line;
         begin
+            // Kegagalan EOF dini berarti record KAT tidak lengkap.
             if ($fgets(line, kat_file) == 0)
                 $fatal(1, "unexpected end of Ascon-C KAT file");
         end
@@ -159,8 +166,8 @@ module tb_ascon_core;
                 if (ciphertext_bytes != message_bytes + 16)
                     $fatal(1, "unexpected ciphertext/tag length at KAT Count %0d", kat_count);
 
-                // KAT text is byte-ordered most-significant first. The RTL
-                // interface places byte zero in the least-significant lane.
+                // Teks KAT menulis byte pertama paling kiri; interface RTL
+                // menempatkan byte pertama pada lane paling rendah [7:0].
                 key = '0;
                 nonce = '0;
                 ad_data = '0;
@@ -187,8 +194,8 @@ module tb_ascon_core;
                 if (tag_out !== expected_tag)
                     $fatal(1, "encryption tag mismatch at KAT Count %0d: got %032h expected %032h", kat_count, tag_out, expected_tag);
 
-                // Only retain the first transaction in the VCD; the complete
-                // 2,178-transaction comparison remains visible in the log.
+                // VCD hanya menyimpan transaksi pertama agar file ringkas;
+                // seluruh 2.178 transaksi tetap dihitung dan dilaporkan di log.
                 if (kat_count == 1)
                     $dumpoff;
 

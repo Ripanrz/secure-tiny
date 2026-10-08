@@ -1,3 +1,5 @@
+# Jalankan dua pemeriksa model: sample ACVP byte-aligned dan KAT Ascon-C.
+# Exit code gagal diteruskan agar runner regresi dapat berhenti dengan benar.
 param([string]$SuiteRoot = $env:OSS_CAD_SUITE)
 
 $ErrorActionPreference = 'Stop'

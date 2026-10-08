@@ -1,3 +1,5 @@
+# Pengaturan proyek Quartus: family, device, top-level, SDC, dan sumber RTL.
+# MAX_DATA_BYTES=16 adalah konfigurasi baseline, bukan batas algoritma Ascon.
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEBA6U23I7
 set_global_assignment -name TOP_LEVEL_ENTITY secure_tiny_top
@@ -12,14 +14,14 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/aead_controller.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/secure_tiny_top.sv
 set_parameter -name MAX_DATA_BYTES 16
 
-# DE10-Nano board connections: FPGA_CLK1_50 and KEY[0].
+# Pin board DE10-Nano untuk clock FPGA_CLK1_50 dan tombol reset KEY[0].
 set_location_assignment PIN_V11 -to clk
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 set_location_assignment PIN_AH17 -to rst_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst_n
 
-# The IP transaction interface is exposed as virtual pins for synthesis.
-# It is not wired to a physical DE10-Nano host or expansion header in this project.
+# Port transaksi masih virtual untuk sintesis; belum terhubung ke HPS,
+# header ekspansi, atau pin fisik untuk uji transaksi board.
 set_instance_assignment -name VIRTUAL_PIN ON -to start
 set_instance_assignment -name VIRTUAL_PIN ON -to decrypt
 set_instance_assignment -name VIRTUAL_PIN ON -to "key[*]"
@@ -45,3 +47,5 @@ set_instance_assignment -name VIRTUAL_PIN ON -to reject
 set_instance_assignment -name VIRTUAL_PIN ON -to busy
 set_instance_assignment -name VIRTUAL_PIN ON -to done
 set_instance_assignment -name VIRTUAL_PIN ON -to command_error
+
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"

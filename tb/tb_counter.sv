@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 
+// Testbench counter: membuat clock, reset dan enable, lalu memeriksa reset,
+// hitung, tahan saat enable rendah, limpahan 4-bit, dan reset ulang.
 module tb_counter;
     localparam int unsigned WIDTH = 4;
 
@@ -18,6 +20,7 @@ module tb_counter;
     always #5 clk = ~clk;
 
     task automatic expect_count(input logic [WIDTH-1:0] expected);
+        // Gagal cepat dengan nilai aktual/harapan agar regresi mudah ditelusuri.
         if (count !== expected) begin
             $error("count mismatch: got %0d expected %0d", count, expected);
             $fatal(1);
@@ -28,7 +31,7 @@ module tb_counter;
         $dumpfile("sim/counter.vcd");
         $dumpvars(0, tb_counter);
 
-        // Synchronous reset is sampled on a rising clock edge.
+        // Reset sinkron dibaca pada tepi naik clock.
         @(posedge clk);
         #1;
         expect_count(4'd0);

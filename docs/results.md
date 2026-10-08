@@ -14,6 +14,18 @@ Perintah dan hasil berikut dijalankan ulang pada working tree saat ini, setelah 
 | Constraint/bitstream | 616 transaction pins tetap virtual. Quartus menyatakan desain belum fully constrained untuk setup/hold I/O. Assembler membuat `.sof` 6.690.378 byte; SHA-256 `D49CD7D1AB67C963D93CC399FCBB4835A818B56F6DA71E43596412F1E20F4112`. Power Analyzer tidak dijalankan karena `FLOW_ENABLE_POWER_ANALYZER` tidak diaktifkan. | Sebelum: `.sof` tercatat 6.690.378 byte dengan SHA-256 berbeda. Berkas konfigurasi bukan bukti telah diprogram ke board. |
 | DE10-Nano fisik / software baseline | Tidak diuji; belum ada transaksi board atau benchmark software-versus-RTL pada HPS yang sama. | Tetap belum dilakukan. Tidak ada hasil real-time, daya, atau energi board. |
 
+### Status evidence untuk klaim
+
+| Klaim | Status | Batas evidence |
+|---|---|---|
+| Regression Icarus, core/top-level KAT, dan model Python pada run 6 Oktober | VERIFIED | Log run tersimpan di `sim/regression_20261006.log`; pemeriksaan ACVP hanya 14 kasus byte-aligned yang didukung checker. |
+| Verilator lint dan Yosys generik pada konfigurasi 16 byte | VERIFIED | Log aktual tersimpan di `sim/verilator_secure_tiny_16.log` dan `sim/yosys_secure_tiny_16.log`; sel Yosys bukan metrik FPGA. |
+| Resource Fitter dan clock timing Quartus | PARTIALLY VERIFIED | Laporan build tersedia; 616 pin transaksi virtual dan setup/hold belum fully constrained, jadi bukan sign-off timing I/O. |
+| Pembuatan `.sof` dan hash yang tercatat | VERIFIED | Ukuran/hash dicatat di atas; `.sof` tidak disertakan dalam repository dan bukan bukti pemrograman board. |
+| Sertifikasi ACVP, daya/throughput fisik, side-channel/fault resistance, dan validasi DE10-Nano | NOT CLAIMED | Tidak ada bukti sertifikasi atau pengujian fisik tersebut. |
+
+Catatan historis 1 Oktober untuk 20.887 sel Yosys dan log yang telah dibersihkan bukan hasil terbaru yang dapat diaudit mandiri. Klaim hasil saat ini merujuk ke log 6 Oktober dengan 20.937 sel generik; selisih historis tersebut tidak digunakan sebagai metrik perubahan FPGA.
+
 ### Perbandingan sebelum dan sesudah validasi
 
 Fungsi yang disimulasikan, jumlah kasus, siklus testbench, resource Quartus, slack clock, dan Fmax sama antara catatan terdahulu dan validasi 6 Oktober. Validasi ini memperkuat keterulangan baseline, bukan menunjukkan peningkatan performa desain. Satu perbedaan angka, yaitu hitungan sel generik Yosys `20.887 → 20.937`, tidak dipakai sebagai klaim perubahan desain: log terdahulu sudah tidak tersedia untuk audit opsi/seed/tool environment, sedangkan dua run Yosys baru stabil pada 20.937. Metrik FPGA yang relevan di proposal tetap berasal dari laporan Quartus Cyclone V.

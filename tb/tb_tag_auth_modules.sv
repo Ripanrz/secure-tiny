@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 
+// Testbench unit pembentuk tag, verifier, dan guard. Menguji penahanan tag
+// saat backpressure, tag cocok/tidak cocok, keputusan ACCEPT/REJECT, clear, reset.
 module tb_tag_auth_modules;
     logic clk = 1'b0;
     logic rst_n = 1'b0;
@@ -50,6 +52,7 @@ module tb_tag_auth_modules;
 
     task automatic tick;
         begin
+            // Tunggu tepi clock aktif dan beri waktu bagi assignment nonblocking.
             @(posedge clk);
             #1;
         end
@@ -65,7 +68,7 @@ module tb_tag_auth_modules;
             $fatal(1, "synchronous reset did not clear tag/authentication modules");
         rst_n = 1'b1;
 
-        // The tag generator must hold its value through backpressure.
+        // Tag harus tetap stabil ketika penerima menahan ready rendah.
         @(negedge clk);
         tag_in = 128'h00112233445566778899aabbccddeeff;
         tag_load = 1'b1;
@@ -81,7 +84,7 @@ module tb_tag_auth_modules;
         if (!tag_valid || tag_out !== 128'h00112233445566778899aabbccddeeff)
             $fatal(1, "tag generator changed its output while stalled");
 
-        // A simultaneous consume and load replaces the tag without a gap.
+        // Konsumsi dan pemuatan serentak mengganti tag tanpa jeda valid.
         @(negedge clk);
         tag_ready = 1'b1;
         tag_load = 1'b1;
@@ -97,7 +100,7 @@ module tb_tag_auth_modules;
         if (tag_valid)
             $fatal(1, "tag generator did not clear valid after handshake");
 
-        // The verifier must compare its latched inputs, not changing inputs.
+        // Verifier harus membandingkan snapshot, bukan input yang berubah sesudah start.
         @(negedge clk);
         calculated_tag = 128'h112233445566778899aabbccddeeff00;
         received_tag = calculated_tag;
@@ -115,7 +118,7 @@ module tb_tag_auth_modules;
         if (verify_done || tag_match || tag_mismatch)
             $fatal(1, "tag verifier result was not a one-cycle pulse");
 
-        // A one-bit difference anywhere in the full tag must reject.
+        // Perbedaan satu bit di bagian mana pun dari tag harus ditolak.
         @(negedge clk);
         calculated_tag = 128'b0;
         received_tag = 128'h80000000000000000000000000000000;
@@ -127,7 +130,7 @@ module tb_tag_auth_modules;
             $fatal(1, "tag verifier failed to detect a high-order tag mismatch");
         tick();
 
-        // The guard ignores encryption decisions and never opens early.
+        // Guard mengabaikan keputusan enkripsi dan belum boleh membuka output.
         @(negedge clk);
         decrypt = 1'b1;
         decision_match = 1'b1;
@@ -142,7 +145,7 @@ module tb_tag_auth_modules;
         if (auth_result_valid || accept || reject || plaintext_allowed)
             $fatal(1, "guard incorrectly processed an encryption decision");
 
-        // A valid decrypt decision releases plaintext and remains sticky.
+        // Keputusan dekripsi valid membuka plaintext dan bertahan sampai clear.
         @(negedge clk);
         decrypt = 1'b1;
         decision_match = 1'b1;
@@ -154,7 +157,7 @@ module tb_tag_auth_modules;
         if (!auth_result_valid || !accept || reject || !plaintext_allowed)
             $fatal(1, "guard did not hold the accepted decision");
 
-        // Clear the prior decision, then check invalid authentication.
+        // Hapus keputusan sebelumnya, lalu periksa autentikasi yang tidak valid.
         @(negedge clk);
         guard_clear = 1'b1;
         tick();

@@ -1,5 +1,9 @@
-// Single-command controller: receives byte streams into bounded buffers,
-// starts the cryptographic core, and releases results after verification.
+// Pengendali satu transaksi AEAD pada satu waktu.
+// Masukan: perintah/key/nonce/tag dan stream byte AD serta pesan.
+// Keluaran: ready/valid, tag/status, busy/done/error.
+// Urutan: terima AD -> data -> jalankan core -> verifikasi saat dekripsi ->
+// kirim hasil. Buffer dibatasi MAX_DATA_BYTES; plaintext ditahan sampai tag
+// cocok agar tidak terlihat melalui port lebih awal.
 module aead_controller #(
     parameter int unsigned MAX_DATA_BYTES
 ) (
@@ -43,6 +47,8 @@ module aead_controller #(
     localparam logic [3:0] SEND_TAG = 4'd8;
     localparam logic [3:0] REJECT_DONE = 4'd9;
 
+    // phase menyimpan langkah transaksi; counter menghitung byte yang sudah
+    // berjabat tangan. Byte pertama buffer packed berada pada lane terendah.
     logic [3:0] phase;
     logic decrypt_reg;
     logic [127:0] key_reg;
@@ -70,8 +76,12 @@ module aead_controller #(
     logic verifier_mismatch;
     logic guard_clear;
     logic plaintext_allowed;
+    // Ready hanya aktif pada fase/panjang yang sesuai. Transfer terjadi saat
+    // valid dan ready sama-sama tinggi pada tepi clock.
     assign ad_ready = (phase == RECEIVE_AD) && (ad_count < ad_length_reg);
     assign data_ready = (phase == RECEIVE_DATA) && (data_count < data_length_reg);
+    // Guard menjadi syarat tambahan bagi plaintext dekripsi. Ketika tag tidak
+    // cocok, out_valid tetap nol sehingga tidak ada transfer plaintext.
     assign out_valid = (phase == SEND_DATA) &&
                        (!decrypt_reg || plaintext_allowed) &&
                        (output_count < data_length_reg);
@@ -83,6 +93,7 @@ module aead_controller #(
     );
         integer lane;
         begin
+            // Pilih lane ke-n dari buffer packed untuk stream keluaran 8-bit.
             select_output_byte = 8'b0;
             for (lane = 0; lane < MAX_DATA_BYTES; lane = lane + 1) begin
                 if (byte_number == lane)
@@ -120,6 +131,8 @@ module aead_controller #(
         .plaintext_allowed(plaintext_allowed)
     );
 
+    // FSM mengunci perintah saat idle, mengumpulkan input, lalu menahan hasil
+    // sampai konsumen siap. Reset membatalkan transaksi dan statusnya.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             phase <= IDLE;
@@ -175,6 +188,8 @@ module aead_controller #(
                     end
                 end
 
+                // Simpan AD hanya pada handshake; pesan menunggu sampai
+                // seluruh AD dengan panjang terdeklarasi terkumpul.
                 RECEIVE_AD: begin
                     if (ad_valid && ad_ready) begin
                         ad_buffer[(ad_count*8) +: 8] <= ad_data;
@@ -202,6 +217,8 @@ module aead_controller #(
                     phase <= CORE_WAIT;
                 end
 
+                // Setelah core selesai, enkripsi menuju output; dekripsi harus
+                // menunggu verifier sebelum plaintext bisa dikeluarkan.
                 CORE_WAIT: begin
                     if (core_done) begin
                         if (core_error) begin
@@ -221,6 +238,7 @@ module aead_controller #(
                     end
                 end
 
+                // Match membuka stream. Mismatch berakhir tanpa masuk SEND_DATA.
                 VERIFY_WAIT: begin
                     if (verifier_done) begin
                         if (verifier_match) begin
@@ -232,6 +250,8 @@ module aead_controller #(
                     end
                 end
 
+                // Counter hanya maju setelah handshake. Saat out_ready rendah,
+                // byte yang sama tetap tersedia sampai diterima.
                 SEND_DATA: begin
                     if (data_length_reg == 0) begin
                         if (decrypt_reg) begin

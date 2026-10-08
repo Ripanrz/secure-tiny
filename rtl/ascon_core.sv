@@ -1,5 +1,9 @@
-// Byte-buffered Ascon-AEAD128 engine. Byte zero is the least-significant
-// byte of each packed input/output vector. MAX_DATA_BYTES is mandatory.
+// Core Ascon-AEAD128 sinkron untuk satu transaksi yang sudah dikumpulkan.
+// Masukan: key, nonce, panjang AD/data, buffer packed, mode start/decrypt.
+// Keluaran: data_out, tag_out, busy/done, serta command_error jika panjang
+// melampaui MAX_DATA_BYTES. Byte pertama menempati bit [7:0].
+// Urutan kerja: inisialisasi -> AD -> pemisahan domain -> pesan -> finalisasi;
+// algoritma mengikuti NIST SP 800-232. Parameter kapasitas wajib diberikan.
 module ascon_core #(
     parameter int unsigned MAX_DATA_BYTES
 ) (
@@ -65,6 +69,8 @@ module ascon_core #(
     );
         integer lane;
         begin
+            // Salin paling banyak 16 byte ke blok rate; lane di luar data
+            // aktual tetap nol untuk penanganan blok parsial.
             read_block = 128'b0;
             for (lane = 0; lane < 16; lane = lane + 1) begin
                 if ((lane < byte_count) && ((first_byte + lane) < MAX_DATA_BYTES))
@@ -85,6 +91,8 @@ module ascon_core #(
         .state_out(perm_state_out)
     );
 
+    // Siapkan blok AD/pesan dan padding tanpa mengubah register state.
+    // Rate Ascon-AEAD128 berukuran 128 bit; byte sisa mendapat delimiter 1.
     always_comb begin
         tail_length = 5'b0;
         block_value = 128'b0;
@@ -122,6 +130,8 @@ module ascon_core #(
         end
     end
 
+    // FSM berinteraksi dengan permutasi melalui sinyal start/done. Status
+    // done/error berupa pulsa satu siklus untuk melanjutkan fase controller.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             phase <= IDLE;
@@ -167,6 +177,7 @@ module ascon_core #(
                     end
                 end
 
+                // Susun IV, key, dan nonce sesuai urutan word standar.
                 INIT_LAUNCH: begin
                     state_reg <= {ASCON_AEAD128_IV, key_reg[63:0], key_reg[127:64],
                                   nonce_reg[63:0], nonce_reg[127:64]};
@@ -189,6 +200,7 @@ module ascon_core #(
                     end
                 end
 
+                // Proses AD per blok 16 byte, dengan padding pada blok terakhir.
                 AD_SETUP: begin
                     if (ad_length_reg == 0) begin
                         phase <= DOMAIN_SEPARATE;
@@ -224,12 +236,15 @@ module ascon_core #(
                     end
                 end
 
+                // Pisahkan domain AD dan pesan sebelum pemrosesan pesan.
                 DOMAIN_SEPARATE: begin
                     state_reg[63] <= ~state_reg[63];
                     byte_index <= '0;
                     phase <= MESSAGE_SETUP;
                 end
 
+                // XOR rate membentuk output; state menyerap ciphertext baik
+                // pada enkripsi maupun dekripsi, sebagaimana ditentukan AEAD.
                 MESSAGE_SETUP: begin
                     if (byte_index < {data_length_reg[31:4], 4'b0000}) begin
                         if (decrypt_reg) begin
@@ -266,6 +281,8 @@ module ascon_core #(
                     end
                 end
 
+                // Finalisasi memasukkan key lagi, lalu p12 menghasilkan state
+                // akhir yang dipakai untuk membentuk tag 128-bit.
                 FINAL_LAUNCH: begin
                     state_reg[191:128] <= state_reg[191:128] ^ key_reg[63:0];
                     state_reg[127:64] <= state_reg[127:64] ^ key_reg[127:64];

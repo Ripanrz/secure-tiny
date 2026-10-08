@@ -1,5 +1,9 @@
 `timescale 1ns/1ps
 
+// Sapuan integrasi top-level: semua pasangan panjang AD/data 0..16 byte,
+// masing-masing enkripsi dan dekripsi terhadap KAT Ascon-C.
+// Monitor clock menghitung byte handshake serta memeriksa plaintext tidak
+// valid sebelum keputusan autentikasi.
 module tb_secure_tiny_kat;
     localparam int unsigned MAX_DATA_BYTES = 16;
     localparam int unsigned LENGTH_PAIR_COUNT = (MAX_DATA_BYTES + 1) * (MAX_DATA_BYTES + 1);
@@ -73,6 +77,8 @@ module tb_secure_tiny_kat;
     always #5 clk = ~clk;
 
     always @(posedge clk) begin
+        // Monitor pasif mengumpulkan output dan menegakkan invarian protokol
+        // pada setiap siklus, bukan hanya setelah transaksi berakhir.
         cycle_count = cycle_count + 1;
         if (rst_n) begin
             if (out_valid && out_ready) begin
@@ -96,6 +102,7 @@ module tb_secure_tiny_kat;
 
     task automatic fetch_line;
         begin
+            // Ambil satu baris KAT; EOF prematur menandakan vector terpotong.
             if ($fgets(line, kat_file) == 0)
                 $fatal(1, "unexpected end of KAT file");
         end
@@ -103,6 +110,7 @@ module tb_secure_tiny_kat;
 
     task automatic launch(input logic decrypt_mode);
         begin
+            // Kirim satu perintah dan catat titik awal pengukuran latency.
             @(negedge clk);
             decrypt = decrypt_mode;
             start = 1'b1;
@@ -117,6 +125,7 @@ module tb_secure_tiny_kat;
 
     task automatic send_ad_byte(input logic [7:0] value);
         begin
+            // Pengirim memegang valid dan data sampai ready menandai transfer.
             @(negedge clk);
             ad_data = value;
             ad_valid = 1'b1;
@@ -128,6 +137,7 @@ module tb_secure_tiny_kat;
 
     task automatic send_data_byte(input logic [7:0] value);
         begin
+            // Kirim plaintext untuk enkripsi atau ciphertext untuk dekripsi.
             @(negedge clk);
             data_in = value;
             data_valid = 1'b1;
@@ -162,6 +172,8 @@ module tb_secure_tiny_kat;
 
     task automatic check_transaction(input logic decrypt_mode);
         begin
+            // Jalankan satu vector lengkap, kemudian cek panjang, tag, output,
+            // status autentikasi, dan setiap byte hasil.
             observed_data = '0;
             observed_tag = '0;
             observed_data_count = 0;

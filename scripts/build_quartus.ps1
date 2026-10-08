@@ -1,7 +1,10 @@
+# Build penuh Quartus Cyclone V: preflight proyek, lalu Analysis & Synthesis,
+# Fitter, Assembler, dan Timing Analyzer. Hasil `.sof` dibuat oleh Assembler.
 param([string]$QuartusSh = 'quartus_sh')
 
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
+# Pastikan file proyek, device, sumber RTL, pin, dan clock konsisten sebelum compile.
 & (Join-Path $PSScriptRoot 'check_quartus_project.ps1')
 Push-Location (Join-Path $ProjectRoot 'quartus')
 try {

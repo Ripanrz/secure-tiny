@@ -1,4 +1,6 @@
-// Holds the final tag until the consumer accepts it.
+// Register handshake untuk menahan tag akhir yang dihitung core.
+// tag_valid/tag_out tetap stabil selama tag_ready rendah dan dibersihkan
+// setelah transfer atau reset. Modul ini tidak menghitung tag kriptografi.
 module tag_generator (
     input  logic         clk,
     input  logic         rst_n,
@@ -8,6 +10,8 @@ module tag_generator (
     input  logic         tag_ready,
     output logic [127:0] tag_out
 );
+    // Tag baru boleh dimuat jika slot kosong atau tag lama dikonsumsi pada
+    // siklus yang sama, sehingga data valid tidak tertimpa saat tertahan.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             tag_valid <= 1'b0;

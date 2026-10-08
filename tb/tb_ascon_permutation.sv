@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 
+// Testbench unit permutasi. State contoh yang tetap diuji untuk p8/p12,
+// sementara jumlah ronde 0 dan 17 harus ditolak. Juga memeriksa busy/done/error.
 module tb_ascon_permutation;
     logic clk = 1'b0;
     logic rst_n = 1'b0;
@@ -32,6 +34,8 @@ module tb_ascon_permutation;
     task automatic check_round_count(input logic [4:0] requested_rounds);
         integer cycle;
         begin
+            // Jalankan satu permintaan dan pastikan selesai tepat setelah
+            // jumlah ronde; hasil p8/p12 dicocokkan dengan model independen.
             @(negedge clk);
             rounds = requested_rounds;
             start = 1'b1;

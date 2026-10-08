@@ -1,4 +1,6 @@
-// Small learning block used before the cryptographic RTL milestones.
+// Counter kecil untuk belajar reset, enable, dan penahanan nilai.
+// count bertambah satu pada tepi clock saat enable=1; rst_n rendah
+// mengosongkannya. Modul ini bukan bagian datapath kriptografi.
 module counter #(
     parameter int unsigned WIDTH = 4
 ) (

@@ -1,3 +1,5 @@
+# Runner simulasi bersama. Top/Sources/OutputName memilih testbench dan hasil;
+# SuiteRoot menunjuk instalasi OSS CAD Suite yang berisi Icarus/vvp.
 param(
     [Parameter(Mandatory = $true)]
     [string]$Top,
@@ -23,7 +25,7 @@ $OutputDir = Join-Path $ProjectRoot 'sim'
 $OutputFile = Join-Path $OutputDir $OutputName
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 
-# Icarus in this Windows suite needs a drive-letter root for VPI path lookup.
+# Icarus pada paket Windows ini perlu root berhuruf drive untuk lookup VPI.
 $UsedDrives = (Get-PSDrive -PSProvider FileSystem).Name
 $DriveLetter = @('Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z') |
     Where-Object { $_ -notin $UsedDrives } |
@@ -44,6 +46,8 @@ try {
     $env:YOSYSHQ_ROOT = "$Drive\"
     $env:PATH = "$Drive\bin;$Drive\lib;$PreviousPath"
 
+    # Kompilasi SystemVerilog 2012, kemudian jalankan dari root proyek agar
+    # path vector dan tujuan VCD yang dipakai testbench konsisten.
     $ResolvedSources = @($Sources | ForEach-Object { Join-Path $ProjectRoot $_ })
     & "$Drive\bin\iverilog.exe" -B "$Drive\lib\ivl" -g2012 -s $Top -o $OutputFile @ResolvedSources
     if ($LASTEXITCODE -ne 0) {

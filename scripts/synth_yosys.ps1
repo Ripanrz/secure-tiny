@@ -1,3 +1,5 @@
+# Sintesis Yosys generik untuk memeriksa hierarchy, proses, dan struktur RTL.
+# Jumlah sel generik yang dilaporkan bukan metrik ALM Cyclone V.
 param(
     [ValidateRange(1, 65535)]
     [int]$MaxDataBytes = 16,
@@ -27,6 +29,7 @@ $PreviousPath = $env:PATH
 try {
     $env:YOSYSHQ_ROOT = "$Drive\"
     $env:PATH = "$Drive\bin;$Drive\lib;$PreviousPath"
+    # Urutan: baca SV -> atur parameter -> cek hierarchy/proses -> sintesis -> stat.
     $yosysScript = "read_verilog -sv rtl/ascon_permutation.sv rtl/ascon_core.sv rtl/tag_generator.sv rtl/tag_verifier.sv rtl/authentication_guard.sv rtl/aead_controller.sv rtl/secure_tiny_top.sv; chparam -set MAX_DATA_BYTES $MaxDataBytes secure_tiny_top; hierarchy -check -top secure_tiny_top; proc; check; synth -top secure_tiny_top -flatten; stat"
     & "$Drive\bin\yosys.exe" -Q -l $LogPath -p $yosysScript
     if ($LASTEXITCODE -ne 0) { throw "Yosys failed with exit code $LASTEXITCODE" }

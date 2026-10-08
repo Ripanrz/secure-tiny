@@ -1,4 +1,8 @@
-"""Cross-check the readable model against the upstream Ascon full-tag KAT file."""
+"""Bandingkan model Python dengan record full-tag Ascon-C KAT lokal.
+
+File KAT menyediakan input dan output harapan; script tidak membuat vector
+sendiri dan memeriksa enkripsi serta dekripsi untuk setiap record.
+"""
 
 from pathlib import Path
 
@@ -8,6 +12,7 @@ from ascon_aead128_reference import decrypt, encrypt
 ROOT = Path(__file__).resolve().parents[1]
 KAT_PATH = ROOT / "vectors/ascon_c_v1.3.0_ref/LWC_AEAD_KAT_128_128.txt"
 
+# Bentuk dictionary satu record setiap kali baris kosong memisahkan KAT.
 records = []
 record = {}
 for line in KAT_PATH.read_text().splitlines():
@@ -21,6 +26,7 @@ if record:
     records.append(record)
 
 for record in records:
+    # CT pada KAT berisi ciphertext diikuti tag; pisahkan berdasarkan panjang PT.
     key = bytes.fromhex(record["Key"])
     nonce = bytes.fromhex(record["Nonce"])
     ad = bytes.fromhex(record["AD"])

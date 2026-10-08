@@ -1,3 +1,4 @@
+# Uji transaksi terarah: valid/ready, tag/data salah, reset, kapasitas, dan stall.
 & (Join-Path $PSScriptRoot 'run_iverilog.ps1') `
     -Top 'tb_secure_tiny_top' `
     -Sources @(

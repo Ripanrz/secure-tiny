@@ -1,3 +1,5 @@
+# Jalankan seluruh suite unit, integrasi, dan reference-model secara berurutan.
+# Hentikan regresi jika satu runner gagal agar error tidak tertutup.
 $ErrorActionPreference = 'Stop'
 $TestScripts = @(
     'run_counter.ps1',
@@ -10,6 +12,7 @@ $TestScripts = @(
 )
 
 foreach ($TestScript in $TestScripts) {
+    # Tiap runner membuat log/waveform suite-nya sendiri.
     $TestPath = Join-Path $PSScriptRoot $TestScript
     Write-Output "RUN $TestScript"
     & $TestPath

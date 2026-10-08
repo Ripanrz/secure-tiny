@@ -1,5 +1,8 @@
-// Board-independent FPGA IP interface. A DE10-Nano wrapper can map these
-// synchronous signals to Avalon-MM or another host interface later.
+// Top-level IP yang tidak bergantung pada board.
+// Port perintah membawa mode/key/nonce/panjang/tag; port data memakai
+// handshake valid/ready; status menyatakan autentikasi dan akhir transaksi.
+// Modul ini hanya menghubungkan controller. Wrapper Avalon/HPS atau GPIO
+// DE10-Nano adalah lapisan integrasi terpisah dan belum ada di sini.
 module secure_tiny_top #(
     parameter int unsigned MAX_DATA_BYTES
 ) (

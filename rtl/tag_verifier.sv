@@ -1,4 +1,7 @@
-// Compares all tag bits and reports the result as a one-cycle pulse.
+// Pembanding tag 128-bit terdaftar.
+// start menangkap calculated_tag dan received_tag; done kemudian berpulsa
+// bersama match atau mismatch. Controller memakai hasilnya untuk mengizinkan
+// atau menolak pelepasan plaintext dekripsi.
 module tag_verifier (
     input  logic         clk,
     input  logic         rst_n,
@@ -14,6 +17,8 @@ module tag_verifier (
     logic [127:0] received_latched;
     logic compare_pending;
 
+    // Snapshot kedua tag mencegah perubahan input setelah start mengubah
+    // keputusan. XOR dan reduksi membandingkan seluruh 128 bit.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             calculated_latched <= '0;

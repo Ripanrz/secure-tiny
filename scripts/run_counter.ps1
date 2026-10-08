@@ -1,3 +1,4 @@
+# Uji counter pembelajaran untuk reset, enable, tahan nilai, dan wraparound.
 & (Join-Path $PSScriptRoot 'run_iverilog.ps1') `
     -Top 'tb_counter' `
     -Sources @('rtl/counter.sv', 'tb/tb_counter.sv') `

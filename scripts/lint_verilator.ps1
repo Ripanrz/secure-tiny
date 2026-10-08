@@ -1,3 +1,5 @@
+# Lint/elaborasi top-level tanpa simulasi. Parameter kapasitas harus cocok
+# dengan konfigurasi yang hendak diperiksa; keluaran disimpan sebagai log.
 param(
     [ValidateRange(1, 65535)]
     [int]$MaxDataBytes = 16,
@@ -19,6 +21,7 @@ foreach ($path in @($Verilator, $VerilatorRoot)) {
     }
 }
 
+# Simpan environment sebelumnya agar pemanggilan script tidak mengubah shell.
 $PreviousVerilatorRoot = $env:VERILATOR_ROOT
 $PreviousPath = $env:PATH
 try {
@@ -27,6 +30,7 @@ try {
                 (Join-Path $SuiteRoot 'lib') + ';' + $PreviousPath
     New-Item -ItemType Directory -Path (Split-Path -Parent $LogPath) -Force | Out-Null
 
+    # Daftar file RTL sama dengan datapath top-level yang dipakai proyek.
     $rtlSources = @(
         'rtl\ascon_permutation.sv',
         'rtl\ascon_core.sv',

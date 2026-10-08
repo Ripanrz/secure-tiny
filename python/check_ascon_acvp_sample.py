@@ -1,4 +1,9 @@
-"""Check the local reference model against the downloaded NIST ACVP sample."""
+"""Bandingkan model lokal dengan sample ACVP NIST SP 800-232.
+
+Checker hanya menangani panjang AD/payload kelipatan byte; kasus bit-level
+dilewati secara eksplisit dan jumlah yang diuji dilaporkan. Ini bukan validasi
+atau sertifikasi ACVP.
+"""
 
 import json
 from pathlib import Path
@@ -11,6 +16,7 @@ prompt = json.loads((ROOT / "vectors/ascon_aead128_prompt.json").read_text())
 expected = json.loads((ROOT / "vectors/ascon_aead128_expected.json").read_text())
 expected_groups = {group["tgId"]: group for group in expected["testGroups"]}
 
+# Pasangkan expected result berdasarkan ID test, lalu uji tiap arah operasi.
 checked = 0
 for group in prompt["testGroups"]:
     expected_tests = {test["tcId"]: test for test in expected_groups[group["tgId"]]["tests"]}
@@ -18,6 +24,7 @@ for group in prompt["testGroups"]:
         data_field = "pt" if group["direction"] == "encrypt" else "ct"
         ad_bits = test.get("adLen", len(test["ad"]) * 4)
         data_bits = test.get("payloadLen", len(test[data_field]) * 4)
+        # API model ini bekerja dalam byte; jangan klaim bit parsial diuji.
         if (ad_bits % 8) or (data_bits % 8):
             continue
 

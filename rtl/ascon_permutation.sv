@@ -1,5 +1,8 @@
-// Iterative Ascon permutation. State packing is S0 || S1 || S2 || S3 || S4.
-// Round equations and constants follow NIST SP 800-232, Section 3.
+// Permutasi Ascon iteratif, yaitu blok inti yang mencampur state 320-bit.
+// Port: start/rounds/state_in memulai kerja; busy/done/error memberi status;
+// state_out menahan hasil akhir. Satu ronde dihitung tiap siklus aktif agar
+// logika ronde dipakai ulang. Susunan state S0||S1||S2||S3||S4 serta rumus
+// dan konstanta mengikuti NIST SP 800-232 Bagian 3.
 module ascon_permutation (
     input  logic         clk,
     input  logic         rst_n,
@@ -25,11 +28,14 @@ module ascon_permutation (
         input logic [63:0] value,
         input integer amount
     );
+        // Rotasi 64-bit digunakan pada lapisan difusi linear setiap ronde.
         rotate_right64 = (value >> amount) | (value << (64 - amount));
     endfunction
 
     function automatic logic [63:0] round_constant(input logic [4:0] index);
         begin
+            // Tabel konstanta SP 800-232. Pemanggil memilih ekor tabel sesuai
+            // banyaknya ronde (p12 memakai indeks 4 sampai 15).
             case (index)
                 5'd0:  round_constant = 64'h000000000000003c;
                 5'd1:  round_constant = 64'h000000000000002d;
@@ -59,16 +65,18 @@ module ascon_permutation (
         logic [63:0] x0, x1, x2, x3, x4;
         logic [63:0] y0, y1, y2, y3, y4;
         begin
+            // Pecah state menjadi lima word; konstanta ronde di-XOR ke x2.
             x0 = input_state[319:256];
             x1 = input_state[255:192];
             x2 = input_state[191:128] ^ constant_value;
             x3 = input_state[127:64];
             x4 = input_state[63:0];
 
-            // 64 parallel copies of the 5-bit S-box in SP 800-232, Eq. (7).
+            // Lapisan nonlinear: 64 salinan S-box 5-bit bekerja paralel,
+            // masing-masing pada bit-slice yang sama dari kelima word.
             y0 = (x4 & x1) ^ x3 ^ (x2 & x1) ^ x2 ^ (x1 & x0) ^ x1 ^ x0;
             y1 = x4 ^ (x3 & x2) ^ (x3 & x1) ^ x3 ^ (x2 & x1) ^ x2 ^ x1 ^ x0;
-            // The S-box constant 1 is applied to all 64 parallel lanes.
+            // Nilai 1 pada persamaan S-box menjadi mask 64-bit semua satu.
             y2 = (x4 & x3) ^ x4 ^ x2 ^ x1 ^ 64'hffffffffffffffff;
             y3 = (x4 & x0) ^ x4 ^ (x3 & x0) ^ x3 ^ x2 ^ x1 ^ x0;
             y4 = (x4 & x1) ^ x4 ^ x3 ^ (x1 & x0) ^ x1;
@@ -83,11 +91,14 @@ module ascon_permutation (
         end
     endfunction
 
+    // Pilih konstanta ronde aktif dan hitung kandidat state berikutnya.
     always_comb begin
         constant_index = 5'd16 - rounds_latched + round_index;
         state_after_round = ascon_round(state_reg, round_constant(constant_index));
     end
 
+    // FSM dua keadaan: IDLE menangkap permintaan; RUN menyimpan hasil satu
+    // ronde per clock sampai jumlah ronde yang diminta selesai.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
