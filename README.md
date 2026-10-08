@@ -1,6 +1,6 @@
 # SECURE-TINY
 
-**Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**
+**SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag**
 
 Kami mengembangkan SECURE-TINY sebagai IP akselerator untuk enkripsi/dekripsi terautentikasi berbasis **Ascon-AEAD128** sesuai NIST SP 800-232 final. Kami memilih **Hardware Cryptography Accelerator** sebagai tantangan utama, **Secure Communication** sebagai tantangan pendukung, dan **DE10-Nano FPGA/SoC** sebagai target evaluasi.
 

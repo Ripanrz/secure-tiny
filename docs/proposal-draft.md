@@ -9,7 +9,7 @@
 
 ### Judul
 
-**SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**
+**SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag**
 
 ### Gagasan
 

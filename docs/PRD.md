@@ -6,7 +6,7 @@
 
 **Nama proyek:** SECURE-TINY
 
-**Judul lengkap:** SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman
+**Judul lengkap:** SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag
 
 **Kompetisi:** PERURI Chip Hackathon 2026
 

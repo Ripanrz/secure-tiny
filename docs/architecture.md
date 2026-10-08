@@ -4,7 +4,7 @@
 
 ## Identitas dan sumber kebenaran
 
-Produk yang kami rancang adalah **SECURE-TINY: Perancangan IP Core Authenticated Encryption Hemat Sumber Daya dengan Hardware Authentication Guard untuk Komunikasi Edge Aman**.
+Produk yang kami rancang adalah **SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag**.
 
 Kami memilih **Hardware Cryptography Accelerator** sebagai tantangan utama dan **Secure Communication** sebagai tantangan pendukung. Kami menggunakan **Ascon-AEAD128 menurut NIST SP 800-232 final** dan menargetkan **DE10-Nano FPGA/SoC**. Hasil kami saat ini berupa IP RTL dengan antarmuka aliran data per byte; integrasi bus host dan pemetaan pin masih menjadi pekerjaan lanjutan.
 
