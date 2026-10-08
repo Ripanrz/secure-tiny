@@ -272,9 +272,6 @@ Untuk tangkapan layar GTKWave, tampilkan nama sinyal dan skala waktu, perbesar s
 | Andhika Pratama | RTL Designer (Verilog) |
 | Andra Vijatmi | Security Analyst |
 | Muhammad Iqbal Ridho | System/Business Analyst |
-| Dosen pembimbing | *(dikosongkan sementara sesuai arahan tim)* |
-
-NIM, program studi, surel/kontak resmi, dan data personal lain **belum diberikan**. Tim perlu melengkapinya hanya sesuai format panitia dan dengan persetujuan anggota. Jangan mengisi data identitas berdasarkan perkiraan.
 
 ### 5.3 Rencana perubahan selama bootcamp tiga hari
 
@@ -288,8 +285,6 @@ Setiap perubahan bootcamp dicatat dengan hash commit, daftar file berubah, konfi
 
 ### 5.4 Informasi yang masih harus dilengkapi sebelum pengiriman
 
-1. Lengkapi identitas yang benar-benar diminta panitia: NIM, program studi, kontak, serta status mahasiswa bila menjadi syarat.
-2. Masukkan nama dosen pembimbing hanya setelah ditetapkan; untuk draf ini bagian tersebut sengaja kosong.
-3. Ambil bukti terminal, waveform, dan laporan Quartus langsung dari hasil lokal; cocokkan konfigurasi dan tanggal dengan `docs/results.md`.
-4. Periksa ulang format proposal, batas halaman, format nama tim, serta aturan penggunaan/atribusi referensi dari panitia.
-5. Pertahankan kalimat keterbatasan: virtual pins membuat constraint I/O belum lengkap, belum ada transaksi host/board, belum ada pengukuran daya, dan tidak ada klaim side-channel/tamper resistance.
+1. Ambil bukti terminal, waveform, dan laporan Quartus langsung dari hasil lokal; cocokkan konfigurasi dan tanggal dengan `docs/results.md`.
+2. Periksa ulang format proposal, batas halaman, format nama tim, serta aturan penggunaan/atribusi referensi dari panitia.
+3. Pertahankan kalimat keterbatasan: virtual pins membuat constraint I/O belum lengkap, belum ada transaksi host/board, belum ada pengukuran daya, dan tidak ada klaim side-channel/tamper resistance.
