@@ -1,7 +1,8 @@
-# Jalankan seluruh suite product, integrasi, dan reference-model secara berurutan.
+# Jalankan seluruh suite unit, product, integrasi, dan reference-model secara berurutan.
 # Hentikan regresi jika satu runner gagal agar error tidak tertutup.
 $ErrorActionPreference = 'Stop'
 $TestScripts = @(
+    'run_counter.ps1',
     'run_ascon_permutation.ps1',
     'run_ascon_core.ps1',
     'run_tag_auth_modules.ps1',
