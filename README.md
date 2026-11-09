@@ -1,60 +1,30 @@
 # ⚡ SECURE-TINY
 
 <p align="center">
-  <strong>Authenticate First. Release Later.</strong><br/>
+  <strong>Authenticate First. Release Later.</strong><br>
   Ascon-AEAD128 Hardware Cryptography Accelerator with Fail-Closed Plaintext Release
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Project-SECURE--TINY-111827" alt="Project">
-  <img src="https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2" alt="Cryptography">
-  <img src="https://img.shields.io/badge/Standard-NIST%20SP%20800--232-blue" alt="Standard">
-  <img src="https://img.shields.io/badge/HDL-SystemVerilog-red" alt="HDL">
-  <img src="https://img.shields.io/badge/FPGA-Cyclone%20V-success" alt="FPGA">
-  <img src="https://img.shields.io/badge/Target-DE10--Nano-orange" alt="Target">
+
+![Project](https://img.shields.io/badge/Project-SECURE--TINY-111827)
+![Cryptography](https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2)
+![Standard](https://img.shields.io/badge/Standard-NIST%20SP%20800--232-blue)
+![HDL](https://img.shields.io/badge/HDL-SystemVerilog-red)
+![FPGA](https://img.shields.io/badge/FPGA-Cyclone%20V-success)
+![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
+
+![KAT](https://img.shields.io/badge/KAT-2%2C178%20crypto%20transactions-success)
+![Regression](https://img.shields.io/badge/Regression-7%2F7%20PASS-success)
+![Fmax](https://img.shields.io/badge/Fmax-79.72%20MHz-blue)
+![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
+![Verilator](https://img.shields.io/badge/Verilator-0%20warnings-success)
+![Quartus](https://img.shields.io/badge/Quartus-25.1%20PASS-success)
+
 </p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/KAT-2%2C178%20crypto%20transactions-success" alt="KAT">
-  <img src="https://img.shields.io/badge/Regression-7%2F7%20PASS-success" alt="Regression">
-  <img src="https://img.shields.io/badge/Fmax-79.72%20MHz-blue" alt="Fmax">
-  <img src="https://img.shields.io/badge/ALM-2%2C464-blueviolet" alt="ALM">
-  <img src="https://img.shields.io/badge/Verilator-0%20warnings-success" alt="Verilator">
-  <img src="https://img.shields.io/badge/Quartus-25.1%20PASS-success" alt="Quartus">
-</p>
-
-**SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag**
-
-Kami mengembangkan SECURE-TINY sebagai IP akselerator untuk enkripsi/dekripsi terautentikasi berbasis **Ascon-AEAD128** sesuai NIST SP 800-232 final. Kami memilih **Hardware Cryptography Accelerator** sebagai tantangan utama, **Secure Communication** sebagai tantangan pendukung, dan **DE10-Nano FPGA/SoC** sebagai target evaluasi.
-
-Repositori proyek: [github.com/Ripanrz/secure-tiny](https://github.com/Ripanrz/secure-tiny).
-
-**Penjelasan singkat:** SECURE-TINY seperti mesin pengunci paket. Mesin mengunci pesan dan membuat “segel” bernama tag. Saat pesan dibuka, rangkaian memeriksa segel lebih dulu; jika tidak cocok, plaintext tidak diberikan sebagai hasil yang sah. Analogi ini hanya untuk memahami alur kerja, bukan klaim perlindungan dari semua serangan. Istilah seperti AEAD (*Authenticated Encryption with Associated Data*), RTL (*Register Transfer Level*), dan ALM (*Adaptive Logic Module*) dijelaskan dengan bahasa sederhana di [glosarium](docs/glossary.md).
-
-Kami memusatkan pekerjaan pada jalur data RTL dan bukti fungsional. Build Quartus kami kini memberi baseline 2.464 ALM dan Fmax 79,72 MHz untuk konfigurasi 16 byte; kami belum mengklaim efisiensi komparatif, dan analisis I/O belum lengkap karena port transaksi memakai virtual pins. Kami mencatat bukti dan batas hasil di [`docs/results.md`](docs/results.md), serta ruang lingkup di [`docs/PRD.md`](docs/PRD.md).
-
-**Status kerja:** kami telah menyelesaikan kompilasi penuh Quartus Prime Lite 25.1 untuk Cyclone V `5CSEBA6U23I7`, termasuk Fitter (penempatan logika ke sumber daya FPGA), Timing Analyzer (pemeriksaan batas waktu sinyal), Assembler, dan berkas `.sof` (berkas konfigurasi FPGA). Kami menunda pengujian fisik DE10-Nano serta integrasi antarmuka transaksi host karena belum tersedia board dan jalur fisik transaksi. Quartus terpasang di `C:\altera_lite\25.1std`; detail hasil serta peringatannya ada di [`docs/results.md`](docs/results.md).
-
-Kami menyimpan draf proposal teknis di [`docs/proposal-draft.md`](docs/proposal-draft.md) dan peta fungsi file serta komunikasi antarmodul di [`docs/file-map-and-integration.md`](docs/file-map-and-integration.md). Kami menandai hasil yang belum diukur—misalnya daya dan kinerja pada board—sebagai TBD.
-
-Kami menyusun draf proposal mengikuti lima bagian yang diminta kompetisi: ringkasan ide, latar belakang dan rumusan masalah, rancangan chip, referensi, serta lampiran. Kami membiarkan identitas tim dan pembagian peran sebagai isian sampai data sebenarnya tersedia.
-
-## 🎯 Project Objective
-
-SECURE-TINY investigates the hardware cost and verification behavior of enforcing an authenticated-output boundary around an Ascon-AEAD128 datapath.
-
-### Research question
-
-> **What hardware overhead is introduced by enforcing fail-closed authenticated plaintext release, and can the resulting security boundary be demonstrated through reproducible functional and negative testing?**
-
-The current work therefore focuses on four measurable dimensions:
-
-1. **Correctness** — RTL agreement with trusted Ascon test vectors.
-2. **Security behavior** — invalid authentication must not produce a valid plaintext output.
-3. **Hardware cost** — FPGA resource utilization and timing.
-4. **Reproducibility** — repeatable verification and implementation results.
 
 ---
+
 
 ## 🛡️ Security Boundary
 
