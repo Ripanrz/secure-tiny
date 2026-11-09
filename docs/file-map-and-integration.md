@@ -28,7 +28,7 @@ aead_controller
 | `python/` | Reference implementation and vector checkers |
 | `vectors/` | Ascon-C KATs and NIST ACVP sample data |
 | `scripts/` | Simulation, lint, synthesis and Quartus automation |
-| `quartus/` | QPF/QSF/SDC project definition |
+| `quartus/` | QPF/QSF/SDC project definition and historical FPGA build configuration |
 | `docs/` | Requirements, architecture, module contract, verification and results |
 | `sim/` | Generated locally; intentionally not tracked |
 | `quartus/output_files/` | Generated locally; intentionally not tracked |
@@ -45,4 +45,4 @@ aead_controller
 
 ## Integration boundary
 
-The current IP is board-independent. The Quartus project targets Cyclone V and constrains the board clock/reset, while transaction ports remain virtual. HPS/Avalon, DMA, physical transaction pins and DE10-Nano software integration are future work.
+The current IP is board-independent. The Quartus figures documented elsewhere are historical build evidence, not a fresh board validation. The Quartus project targets Cyclone V and constrains the board clock/reset, while transaction ports remain virtual. HPS/Avalon, DMA, physical transaction pins and DE10-Nano software integration are future work.
