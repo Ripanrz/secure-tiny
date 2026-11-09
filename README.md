@@ -25,8 +25,6 @@
 
 ---
 
----
-
 
 ## 🛡️ Security Boundary
 
