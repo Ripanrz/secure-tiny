@@ -42,7 +42,7 @@ Analogi ini hanya membantu memahami alur. Ia bukan klaim bahwa chip memverifikas
 
 | Istilah/singkatan | Kepanjangan | Arti sederhana |
 |---|---|---|
-| Testbench | — | Program uji yang memberi masukan ke RTL dan memeriksa keluaran yang dihasilkan. |
+| testbench | — | Program uji yang memberi masukan ke RTL dan memeriksa keluaran yang dihasilkan. |
 | Simulasi | — | Menjalankan model rangkaian dengan perangkat lunak untuk melihat perilaku logikanya. Ini bukan pengujian pada chip fisik. |
 | VCD | *Value Change Dump* | File rekaman perubahan sinyal yang dapat dibuka dengan GTKWave. Seperti rekaman detak dan perpindahan sinyal dari waktu ke waktu. |
 | Sintesis | — | Mengubah RTL menjadi susunan logika yang dapat dipetakan ke perangkat target. Lulus sintesis tidak sendirinya membuktikan fungsi benar. |
@@ -82,4 +82,4 @@ Analogi ini hanya membantu memahami alur. Ia bukan klaim bahwa chip memverifikas
 | SDC | *Synopsys Design Constraints* | File batasan waktu, seperti clock yang dipakai untuk analisis timing. |
 | `.sof` | *SRAM Object File* | Berkas konfigurasi untuk memuat desain ke FPGA; keberadaannya bukan bukti board telah diuji. |
 
-Jika istilah atau metrik di tabel hasil terasa asing, baca bagian hasil di [`results.md`](results.md) dan kontrak sinyal di [`module_spec.md`](module_spec.md).
+Jika istilah atau metrik di tabel hasil terasa asing, baca bagian hasil di [`Hasil.md`](Hasil.md) dan kontrak sinyal di [`module_spec.md`](module_spec.md).
