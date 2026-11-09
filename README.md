@@ -15,7 +15,7 @@
 ![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
 
 ![KAT](https://img.shields.io/badge/KAT-2%2C178_transactions-success)
-![Regression](https://img.shields.io/badge/Regression-6%2F6_PASS-success)
+![Regression](https://img.shields.io/badge/Regression-7%2F7_PASS-success)
 ![Fmax](https://img.shields.io/badge/Fmax-79.72MHz-blue)
 ![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
 ![Verilator](https://img.shields.io/badge/Verilator-0_warnings-success)
@@ -25,6 +25,17 @@
 
 ---
 
+
+## 🧪 Learning / Unit-Test Module
+
+The repository also keeps a small `counter.sv` example as a learning and RTL unit-test module. It is **not part of the SECURE-TINY cryptographic datapath**.
+
+- RTL: `rtl/counter.sv`
+- Testbench: `tb/tb_counter.sv`
+- Runner: `scripts/run_counter.ps1`
+- Make target: `make test-counter`
+
+It is included intentionally as a basic example for synchronous reset, enable, hold behavior, and wraparound testing.
 
 ## 🛡️ Security Boundary
 
