@@ -1,4 +1,27 @@
-# SECURE-TINY
+# ⚡ SECURE-TINY
+
+<p align="center">
+  <strong>Authenticate First. Release Later.</strong><br/>
+  Ascon-AEAD128 Hardware Cryptography Accelerator with Fail-Closed Plaintext Release
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-SECURE--TINY-111827" alt="Project">
+  <img src="https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2" alt="Cryptography">
+  <img src="https://img.shields.io/badge/Standard-NIST%20SP%20800--232-blue" alt="Standard">
+  <img src="https://img.shields.io/badge/HDL-SystemVerilog-red" alt="HDL">
+  <img src="https://img.shields.io/badge/FPGA-Cyclone%20V-success" alt="FPGA">
+  <img src="https://img.shields.io/badge/Target-DE10--Nano-orange" alt="Target">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/KAT-2%2C178%20crypto%20transactions-success" alt="KAT">
+  <img src="https://img.shields.io/badge/Regression-7%2F7%20PASS-success" alt="Regression">
+  <img src="https://img.shields.io/badge/Fmax-79.72%20MHz-blue" alt="Fmax">
+  <img src="https://img.shields.io/badge/ALM-2%2C464-blueviolet" alt="ALM">
+  <img src="https://img.shields.io/badge/Verilator-0%20warnings-success" alt="Verilator">
+  <img src="https://img.shields.io/badge/Quartus-25.1%20PASS-success" alt="Quartus">
+</p>
 
 **SECURE-TINY: Perancangan dan Verifikasi IP Core Ascon-AEAD128 dengan Guard Keluaran Plaintext Berbasis Verifikasi Tag**
 
@@ -16,6 +39,68 @@ Kami menyimpan draf proposal teknis di [`docs/proposal-draft.md`](docs/proposal-
 
 Kami menyusun draf proposal mengikuti lima bagian yang diminta kompetisi: ringkasan ide, latar belakang dan rumusan masalah, rancangan chip, referensi, serta lampiran. Kami membiarkan identitas tim dan pembagian peran sebagai isian sampai data sebenarnya tersedia.
 
+## 🎯 Project Objective
+
+SECURE-TINY investigates the hardware cost and verification behavior of enforcing an authenticated-output boundary around an Ascon-AEAD128 datapath.
+
+### Research question
+
+> **What hardware overhead is introduced by enforcing fail-closed authenticated plaintext release, and can the resulting security boundary be demonstrated through reproducible functional and negative testing?**
+
+The current work therefore focuses on four measurable dimensions:
+
+1. **Correctness** — RTL agreement with trusted Ascon test vectors.
+2. **Security behavior** — invalid authentication must not produce a valid plaintext output.
+3. **Hardware cost** — FPGA resource utilization and timing.
+4. **Reproducibility** — repeatable verification and implementation results.
+
+---
+
+## 🛡️ Security Boundary
+
+```text
+                 DECRYPTION PATH
+
+ Ciphertext ──┐
+ AD ──────────┤
+ Key / Nonce ─┤
+              ▼
+       ┌─────────────────┐
+       │ Ascon-AEAD128   │
+       │      Core       │
+       └────────┬────────┘
+                │
+        Candidate Plaintext
+                │
+                ▼
+       ┌─────────────────┐
+Tag ──►│  Tag Verifier   │
+       └────────┬────────┘
+                │
+        ┌───────┴────────┐
+        │                │
+     MATCH            MISMATCH
+        │                │
+        ▼                ▼
+ ┌──────────────┐   ┌──────────────┐
+ │ Auth Guard   │   │    REJECT    │
+ │    ACCEPT    │   │ No plaintext │
+ └──────┬───────┘   │   release    │
+        │           └──────────────┘
+        ▼
+ Valid Plaintext
+```
+
+**Security invariant:**
+
+```text
+plaintext_valid = authentication_success
+```
+
+The invariant is the central security property of the current architecture. It is tested through negative authentication scenarios, while broader claims such as side-channel resistance and fault-injection resistance remain outside the current evidence.
+
+---
+
 ## Latar belakang dan ruang lingkup
 
 Kami berangkat dari kebutuhan perangkat edge dan IoT untuk melindungi kerahasiaan data serta mendeteksi perubahan pada pesan dan metadata. Kami menguji fungsi tersebut melalui IP enkripsi terautentikasi berbasis Ascon-AEAD128. Fokus utama kami adalah **Hardware Cryptography Accelerator**, dengan **Secure Communication** sebagai fokus pendukung. Cakupan kami belum meliputi elemen keamanan lengkap, protokol jaringan, pertukaran kunci, bus HPS/Avalon, atau sensor gangguan fisik.
@@ -26,7 +111,7 @@ Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami belum mengklai
 
 Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh mentransfer plaintext. Kami memperlakukan key, state internal, dan calon plaintext sebagai aset. Pemanggil bertanggung jawab atas nonce; kami belum menerapkan atau membuktikan pembersihan semua salinan rahasia, mitigasi side-channel, perlindungan fault injection, maupun deteksi gangguan fisik. Kami menguji penahanan plaintext pada skenario simulasi yang tercatat dan menjelaskan cakupan serta batas klaim di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/results.md`](docs/results.md).
 
-## Fitur dan status saat ini
+## ✨ Fitur dan Status Saat Ini
 
 - Kami menjalankan permutasi Ascon secara iteratif, satu ronde per siklus aktif.
 - Kami menerapkan enkripsi dan dekripsi Ascon-AEAD128 dalam core dengan penyangga.
@@ -40,7 +125,7 @@ Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak bole
 
 > Kami memakai KAT Ascon-C sebagai uji tambahan dan NIST SP 800-232 final sebagai acuan algoritma. Pemeriksa Python membandingkan model dengan 14 kasus berukuran kelipatan byte dari sampel ACVP NIST; hasil Python ini tidak menggantikan uji RTL.
 
-## Arsitektur sistem
+## 🧩 Arsitektur Sistem
 
 ```mermaid
 flowchart LR
@@ -74,7 +159,7 @@ Pada enkripsi, core kami menghasilkan ciphertext dan tag. Pada dekripsi, kami me
 | `secure_tiny_top.sv` | Menggabungkan modul menjadi satu IP dengan antarmuka sinkron. |
 | `counter.sv` | Contoh pembelajaran pencacah; bukan bagian jalur data AEAD. |
 
-## Perangkat pengembangan dan perangkat lunak
+## 🛠️ Perangkat Pengembangan dan Perangkat Lunak
 
 - **OSS CAD Suite for Windows**: kami gunakan sebagai paket perangkat lokal; skrip pengujian mengambil `iverilog`, `vvp`, Yosys, dan Python dari paket tersebut.
 - **Icarus Verilog**: kami gunakan untuk mengompilasi dan menyimulasikan testbench SystemVerilog.
@@ -88,7 +173,7 @@ Pada enkripsi, core kami menghasilkan ciphertext dan tag. Pada dekripsi, kami me
 
 Kami menjalankan skrip pengujian dengan OSS CAD Suite. Atur `$env:OSS_CAD_SUITE` ke lokasi instalasi atau berikan parameter `-SuiteRoot`; kami tidak menyimpan jalur khusus workstation di dalam kode sumber.
 
-## Penggunaan
+## 🚀 Penggunaan
 
 ### 1. Buka PowerShell di folder proyek
 
@@ -174,7 +259,7 @@ Testbench menghasilkan VCD di `sim/`. Untuk top-level:
 
 Berkas waveform lain yang kami hasilkan adalah `counter.vcd`, `ascon_permutation.vcd`, `ascon_core.vcd`, `tag_auth_modules.vcd`, dan `secure_tiny_kat.vcd`. Jika GTKWave memiliki nama atau lokasi berbeda pada paket yang kami gunakan, kami membuka VCD melalui menu **File → Open**.
 
-## Hasil verifikasi yang tercatat
+## 🧪 Hasil Verifikasi yang Tercatat
 
 Hasil pengujian lokal 1 Oktober 2026 menunjukkan seluruh skrip yang kami jalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
 
@@ -184,7 +269,7 @@ Build penuh Quartus Prime Lite 25.1 untuk `5CSEBA6U23I7` juga lulus: Fitter meng
 
 **Belum kami ukur/lakukan:** daya, throughput fisik, timing I/O dengan constraint nyata, integrasi antarmuka transaksi host, serta pengujian fungsional pada DE10-Nano. Kami tidak mengklaim pengujian board atau fabrikasi ASIC.
 
-## Peta repositori
+## 📁 Peta Repositori
 
 ```text
 SECURE-TINY/
@@ -200,7 +285,7 @@ SECURE-TINY/
 
 Kami menggunakan `docs/PRD.md` sebagai satu-satunya sumber persyaratan produk. Kami menyimpan dokumen arsitektur, spesifikasi modul, verifikasi, hasil, dan peta file lainnya di `docs/`.
 
-## Rencana pengembangan
+## 🗺️ Rencana Pengembangan
 
 Urutan kerja yang kami rencanakan agar hasil tidak tercampur:
 
@@ -213,11 +298,11 @@ Urutan kerja yang kami rencanakan agar hasil tidak tercampur:
 
 Glosarium singkat ini menjelaskan istilah yang kami gunakan: **clock** mengatur kapan nilai register berubah; **FSM** adalah urutan keadaan kendali; **valid/ready** berarti transfer terjadi saat keduanya aktif pada tepi clock; **simulasi** memeriksa perilaku model RTL; **sintesis** mengubah RTL menjadi logika; **Fitter** memetakan logika ke FPGA; **timing** memeriksa apakah jalur logika selesai dalam batas periode clock; **PPA** berarti daya, performa, dan area/resource. Kami menguraikan trade-off arsitektur di [`docs/architecture.md`](docs/architecture.md) dan gerbang verifikasi di [`docs/verification.md`](docs/verification.md).
 
-## Lisensi dan atribusi
+## 📜 Lisensi dan Atribusi
 
 Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi MIT](LICENSE). Kami menyertakan vektor uji pihak ketiga agar hasil dapat direproduksi, dengan tetap mengikuti ketentuan sumber masing-masing. KAT Ascon-C v1.3.0 berasal dari repositori hulu berlisensi CC0-1.0 ([lisensi hulu](https://github.com/ascon/ascon-c/blob/v1.3.0/LICENSE)); lisensi proyek kami tidak mengubah lisensi atau atribusi materi pihak ketiga. Kami mencatat sumber dan identitas vektor di [`docs/verification.md`](docs/verification.md) dan [`docs/results.md`](docs/results.md).
 
-## Rujukan utama
+## 📚 Rujukan Utama
 
 1. NIST, [SP 800-232 final: Standar Kriptografi Ringan Berbasis Ascon untuk Perangkat Terbatas](https://csrc.nist.gov/pubs/sp/800/232/final), 2025.
 2. NIST, [Publikasi Kriptografi Ringan dan informasi standardisasi](https://csrc.nist.gov/Projects/lightweight-cryptography/publications).
@@ -227,3 +312,8 @@ Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi M
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
 Tanggal akses rujukan daring: 1 Oktober 2026.
+
+
+---
+
+<p align="center"><strong>AUTHENTICATE FIRST. RELEASE LATER.</strong></p>
