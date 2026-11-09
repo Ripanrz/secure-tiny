@@ -1,38 +1,38 @@
 # ⚡ SECURE-TINY
 
 <p align="center">
-  <strong>Authenticate First. Release Later.</strong><br>
-  Ascon-AEAD128 Hardware Cryptography Accelerator with Fail-Closed Plaintext Release
+  <strong>Autentikasi Dahulu. Lepaskan Kemudian.</strong><br>
+  Ascon-AEAD128 Akselerator Kriptografi Perangkat Keras with Fail-Closed Plaintext Release
 </p>
 
 <div align="center">
 
-![Project](https://img.shields.io/badge/Project-SECURE--TINY-111827)
-![Cryptography](https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2)
-![Standard](https://img.shields.io/badge/Standard-NIST_SP_800--232-blue)
+![Proyek](https://img.shields.io/badge/Project-SECURE--TINY-111827)
+![Kriptografi](https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2)
+![Standar](https://img.shields.io/badge/Standard-NIST_SP_800--232-blue)
 ![HDL](https://img.shields.io/badge/HDL-SystemVerilog-red)
 ![FPGA](https://img.shields.io/badge/FPGA-Cyclone_V-success)
 ![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
 
 ![KAT](https://img.shields.io/badge/KAT-2%2C178_transactions-success)
-![Regression](https://img.shields.io/badge/Regression-7%2F7_PASS-success)
-![Fmax Baseline](https://img.shields.io/badge/Fmax_baseline-79.72MHz-blue)
+![Regression](https://img.shields.io/badge/Regression-7%2F7_LULUS-success)
+![Fmax baseline](https://img.shields.io/badge/Fmax_baseline-79.72MHz-blue)
 ![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
 ![Verilator](https://img.shields.io/badge/Verilator-0_warnings-success)
-![Quartus Baseline](https://img.shields.io/badge/Quartus_baseline-PASS-success)
+![Quartus baseline](https://img.shields.io/badge/Quartus_baseline-LULUS-success)
 
 </div>
 
 ---
 
 
-## 🧪 Learning / Unit-Test Module
+## 🧪 Modul Pembelajaran / Uji Unit
 
 The repository also keeps a small `counter.sv` example as a learning and RTL unit-test module. It is **not part of the SECURE-TINY cryptographic datapath**.
 
 - RTL: `rtl/counter.sv`
-- Testbench: `tb/tb_counter.sv`
-- Runner: `scripts/run_counter.ps1`
+- testbench: `tb/tb_counter.sv`
+- pelaksana uji: `scripts/run_counter.ps1`
 - Make target: `make test-counter`
 
 It is included intentionally as a basic example for synchronous reset, enable, hold behavior, and wraparound testing.
@@ -78,19 +78,19 @@ Tag ──►│  Tag Verifier   │
 plaintext_valid -> authentication_success
 ```
 
-The invariant is the central security property of the current architecture. It is tested through negative authentication scenarios, while broader claims such as side-channel resistance and fault-injection resistance remain outside the current evidence.
+The invariant is the central security property of the current architecture. It is tested through negative authentication scenarios, while broader claims such as side-channel resistance and fault-injection resistance remain outside the current bukti.
 
 ---
 
 ## Latar belakang dan ruang lingkup
 
-Kami berangkat dari kebutuhan perangkat edge dan IoT untuk melindungi kerahasiaan data serta mendeteksi perubahan pada pesan dan metadata. Kami menguji fungsi tersebut melalui IP enkripsi terautentikasi berbasis Ascon-AEAD128. Fokus utama kami adalah **Hardware Cryptography Accelerator**, dengan **Secure Communication** sebagai fokus pendukung. Cakupan kami belum meliputi elemen keamanan lengkap, protokol jaringan, pertukaran kunci, bus HPS/Avalon, atau sensor gangguan fisik.
+Kami berangkat dari kebutuhan perangkat edge dan IoT untuk melindungi kerahasiaan data serta mendeteksi perubahan pada pesan dan metadata. Kami menguji fungsi tersebut melalui IP enkripsi terautentikasi berbasis Ascon-AEAD128. Fokus utama kami adalah **Akselerator Kriptografi Perangkat Keras**, dengan **Komunikasi Aman** sebagai fokus pendukung. Cakupan kami belum meliputi elemen keamanan lengkap, protokol jaringan, pertukaran kunci, bus HPS/Avalon, atau sensor gangguan fisik.
 
-Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami tidak mengklaim kebaruan yang terbukti; integrasi IP modular dan penjagaan keluaran dekripsi merupakan fokus rekayasa yang harus dibaca bersama batas evidence dan prior-art.
+Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami tidak mengklaim kebaruan yang terbukti; integrasi IP modular dan penjagaan keluaran dekripsi merupakan fokus rekayasa yang harus dibaca bersama batas bukti dan prior-art.
 
 ### Dasar keamanan rancangan
 
-Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh mentransfer plaintext. Kami memperlakukan key, state internal, dan calon plaintext sebagai aset. Pemanggil bertanggung jawab atas nonce; kami belum menerapkan atau membuktikan pembersihan semua salinan rahasia, mitigasi side-channel, perlindungan fault injection, maupun deteksi gangguan fisik. Kami menguji penahanan plaintext pada skenario simulasi yang tercatat dan menjelaskan cakupan serta batas klaim di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/results.md`](docs/results.md).
+Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh mentransfer plaintext. Kami memperlakukan key, state internal, dan calon plaintext sebagai aset. Pemanggil bertanggung jawab atas nonce; kami belum menerapkan atau membuktikan pembersihan semua salinan rahasia, mitigasi side-channel, perlindungan fault injection, maupun deteksi gangguan fisik. Kami menguji penahanan plaintext pada skenario simulasi yang tercatat dan menjelaskan cakupan serta batas klaim di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/Hasil.md`](docs/Hasil.md).
 
 ## ✨ Fitur dan Status Saat Ini
 
@@ -139,9 +139,9 @@ Pada enkripsi, core kami menghasilkan ciphertext dan tag. Pada dekripsi, kami me
 | `authentication_guard.sv` | Menyimpan keputusan autentikasi dan mengizinkan plaintext hanya jika dekripsi lolos verifikasi. |
 | `secure_tiny_top.sv` | Menggabungkan modul menjadi satu IP dengan antarmuka sinkron. |
 
-## 🛠️ Perangkat Pengembangan dan Baseline Historis
+## 🛠️ Perangkat Pengembangan dan baseline Historis
 
-- **OSS CAD Suite for Windows**: used for Icarus Verilog, Verilator, Yosys, and Python tooling.
+- **OSS CAD Suite for Windows**: digunakan untuk Icarus Verilog, Verilator, Yosys, dan alat Python.
 - **Icarus Verilog**: kami gunakan untuk mengompilasi dan menyimulasikan testbench SystemVerilog.
 - **Verilator**: kami gunakan untuk lint/elaborasi statis RTL tingkat atas.
 - **GTKWave**: kami gunakan untuk melihat waveform VCD.
@@ -172,7 +172,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_all_tests.
 
 Dengan rangkaian ini, kami menguji permutasi, KAT core RTL, unit tag/guard, uji terarah dan sapuan KAT tingkat atas, serta pemeriksa Python ACVP/KAT. Kode keluar selain nol atau pesan `$fatal` berarti pengujian gagal. Icarus dapat menampilkan peringatan `constant selects in always_*`; kami mencatatnya sebagai peringatan simulator, bukan hasil sintesis Quartus.
 
-Runner individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
+pelaksana uji individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
 
 ### 3. Referensi lint, sintesis, dan baseline FPGA
 
@@ -185,7 +185,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_
 
 Kami memakai lint Verilator untuk memeriksa elaborasi dan peringatan RTL; lint tidak membuktikan hasil Quartus atau kebenaran kriptografi. Skrip mengambil `bin\verilator_bin.exe` dari OSS CAD Suite dan mengatur `VERILATOR_ROOT` serta `PATH` secara lokal.
 
-Baseline Yosys yang tercatat menghasilkan **20.937 generic cells**; angka ini bukan ALM/LE Cyclone V dan tidak digunakan sebagai FPGA resource metric.
+baseline Yosys yang tercatat menghasilkan **20.937 generic cells**; angka ini bukan ALM/LE Cyclone V dan tidak digunakan sebagai FPGA resource metric.
 
 Pada lingkungan build kami, Quartus/Tcl salah menormalisasi path langsung di bawah folder profil Windows. Karena itu, kami memetakan root repositori ke drive sementara `R:` sebelum menjalankan build penuh:
 
@@ -217,28 +217,28 @@ Skrip metrik tersebut dipertahankan sebagai recipe historis. Ia tidak dijalankan
 
 #### Build Quartus dan batas pengujian board
 
-Baseline Quartus yang tercatat berhasil. Fitter melaporkan 2.464 ALM (6%), 2.800 register, Fmax 79,72 MHz, dan setup slack +7,456 ns pada clock target 50 MHz. Kami belum menganggap timing I/O selesai karena port transaksi memakai virtual pins dan Timing Analyzer menandai desain belum sepenuhnya constrained.
+baseline Quartus yang tercatat berhasil. Fitter melaporkan 2.464 ALM (6%), 2.800 register, Fmax 79,72 MHz, dan setup slack +7,456 ns pada clock target 50 MHz. Kami belum menganggap timing I/O selesai karena port transaksi memakai virtual pins dan Timing Analyzer menandai desain belum sepenuhnya constrained.
 
-Baseline historis menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows) beserta paket dukungan Cyclone V. Pada baseline historis, instalasi tersedia di `C:\altera_lite\25.1std`; daftar komponen berikut kami catat untuk dokumentasi konfigurasi:
+baseline historis menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-Windows) beserta paket dukungan Cyclone V. Pada baseline historis, instalasi tersedia di `C:\altera_lite\25.1std`; daftar komponen berikut kami catat untuk dokumentasi konfigurasi:
 
 1. perangkat lunak Quartus Prime Lite;
 2. dukungan perangkat **Cyclone V** (`cyclonev-25.1std.0.1129.qdz` pada paket 25.1).
 
-Kami memilih edisi Lite karena mendukung Cyclone V untuk alur yang dibutuhkan proyek. Kami tidak memerlukan edisi Standard atau Pro untuk target ini. [Matriks edisi dan perangkat Quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime/resource.html) · [Paket dukungan Cyclone V 25.1](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows).
+Kami memilih edisi Lite karena mendukung Cyclone V untuk alur yang dibutuhkan proyek. Kami tidak memerlukan edisi Standard atau Pro untuk target ini. [Matriks edisi dan perangkat Quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime/resource.html) · [Paket dukungan Cyclone V 25.1](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-Windows).
 
-Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. Kami mencantumkan perintah build yang berhasil dan cara mengulangnya pada bagian penggunaan di atas, serta menyimpan rincian run di [`docs/results.md`](docs/results.md). Skrip `build_quartus.ps1` menjalankan alur kompilasi penuh; skrip ekstraksi metrik terpisah menjalankan ulang map/fit/timing dan tidak membuat `.sof` sendiri. Build ini belum menambahkan jalur transaksi host ke desain kami: port transaksi masih berupa virtual pins.
+Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. Kami mencantumkan perintah build yang berhasil dan cara mengulangnya pada bagian penggunaan di atas, serta menyimpan rincian run di [`docs/Hasil.md`](docs/Hasil.md). Skrip `build_quartus.ps1` menjalankan alur kompilasi penuh; skrip ekstraksi metrik terpisah menjalankan ulang map/fit/timing dan tidak membuat `.sof` sendiri. Build ini belum menambahkan jalur transaksi host ke desain kami: port transaksi masih berupa virtual pins.
 
 ### 4. Artefak simulasi
 
-VCD dan log simulasi adalah artefak generated dan sengaja tidak disimpan di repository. Hasil yang dipakai untuk baseline didokumentasikan di `docs/results.md`.
+VCD dan log simulasi adalah artefak generated dan sengaja tidak disimpan di repository. Hasil yang dipakai untuk baseline didokumentasikan di `docs/Hasil.md`.
 
 ## 🧪 Hasil Verifikasi yang Tercatat
 
-Hasil baseline historis yang tercatat pada 6 Oktober 2026 menunjukkan seluruh runner yang dijalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
+Hasil baseline historis yang tercatat pada 6 Oktober 2026 menunjukkan seluruh pelaksana uji yang dijalankan berstatus LULUS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/Hasil.md`](docs/Hasil.md).
 
 Pada 1 Oktober 2026, kami juga menjalankan lint Verilator 5.053 untuk tingkat atas dengan `MAX_DATA_BYTES=16`; lint lulus tanpa peringatan. Pemeriksaan ini mencakup elaborasi/lint, bukan kompilasi Quartus.
 
-Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline 2026** untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
+Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline 2026** untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/Hasil.md`](docs/Hasil.md).
 
 **Belum kami ukur/lakukan:** daya, throughput fisik, timing I/O dengan constraint nyata, integrasi antarmuka transaksi host, serta pengujian fungsional pada DE10-Nano. Kami tidak mengklaim pengujian board atau fabrikasi ASIC.
 
@@ -246,7 +246,7 @@ Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline 2026*
 
 ```text
 SECURE-TINY/
-├── docs/       PRD, architecture, module specs, verification and results
+├── docs/       PRD, architecture, module specs, verification and Hasil
 ├── quartus/    QPF/QSF/SDC untuk target Cyclone V DE10-Nano
 ├── rtl/        RTL SystemVerilog yang dapat disintesis
 ├── scripts/    skrip simulasi/lint, sintesis Yosys, pemeriksaan awal dan build Quartus
@@ -273,20 +273,20 @@ Glosarium singkat ini menjelaskan istilah yang kami gunakan: **clock** mengatur 
 
 ## 📜 Lisensi dan Atribusi
 
-Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi MIT](LICENSE). Kami menyertakan vektor uji pihak ketiga agar hasil dapat direproduksi, dengan tetap mengikuti ketentuan sumber masing-masing. KAT Ascon-C v1.3.0 berasal dari repositori hulu berlisensi CC0-1.0 ([lisensi hulu](https://github.com/ascon/ascon-c/blob/v1.3.0/LICENSE)); lisensi proyek kami tidak mengubah lisensi atau atribusi materi pihak ketiga. Kami mencatat sumber dan identitas vektor di [`docs/verification.md`](docs/verification.md) dan [`docs/results.md`](docs/results.md).
+Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi MIT](LICENSE). Kami menyertakan vektor uji pihak ketiga agar hasil dapat direproduksi, dengan tetap mengikuti ketentuan sumber masing-masing. KAT Ascon-C v1.3.0 berasal dari repositori hulu berlisensi CC0-1.0 ([lisensi hulu](https://github.com/ascon/ascon-c/blob/v1.3.0/LICENSE)); lisensi proyek kami tidak mengubah lisensi atau atribusi materi pihak ketiga. Kami mencatat sumber dan identitas vektor di [`docs/verification.md`](docs/verification.md) dan [`docs/Hasil.md`](docs/Hasil.md).
 
 ## 📚 Rujukan Utama
 
 1. NIST, [SP 800-232 final: Standar Kriptografi Ringan Berbasis Ascon untuk Perangkat Terbatas](https://csrc.nist.gov/pubs/sp/800/232/final), 2025.
 2. NIST, [Publikasi Kriptografi Ringan dan informasi standardisasi](https://csrc.nist.gov/Projects/lightweight-cryptography/publications).
 3. NIST ACVP Server, [vektor sampel Ascon-AEAD128 SP 800-232](https://github.com/usnistgov/ACVP-Server/tree/master/gen-val/json-files/Ascon-AEAD128-SP800-232).
-4. Tim Ascon, [kode sumber ascon-c dan riwayat rilis](https://github.com/ascon/ascon-c), termasuk KAT tambahan yang versinya dicatat di `docs/results.md`.
+4. Tim Ascon, [kode sumber ascon-c dan riwayat rilis](https://github.com/ascon/ascon-c), termasuk KAT tambahan yang versinya dicatat di `docs/Hasil.md`.
 5. Terasic, [halaman produk DE10-Nano dan panduan pengguna](https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046&PartNo=4).
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
-Baseline evidence historis terakhir yang dirujuk: 6 Oktober 2026. Repository snapshot ini tidak mengklaim rerun setelah tanggal tersebut.
+baseline bukti historis terakhir yang dirujuk: 6 Oktober 2026. Repository snapshot ini tidak mengklaim rerun setelah tanggal tersebut.
 
 
 ---
 
-<p align="center"><strong>AUTHENTICATE FIRST. RELEASE LATER.</strong></p>
+<p align="center"><strong>AUTENTIKASI DAHULU. LEPASKAN KEMUDIAN.</strong></p>
