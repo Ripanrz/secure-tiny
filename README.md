@@ -1,3 +1,5 @@
+# ⚡ SECURE-TINY
+
 <p align="center">
   <strong>Authenticate First. Release Later.</strong><br>
   Ascon-AEAD128 Hardware Cryptography Accelerator with Fail-Closed Plaintext Release
