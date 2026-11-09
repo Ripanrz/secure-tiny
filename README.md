@@ -15,7 +15,7 @@
 ![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
 
 ![KAT](https://img.shields.io/badge/KAT-2%2C178_transactions-success)
-![Regression](https://img.shields.io/badge/Regression-7%2F7_PASS-success)
+![Regression](https://img.shields.io/badge/Regression-6%2F6_PASS-success)
 ![Fmax](https://img.shields.io/badge/Fmax-79.72MHz-blue)
 ![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
 ![Verilator](https://img.shields.io/badge/Verilator-0_warnings-success)
