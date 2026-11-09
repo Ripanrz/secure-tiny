@@ -68,5 +68,5 @@ The current architecture does not claim side-channel resistance, fault-injection
 - Compare guarded and unguarded decryption baselines.
 - Quantify guard/buffering area and timing overhead.
 - Add a physical transaction interface.
-- Validate on DE10-Nano.
+- Physical DE10-Nano validation is future work and is not claimed in the current evidence.
 - Add formal checking for the plaintext-release invariant.
