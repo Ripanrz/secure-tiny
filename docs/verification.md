@@ -2,43 +2,43 @@
 
 ## Verification layers
 
-> The verification Hasil documented here are recorded baseline bukti. No fresh simulation is claimed for the current repository cleanup.
+> Hasil verifikasi yang didokumentasikan di sini merupakan bukti baseline historis. Tidak ada fresh simulation yang diklaim untuk cleanup repositori saat ini.
 
-The repository also runs a small counter learning/unit test. It is tracked for RTL learning and regression hygiene, but it is not bukti for the cryptographic datapath.
+Repositori juga menjalankan unit test kecil untuk modul counter. Modul ini dipertahankan untuk pembelajaran RTL dan regression hygiene, tetapi bukan bukti untuk cryptographic datapath.
 
-| Layer | What is tested | bukti |
+| Layer | Yang diuji | Bukti |
 |---|---|---|
 | Counter learning/unit | Basic synchronous RTL reset/enable/hold/wrap behavior | `tb/tb_counter.sv` |
-| Ascon permutation | Round behavior used by the AEAD core | `tb/tb_ascon_permutation.sv` |
-| Ascon core | Empty/partial inputs and full KAT set in both directions | `tb/tb_ascon_core.sv`, KAT vectors |
-| Tag/authentication | Tag generation, full tag comparison, accept/reject behavior | `tb/tb_tag_auth_modules.sv` |
+| Ascon permutation | Perilaku round yang digunakan oleh AEAD core | `tb/tb_ascon_permutation.sv` |
+| Ascon core | Empty/partial inputs dan seluruh KAT set pada kedua arah | `tb/tb_ascon_core.sv`, KAT vectors |
+| Tag/authentication | Tag generation, full tag comparison, dan accept/reject behavior | `tb/tb_tag_auth_modules.sv` |
 | Uji terarah tingkat atas | Authentication failures, plaintext suppression, reset, stalls, busy/start, capacity | `tb/tb_secure_tiny_top.sv` |
 | Sapuan tingkat atas | 0–16 byte AD/message combinations in both directions | `tb/tb_secure_tiny_kat.sv` |
-| Model referensi Python | ACVP byte-aligned sample subset and Ascon-C KATs | `python/` |
-| Lint RTL | Top-level elaboration/lint | `scripts/lint_verilator.ps1` |
-| sintesis generik | Structural check and sintesis generik | `scripts/synth_yosys.ps1` |
-| Implementasi FPGA | Cyclone V build, resource and timing baseline | `quartus/`, `scripts/build_quartus.ps1` |
+| Model referensi Python | Subset sampel ACVP byte-aligned dan KAT Ascon-C | `python/` |
+| Lint RTL | Elaboration/lint top-level | `scripts/lint_verilator.ps1` |
+| Sintesis generik | Structural check dan sintesis generik | `scripts/synth_yosys.ps1` |
+| Implementasi FPGA | Build Cyclone V, resource dan timing baseline | `quartus/`, `scripts/build_quartus.ps1` |
 
-## Cakupan yang tercatat
+## Cakupan yang Tercatat
 
-- 1,089 Ascon-C KATs for encryption
-- 1,089 Ascon-C KATs for decryption
-- 289 AD/message length pairs in each direction
-- 14 byte-aligned ACVP sample cases in the Python checker
+- 1.089 KAT Ascon-C untuk encryption
+- 1.089 KAT Ascon-C untuk decryption
+- 289 pasangan panjang AD/message pada setiap arah
+- 14 kasus sampel ACVP byte-aligned pada Python checker
 - Negative authentication scenarios
 - Control-path stress scenarios
 
-## Security invariant
+## Security Invariant
 
-For decryption, the intended contract is:
+Untuk decryption, kontrak yang ditetapkan adalah:
 
 ```text
 plaintext_valid -> authentication_success
 ```
 
-The current bukti demonstrates this invariant for the tested RTL scenarios. It does not establish resistance to physical or implementation-level attacks.
+Bukti saat ini menunjukkan invarian tersebut pada skenario RTL yang diuji. Bukti ini tidak menetapkan resistance terhadap physical attack atau implementation-level attack.
 
-## Di luar cakupan
+## Di Luar Cakupan
 
 - official ACVP certification
 - side-channel resistance
