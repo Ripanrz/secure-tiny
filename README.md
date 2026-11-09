@@ -5,21 +5,19 @@
 
 <div align="center">
 
-<img src="https://img.shields.io/static/v1?label=Project&message=SECURE-TINY&color=111827" alt="Project: SECURE-TINY">
-<img src="https://img.shields.io/static/v1?label=Cryptography&message=Ascon-AEAD128&color=8A2BE2" alt="Cryptography: Ascon-AEAD128">
-<img src="https://img.shields.io/static/v1?label=Standard&message=NIST%20SP%20800-232&color=blue" alt="Standard: NIST SP 800-232">
-<img src="https://img.shields.io/static/v1?label=HDL&message=SystemVerilog&color=red" alt="HDL: SystemVerilog">
-<img src="https://img.shields.io/static/v1?label=FPGA&message=Cyclone%20V&color=success" alt="FPGA: Cyclone V">
-<img src="https://img.shields.io/static/v1?label=Target&message=DE10-Nano&color=orange" alt="Target: DE10-Nano">
+![Project](https://img.shields.io/badge/Project-SECURE--TINY-111827)
+![Cryptography](https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2)
+![Standard](https://img.shields.io/badge/Standard-NIST_SP_800--232-blue)
+![HDL](https://img.shields.io/badge/HDL-SystemVerilog-red)
+![FPGA](https://img.shields.io/badge/FPGA-Cyclone_V-success)
+![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
 
-<br>
-
-<img src="https://img.shields.io/static/v1?label=KAT&message=2%2C178%20transactions&color=success" alt="KAT: 2,178 transactions">
-<img src="https://img.shields.io/static/v1?label=Regression&message=historical%207%2F7%20PASS&color=success" alt="Historical regression: 7/7 PASS">
-<img src="https://img.shields.io/static/v1?label=Fmax&message=79.72%20MHz&color=blue" alt="Fmax: 79.72 MHz">
-<img src="https://img.shields.io/static/v1?label=ALM&message=2%2C464&color=blueviolet" alt="ALM: 2,464">
-<img src="https://img.shields.io/static/v1?label=Verilator&message=0%20warnings&color=success" alt="Verilator: 0 warnings">
-<img src="https://img.shields.io/static/v1?label=Quartus&message=25.1%20PASS&color=success" alt="Quartus 25.1: PASS">
+![KAT](https://img.shields.io/badge/KAT-2%2C178_transactions-success)
+![Regression](https://img.shields.io/badge/Regression-7%2F7_PASS-success)
+![Fmax](https://img.shields.io/badge/Fmax-79.72MHz-blue)
+![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
+![Verilator](https://img.shields.io/badge/Verilator-0_warnings-success)
+![Quartus](https://img.shields.io/badge/Quartus-PASS-success)
 
 </div>
 
@@ -209,7 +207,7 @@ Hanya laporan kompilasi Quartus yang sukses boleh dipakai untuk mengisi data res
 
 #### Build Quartus dan batas pengujian board
 
-Kami telah menjalankan build penuh. Fitter melaporkan 2.464 ALM (6%), 2.800 register, Fmax 79,72 MHz, dan setup slack +7,456 ns pada clock target 50 MHz. Kami belum menganggap timing I/O selesai karena port transaksi memakai virtual pins dan Timing Analyzer menandai desain belum sepenuhnya constrained.
+Baseline Quartus yang tercatat berhasil. Fitter melaporkan 2.464 ALM (6%), 2.800 register, Fmax 79,72 MHz, dan setup slack +7,456 ns pada clock target 50 MHz. Kami belum menganggap timing I/O selesai karena port transaksi memakai virtual pins dan Timing Analyzer menandai desain belum sepenuhnya constrained.
 
 Kami menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows) beserta paket dukungan Cyclone V. Instalasi kami sudah tersedia di `C:\altera_lite\25.1std`; daftar komponen berikut kami catat untuk dokumentasi konfigurasi:
 
@@ -222,13 +220,7 @@ Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. K
 
 ### 4. Buka waveform dengan GTKWave
 
-Testbench menghasilkan VCD di `sim/`. Untuk top-level:
-
-```powershell
-& "$env:OSS_CAD_SUITE\bin\gtkwave.exe" .\sim\secure_tiny_top.vcd
-```
-
-Berkas waveform lain yang kami hasilkan adalah `ascon_permutation.vcd`, `ascon_core.vcd`, `tag_auth_modules.vcd`, dan `secure_tiny_kat.vcd`. Jika GTKWave memiliki nama atau lokasi berbeda pada paket yang kami gunakan, kami membuka VCD melalui menu **File → Open**.
+Testbench menghasilkan VCD di `sim/` secara lokal. Direktori `sim/` sengaja tidak dilacak Git karena seluruh isinya dapat dibuat ulang. Gunakan GTKWave untuk membuka `sim/secure_tiny_top.vcd`, `sim/ascon_core.vcd`, atau `sim/ascon_permutation.vcd` setelah regresi.
 
 ## 🧪 Hasil Verifikasi yang Tercatat
 
@@ -236,7 +228,7 @@ Hasil baseline yang tercatat pada 6 Oktober 2026 menunjukkan seluruh runner yang
 
 Pada 1 Oktober 2026, kami juga menjalankan lint Verilator 5.053 untuk tingkat atas dengan `MAX_DATA_BYTES=16`; lint lulus tanpa peringatan. Pemeriksaan ini mencakup elaborasi/lint, bukan kompilasi Quartus.
 
-Build penuh Quartus Prime Lite 25.1 untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler membuat `quartus/output_files/secure_tiny.sof`. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
+Build penuh Quartus Prime Lite 25.1 untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
 
 **Belum kami ukur/lakukan:** daya, throughput fisik, timing I/O dengan constraint nyata, integrasi antarmuka transaksi host, serta pengujian fungsional pada DE10-Nano. Kami tidak mengklaim pengujian board atau fabrikasi ASIC.
 
@@ -244,11 +236,11 @@ Build penuh Quartus Prime Lite 25.1 untuk `5CSEBA6U23I7` juga lulus: Fitter meng
 
 ```text
 SECURE-TINY/
-├── docs/       PRD, arsitektur, spesifikasi modul, verifikasi, hasil, proposal
+├── docs/       PRD, architecture, module specs, verification and results
 ├── quartus/    QPF/QSF/SDC untuk target Cyclone V DE10-Nano
 ├── rtl/        RTL SystemVerilog yang dapat disintesis
 ├── scripts/    skrip simulasi/lint, sintesis Yosys, pemeriksaan awal dan build Quartus
-├── sim/        VCD dan log hasil alat; file .vvp sementara dapat dibuat ulang
+├── sim/        generated locally for simulation; not tracked
 ├── tb/         testbench permutasi, core, tag/guard, dan modul tingkat atas
 ├── python/     model Ascon dan pembanding vektor
 └── vectors/    sampel ACVP NIST dan KAT tambahan Ascon-C
@@ -282,7 +274,7 @@ Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi M
 5. Terasic, [halaman produk DE10-Nano dan panduan pengguna](https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046&PartNo=4).
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
-Tanggal akses rujukan daring: 1 Oktober 2026.
+Baseline evidence terakhir yang dirujuk: 6 Oktober 2026.
 
 
 ---

@@ -1,14 +1,11 @@
 # Shortcut untuk menjalankan runner PowerShell dari terminal yang mendukung make.
 POWERSHELL ?= powershell.exe
 
-.PHONY: test test-counter test-ascon-permutation test-ascon-core test-tag-auth test-top test-top-kat test-vectors lint-verilator synth-yosys check-quartus-project build-quartus
+.PHONY: test test-ascon-permutation test-ascon-core test-tag-auth test-top test-top-kat test-vectors lint-verilator synth-yosys check-quartus-project build-quartus
 
 # Target agregat: seluruh suite unit, integrasi, dan model Python.
 test:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1
-
-test-counter:
-	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_counter.ps1
 
 test-ascon-permutation:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File scripts/run_ascon_permutation.ps1

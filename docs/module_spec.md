@@ -33,7 +33,6 @@ Tidak ada port `command_ready` terpisah. Perintah diterima pada tepi naik saat `
 
 | Modul | Peran dan kontrak |
 |---|---|
-| `counter.sv` | Modul pembelajaran terpisah untuk reset, aktifkan, tahan, dan limpahan pencacah; bukan bagian jalur data AEAD. |
 | `ascon_permutation.sv` | Menerima state 320-bit dan 8 atau 12 ronde, menjalankan satu ronde per siklus aktif, lalu mengeluarkan state akhir dan pulsa `done`. Transformasi mengikuti NIST SP 800-232. |
 | `ascon_core.sv` | Mesin AEAD dengan penyangga. Menerima key, nonce, panjang, dan vektor AD/pesan packed yang stabil selama sibuk. Menjalankan inisialisasi, absorpsi, pemrosesan, finalisasi, dan mengeluarkan seluruh hasil packed serta tag. Tidak memiliki antarmuka host. |
 | `aead_controller.sv` | Menerima aliran byte ke penyangga AD dan data, memulai core setelah masukan lengkap, mengatur handshake keluaran, verifikasi tag, dan penyelesaian. State tambahan digunakan untuk fase penerimaan, pemrosesan core, verifikasi, dan pengiriman. |
