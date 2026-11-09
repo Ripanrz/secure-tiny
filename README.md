@@ -16,10 +16,10 @@
 
 ![KAT](https://img.shields.io/badge/KAT-2%2C178_transactions-success)
 ![Regression](https://img.shields.io/badge/Regression-7%2F7_PASS-success)
-![Fmax](https://img.shields.io/badge/Fmax-79.72MHz-blue)
+![Fmax Baseline](https://img.shields.io/badge/Fmax_baseline-79.72MHz-blue)
 ![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
 ![Verilator](https://img.shields.io/badge/Verilator-0_warnings-success)
-![Quartus](https://img.shields.io/badge/Quartus-PASS-success)
+![Quartus Baseline](https://img.shields.io/badge/Quartus_baseline-PASS-success)
 
 </div>
 
@@ -86,7 +86,7 @@ The invariant is the central security property of the current architecture. It i
 
 Kami berangkat dari kebutuhan perangkat edge dan IoT untuk melindungi kerahasiaan data serta mendeteksi perubahan pada pesan dan metadata. Kami menguji fungsi tersebut melalui IP enkripsi terautentikasi berbasis Ascon-AEAD128. Fokus utama kami adalah **Hardware Cryptography Accelerator**, dengan **Secure Communication** sebagai fokus pendukung. Cakupan kami belum meliputi elemen keamanan lengkap, protokol jaringan, pertukaran kunci, bus HPS/Avalon, atau sensor gangguan fisik.
 
-Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami belum mengklaim kebaruan yang terbukti; integrasi IP modular dan penjagaan keluaran dekripsi merupakan fokus implementasi yang masih perlu kami bandingkan dengan karya terdahulu dan ukur pada target FPGA.
+Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami tidak mengklaim kebaruan yang terbukti; integrasi IP modular dan penjagaan keluaran dekripsi merupakan fokus rekayasa yang harus dibaca bersama batas evidence dan prior-art.
 
 ### Dasar keamanan rancangan
 
@@ -139,7 +139,7 @@ Pada enkripsi, core kami menghasilkan ciphertext dan tag. Pada dekripsi, kami me
 | `authentication_guard.sv` | Menyimpan keputusan autentikasi dan mengizinkan plaintext hanya jika dekripsi lolos verifikasi. |
 | `secure_tiny_top.sv` | Menggabungkan modul menjadi satu IP dengan antarmuka sinkron. |
 
-## 🛠️ Perangkat Pengembangan dan Perangkat Lunak
+## 🛠️ Perangkat Pengembangan dan Baseline Historis
 
 - **OSS CAD Suite for Windows**: used for Icarus Verilog, Verilator, Yosys, and Python tooling.
 - **Icarus Verilog**: kami gunakan untuk mengompilasi dan menyimulasikan testbench SystemVerilog.
@@ -174,17 +174,18 @@ Dengan rangkaian ini, kami menguji permutasi, KAT core RTL, unit tag/guard, uji 
 
 Runner individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
 
-### 3. Jalankan lint dan periksa sintesis/preflight FPGA
+### 3. Referensi lint, sintesis, dan baseline FPGA
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\lint_verilator.ps1 -MaxDataBytes 16
+```text
+Perintah lint/sintesis/Quartus historis tidak dijalankan ulang untuk snapshot repository ini. Software toolchain yang dipakai pada baseline 2026 sudah tidak tersedia di lingkungan pengembangan saat dokumentasi ini dirapikan. Script tetap dipertahankan sebagai reproducibility recipe.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\synth_yosys.ps1 -MaxDataBytes 16
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_project.ps1
 ```
 
 Kami memakai lint Verilator untuk memeriksa elaborasi dan peringatan RTL; lint tidak membuktikan hasil Quartus atau kebenaran kriptografi. Skrip mengambil `bin\verilator_bin.exe` dari OSS CAD Suite dan mengatur `VERILATOR_ROOT` serta `PATH` secara lokal.
 
-Run Yosys terbaru yang tercatat menghasilkan **20.937 generic cells**; angka ini bukan ALM/LE Cyclone V dan tidak digunakan sebagai FPGA resource metric.
+Baseline Yosys yang tercatat menghasilkan **20.937 generic cells**; angka ini bukan ALM/LE Cyclone V dan tidak digunakan sebagai FPGA resource metric.
 
 Pada lingkungan build kami, Quartus/Tcl salah menormalisasi path langsung di bawah folder profil Windows. Karena itu, kami memetakan root repositori ke drive sementara `R:` sebelum menjalankan build penuh:
 
@@ -212,15 +213,13 @@ try {
 }
 ```
 
-Skrip metrik menerima folder `bin64` melalui `-QuartusBin`; kami menggunakannya jika Quartus belum ada di `PATH`. Log dan CSV metrik akan dibuat di folder `quartus/`; nilai yang tidak terdeteksi tetap ditandai `TBD`/`UNPARSED`. Skrip ini tidak membuat `.sof`; kami perlu menjalankan Assembler setelah proses fit berhasil.
-
-Hanya laporan kompilasi Quartus yang sukses boleh dipakai untuk mengisi data resource, timing, dan pembuatan berkas pemrograman FPGA.
+Skrip metrik tersebut dipertahankan sebagai recipe historis. Ia tidak dijalankan ulang pada snapshot repository ini.
 
 #### Build Quartus dan batas pengujian board
 
 Baseline Quartus yang tercatat berhasil. Fitter melaporkan 2.464 ALM (6%), 2.800 register, Fmax 79,72 MHz, dan setup slack +7,456 ns pada clock target 50 MHz. Kami belum menganggap timing I/O selesai karena port transaksi memakai virtual pins dan Timing Analyzer menandai desain belum sepenuhnya constrained.
 
-Kami menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows) beserta paket dukungan Cyclone V. Instalasi kami sudah tersedia di `C:\altera_lite\25.1std`; daftar komponen berikut kami catat untuk dokumentasi konfigurasi:
+Baseline historis menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-windows) beserta paket dukungan Cyclone V. Pada baseline historis, instalasi tersedia di `C:\altera_lite\25.1std`; daftar komponen berikut kami catat untuk dokumentasi konfigurasi:
 
 1. perangkat lunak Quartus Prime Lite;
 2. dukungan perangkat **Cyclone V** (`cyclonev-25.1std.0.1129.qdz` pada paket 25.1).
@@ -229,17 +228,17 @@ Kami memilih edisi Lite karena mendukung Cyclone V untuk alur yang dibutuhkan pr
 
 Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. Kami mencantumkan perintah build yang berhasil dan cara mengulangnya pada bagian penggunaan di atas, serta menyimpan rincian run di [`docs/results.md`](docs/results.md). Skrip `build_quartus.ps1` menjalankan alur kompilasi penuh; skrip ekstraksi metrik terpisah menjalankan ulang map/fit/timing dan tidak membuat `.sof` sendiri. Build ini belum menambahkan jalur transaksi host ke desain kami: port transaksi masih berupa virtual pins.
 
-### 4. Buka waveform dengan GTKWave
+### 4. Artefak simulasi
 
-Testbench menghasilkan VCD di `sim/` secara lokal. Direktori `sim/` sengaja tidak dilacak Git karena seluruh isinya dapat dibuat ulang. Gunakan GTKWave untuk membuka `sim/secure_tiny_top.vcd`, `sim/ascon_core.vcd`, atau `sim/ascon_permutation.vcd` setelah regresi.
+VCD dan log simulasi adalah artefak generated dan sengaja tidak disimpan di repository. Hasil yang dipakai untuk baseline didokumentasikan di `docs/results.md`.
 
 ## 🧪 Hasil Verifikasi yang Tercatat
 
-Hasil baseline yang tercatat pada 6 Oktober 2026 menunjukkan seluruh runner yang dijalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
+Hasil baseline historis yang tercatat pada 6 Oktober 2026 menunjukkan seluruh runner yang dijalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
 
 Pada 1 Oktober 2026, kami juga menjalankan lint Verilator 5.053 untuk tingkat atas dengan `MAX_DATA_BYTES=16`; lint lulus tanpa peringatan. Pemeriksaan ini mencakup elaborasi/lint, bukan kompilasi Quartus.
 
-Build penuh Quartus Prime Lite 25.1 untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
+Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline 2026** untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
 
 **Belum kami ukur/lakukan:** daya, throughput fisik, timing I/O dengan constraint nyata, integrasi antarmuka transaksi host, serta pengujian fungsional pada DE10-Nano. Kami tidak mengklaim pengujian board atau fabrikasi ASIC.
 
@@ -285,7 +284,7 @@ Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi M
 5. Terasic, [halaman produk DE10-Nano dan panduan pengguna](https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046&PartNo=4).
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
-Baseline evidence terakhir yang dirujuk: 6 Oktober 2026.
+Baseline evidence historis terakhir yang dirujuk: 6 Oktober 2026. Repository snapshot ini tidak mengklaim rerun setelah tanggal tersebut.
 
 
 ---
