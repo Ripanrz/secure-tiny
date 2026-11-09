@@ -1,8 +1,8 @@
-# Results
+# Hasil
 
-> **Evidence status:** historical baseline. These results were recorded in October 2026 and are preserved as project evidence. They were not re-generated for the current repository cleanup.
+> **bukti status:** baseline historis. These Hasil were recorded in October 2026 and are preserved as project bukti. They were not re-generated for the current repository cleanup.
 
-## Baseline
+## baseline
 
 The current recorded baseline uses:
 
@@ -11,10 +11,10 @@ The current recorded baseline uses:
 | Ascon-C KATs | 1,089 encryption + 1,089 decryption = **2,178 transactions** |
 | Core latency suite | **121,308 cycles total**, maximum **88 cycles/transaction** |
 | Top-level length sweep | **289 pairs × 2 directions = 578 transactions** |
-| Top-level sweep latency | **51,019 cycles total**, maximum **150 cycles/transaction** |
-| Python ACVP sample check | **14 byte-aligned cases PASS**; 226/240 sample cases are outside the current byte-oriented checker |
+| Sapuan tingkat atas latency | **51,019 cycles total**, maximum **150 cycles/transaction** |
+| Python ACVP sample check | **14 byte-aligned cases LULUS**; 226/240 sample cases are outside the current byte-oriented checker |
 | Verilator | **5.053, 0 warnings** on the recorded top-level lint run |
-| Yosys | **20,937 generic cells**, check PASS |
+| Yosys | **20,937 generic cells**, check LULUS |
 | FPGA | Cyclone V `5CSEBA6U23I7` |
 | ALM | **2,464** |
 | Registers | **2,800** |
@@ -24,8 +24,8 @@ The current recorded baseline uses:
 | Target clock | **50 MHz** |
 | Setup slack | **+7.456 ns** |
 | Hold slack | **+0.338 ns** |
-| Quartus | **25.1 full compile PASS** |
-| Physical DE10-Nano | **Not tested** |
+| Quartus | **25.1 full compile LULUS** |
+| DE10-Nano fisik | **belum diuji** |
 
 ## Interpretation
 
@@ -35,11 +35,11 @@ The 20,937 Yosys figure is a generic-cell count and must not be compared directl
 
 The 2,178 KAT transactions and 578 top-level transactions are separate suites and must not be summed as unique test cases.
 
-## Cryptographic verification scope
+## Cakupan verifikasi kriptografi
 
-The RTL is checked against Ascon-C v1.3.0 KAT material. The Python reference additionally checks 14 byte-aligned ACVP sample cases. The ACVP comparison is **not official ACVP validation or certification**.
+The RTL is checked against Ascon-C v1.3.0 KAT material. The Model referensi Python additionally checks 14 byte-aligned ACVP sample cases. The ACVP comparison is **not official ACVP validation or certification**.
 
-## Security verification scope
+## Cakupan verifikasi keamanan
 
 Directed RTL tests cover invalid tag, modified ciphertext, modified AD, stalls/backpressure, reset in active phases, start-while-busy, and capacity-overrun behavior. The key invariant is:
 
@@ -47,13 +47,13 @@ Directed RTL tests cover invalid tag, modified ciphertext, modified AD, stalls/b
 decryption plaintext_valid => authentication_success
 ```
 
-This is simulation evidence, not proof against side-channel, fault-injection, physical-tamper, or glitch attacks.
+This is simulation bukti, not proof against side-channel, fault-injection, physical-tamper, or glitch attacks.
 
-## Hardware validation scope
+## cakupan validasi perangkat keras
 
-The following were not performed in the recorded baseline:
+The following were belum dilakukan in the recorded baseline:
 
-- physical DE10-Nano programming/transaction test
+- DE10-Nano fisik programming/transaction test
 - HPS/Avalon integration
 - physical throughput
 - power/energy measurement
