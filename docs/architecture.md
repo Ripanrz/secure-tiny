@@ -1,4 +1,4 @@
-# Architecture
+# Arsitektur
 
 ## System boundary
 
@@ -68,5 +68,5 @@ The current architecture does not claim side-channel resistance, fault-injection
 - Compare guarded and unguarded decryption baselines.
 - Quantify guard/buffering area and timing overhead.
 - Add a physical transaction interface.
-- Physical DE10-Nano validation is future work and is not claimed in the current evidence.
+- DE10-Nano fisik validation is pekerjaan lanjutan and is tidak diklaim in the current bukti.
 - Add formal checking for the plaintext-release invariant.
