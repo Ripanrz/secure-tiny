@@ -12,9 +12,9 @@
 
 **Kategori proposal:** Perancangan Chip IC dan Implementasi FPGA
 
-**Tantangan utama:** Hardware Cryptography Accelerator
+**Tantangan utama:** Akselerator Kriptografi Perangkat Keras
 
-**Tantangan pendukung:** Secure Communication
+**Tantangan pendukung:** Komunikasi Aman
 
 **Ranah penerapan:** Komunikasi edge yang aman
 
@@ -263,8 +263,8 @@ Verifikasi wajib dilakukan. Modul belum dianggap selesai hanya karena berhasil d
 Tahapan verifikasi yang diwajibkan:
 
 1. Kompilasi RTL.
-2. Testbench tingkat unit.
-3. Testbench integrasi.
+2. testbench tingkat unit.
+3. testbench integrasi.
 4. Perbandingan dengan Known Answer Test/referensi.
 5. Pengujian enkripsi dan dekripsi valid.
 6. Pengujian tag autentikasi tidak valid.
@@ -283,7 +283,7 @@ Masukan → model referensi Python → hasil yang diharapkan
 Masukan → RTL DUT                 → hasil perangkat keras
 ```
 
-Bandingkan hasil RTL dengan hasil yang diharapkan. Jika sama, catat PASS; jika berbeda, catat FAIL dan lakukan penelusuran masalah. Keluaran kriptografi yang diharapkan tidak boleh dibuat-buat; gunakan vektor referensi tepercaya.
+Bandingkan hasil RTL dengan hasil yang diharapkan. Jika sama, catat LULUS; jika berbeda, catat FAIL dan lakukan penelusuran masalah. Keluaran kriptografi yang diharapkan tidak boleh dibuat-buat; gunakan vektor referensi tepercaya.
 
 ## 11. Metrik Kinerja
 
