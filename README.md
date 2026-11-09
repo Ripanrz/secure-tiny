@@ -1,27 +1,29 @@
-# ⚡ SECURE-TINY
-
 <p align="center">
   <strong>Authenticate First. Release Later.</strong><br>
   Ascon-AEAD128 Hardware Cryptography Accelerator with Fail-Closed Plaintext Release
 </p>
 
-<p align="center">
+<div align="center">
 
-![Project](https://img.shields.io/badge/Project-SECURE--TINY-111827)
-![Cryptography](https://img.shields.io/badge/Cryptography-Ascon--AEAD128-8A2BE2)
-![Standard](https://img.shields.io/badge/Standard-NIST%20SP%20800--232-blue)
-![HDL](https://img.shields.io/badge/HDL-SystemVerilog-red)
-![FPGA](https://img.shields.io/badge/FPGA-Cyclone%20V-success)
-![Target](https://img.shields.io/badge/Target-DE10--Nano-orange)
+<img src="https://img.shields.io/static/v1?label=Project&message=SECURE-TINY&color=111827" alt="Project: SECURE-TINY">
+<img src="https://img.shields.io/static/v1?label=Cryptography&message=Ascon-AEAD128&color=8A2BE2" alt="Cryptography: Ascon-AEAD128">
+<img src="https://img.shields.io/static/v1?label=Standard&message=NIST%20SP%20800-232&color=blue" alt="Standard: NIST SP 800-232">
+<img src="https://img.shields.io/static/v1?label=HDL&message=SystemVerilog&color=red" alt="HDL: SystemVerilog">
+<img src="https://img.shields.io/static/v1?label=FPGA&message=Cyclone%20V&color=success" alt="FPGA: Cyclone V">
+<img src="https://img.shields.io/static/v1?label=Target&message=DE10-Nano&color=orange" alt="Target: DE10-Nano">
 
-![KAT](https://img.shields.io/badge/KAT-2%2C178%20crypto%20transactions-success)
-![Regression](https://img.shields.io/badge/Regression-7%2F7%20PASS-success)
-![Fmax](https://img.shields.io/badge/Fmax-79.72_MHz-blue)
-![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
-![Verilator](https://img.shields.io/badge/Verilator-0%20warnings-success)
-![Quartus](https://img.shields.io/badge/Quartus-25.1_PASS-success)
+<br>
 
-</p>
+<img src="https://img.shields.io/static/v1?label=KAT&message=2%2C178%20transactions&color=success" alt="KAT: 2,178 transactions">
+<img src="https://img.shields.io/static/v1?label=Regression&message=historical%207%2F7%20PASS&color=success" alt="Historical regression: 7/7 PASS">
+<img src="https://img.shields.io/static/v1?label=Fmax&message=79.72%20MHz&color=blue" alt="Fmax: 79.72 MHz">
+<img src="https://img.shields.io/static/v1?label=ALM&message=2%2C464&color=blueviolet" alt="ALM: 2,464">
+<img src="https://img.shields.io/static/v1?label=Verilator&message=0%20warnings&color=success" alt="Verilator: 0 warnings">
+<img src="https://img.shields.io/static/v1?label=Quartus&message=25.1%20PASS&color=success" alt="Quartus 25.1: PASS">
+
+</div>
+
+---
 
 ---
 
@@ -127,11 +129,10 @@ Pada enkripsi, core kami menghasilkan ciphertext dan tag. Pada dekripsi, kami me
 | `tag_verifier.sv` | Membandingkan seluruh 128 bit tag dan melaporkan match/mismatch. |
 | `authentication_guard.sv` | Menyimpan keputusan autentikasi dan mengizinkan plaintext hanya jika dekripsi lolos verifikasi. |
 | `secure_tiny_top.sv` | Menggabungkan modul menjadi satu IP dengan antarmuka sinkron. |
-| `counter.sv` | Contoh pembelajaran pencacah; bukan bagian jalur data AEAD. |
 
 ## 🛠️ Perangkat Pengembangan dan Perangkat Lunak
 
-- **OSS CAD Suite for Windows**: kami gunakan sebagai paket perangkat lokal; skrip pengujian mengambil `iverilog`, `vvp`, Yosys, dan Python dari paket tersebut.
+- **OSS CAD Suite for Windows**: used for Icarus Verilog, Verilator, Yosys, and Python tooling.
 - **Icarus Verilog**: kami gunakan untuk mengompilasi dan menyimulasikan testbench SystemVerilog.
 - **Verilator**: kami gunakan untuk lint/elaborasi statis RTL tingkat atas.
 - **GTKWave**: kami gunakan untuk melihat waveform VCD.
@@ -160,9 +161,9 @@ Jika direktori proyek atau OSS CAD Suite kami berbeda, kami menyesuaikan jalur p
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_all_tests.ps1
 ```
 
-Dengan rangkaian ini, kami menguji counter, permutasi, KAT core RTL, unit tag/guard, uji terarah dan sapuan KAT tingkat atas, serta pemeriksa Python ACVP/KAT. Kode keluar selain nol atau pesan `$fatal` berarti pengujian gagal. Icarus dapat menampilkan peringatan `constant selects in always_*`; kami mencatatnya sebagai peringatan simulator, bukan hasil sintesis Quartus.
+Dengan rangkaian ini, kami menguji permutasi, KAT core RTL, unit tag/guard, uji terarah dan sapuan KAT tingkat atas, serta pemeriksa Python ACVP/KAT. Kode keluar selain nol atau pesan `$fatal` berarti pengujian gagal. Icarus dapat menampilkan peringatan `constant selects in always_*`; kami mencatatnya sebagai peringatan simulator, bukan hasil sintesis Quartus.
 
-Runner individual tersedia di `scripts/run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
+Runner individual tersedia di `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
 
 ### 3. Jalankan lint dan periksa sintesis/preflight FPGA
 
@@ -174,7 +175,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_
 
 Kami memakai lint Verilator untuk memeriksa elaborasi dan peringatan RTL; lint tidak membuktikan hasil Quartus atau kebenaran kriptografi. Skrip mengambil `bin\verilator_bin.exe` dari OSS CAD Suite dan mengatur `VERILATOR_ROOT` serta `PATH` secara lokal.
 
-Hasil sintesis generik Yosys yang pernah kami ukur dicatat di [`docs/results.md`](docs/results.md): 20.887 sel generik, bukan ALM/LE Cyclone V. Log sintesis lokal lama dibersihkan saat regresi 2 Oktober 2026 dan tidak dijalankan ulang pada tahap tersebut.
+Run Yosys terbaru yang tercatat menghasilkan **20.937 generic cells**; angka ini bukan ALM/LE Cyclone V dan tidak digunakan sebagai FPGA resource metric.
 
 Pada lingkungan build kami, Quartus/Tcl salah menormalisasi path langsung di bawah folder profil Windows. Karena itu, kami memetakan root repositori ke drive sementara `R:` sebelum menjalankan build penuh:
 
@@ -227,11 +228,11 @@ Testbench menghasilkan VCD di `sim/`. Untuk top-level:
 & "$env:OSS_CAD_SUITE\bin\gtkwave.exe" .\sim\secure_tiny_top.vcd
 ```
 
-Berkas waveform lain yang kami hasilkan adalah `counter.vcd`, `ascon_permutation.vcd`, `ascon_core.vcd`, `tag_auth_modules.vcd`, dan `secure_tiny_kat.vcd`. Jika GTKWave memiliki nama atau lokasi berbeda pada paket yang kami gunakan, kami membuka VCD melalui menu **File → Open**.
+Berkas waveform lain yang kami hasilkan adalah `ascon_permutation.vcd`, `ascon_core.vcd`, `tag_auth_modules.vcd`, dan `secure_tiny_kat.vcd`. Jika GTKWave memiliki nama atau lokasi berbeda pada paket yang kami gunakan, kami membuka VCD melalui menu **File → Open**.
 
 ## 🧪 Hasil Verifikasi yang Tercatat
 
-Hasil pengujian lokal 1 Oktober 2026 menunjukkan seluruh skrip yang kami jalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
+Hasil baseline yang tercatat pada 6 Oktober 2026 menunjukkan seluruh runner yang dijalankan berstatus PASS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
 
 Pada 1 Oktober 2026, kami juga menjalankan lint Verilator 5.053 untuk tingkat atas dengan `MAX_DATA_BYTES=16`; lint lulus tanpa peringatan. Pemeriksaan ini mencakup elaborasi/lint, bukan kompilasi Quartus.
 
@@ -248,7 +249,7 @@ SECURE-TINY/
 ├── rtl/        RTL SystemVerilog yang dapat disintesis
 ├── scripts/    skrip simulasi/lint, sintesis Yosys, pemeriksaan awal dan build Quartus
 ├── sim/        VCD dan log hasil alat; file .vvp sementara dapat dibuat ulang
-├── tb/         rangkaian uji counter, permutasi, core, tag/guard, dan modul tingkat atas
+├── tb/         testbench permutasi, core, tag/guard, dan modul tingkat atas
 ├── python/     model Ascon dan pembanding vektor
 └── vectors/    sampel ACVP NIST dan KAT tambahan Ascon-C
 ```
