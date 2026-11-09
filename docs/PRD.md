@@ -354,9 +354,9 @@ Satu modul hanya dinyatakan selesai jika kode sumber tersedia, dapat dikompilasi
 
 Proyek dinyatakan terverifikasi pada tingkat RTL hanya jika RTL tingkat atas dapat dikompilasi, simulasi integrasi lulus, hasil kriptografi cocok dengan referensi/KAT tepercaya, autentikasi valid diterima, autentikasi tidak valid ditolak, serta waveform terkait telah diperiksa.
 
-Build FPGA DE10-Nano hanya dinyatakan siap setelah Quartus berhasil mengompilasi proyek Cyclone V yang dikonfigurasi, laporan Fitter dan Timing Analyzer disimpan, timing memenuhi constraint proyek 50 MHz, dan berkas pemrograman `.sof` berhasil dibuat. Nilai resource harus berasal dari keluaran Quartus; ambang penggunaan resource atau klaim efisiensi komparatif tidak boleh dikarang. Status fungsi pada board terpisah dan memerlukan DE10-Nano sungguhan serta jalur transaksi fisik/host yang terdokumentasi.
+Pada baseline 2026, build FPGA DE10-Nano dinyatakan berhasil setelah Quartus berhasil mengompilasi proyek Cyclone V yang dikonfigurasi, laporan Fitter dan Timing Analyzer disimpan, timing memenuhi constraint proyek 50 MHz, dan berkas pemrograman `.sof` berhasil dibuat. Nilai resource harus berasal dari keluaran Quartus; ambang penggunaan resource atau klaim efisiensi komparatif tidak boleh dikarang. Status fungsi pada board terpisah dan memerlukan DE10-Nano sungguhan serta jalur transaksi fisik/host yang terdokumentasi.
 
-**Status baseline 1 Oktober 2026:** kami telah memenuhi kompilasi penuh dan pembuatan `.sof` untuk profil Cyclone V yang ditetapkan. Laporan mencatat setup slack positif pada clock 50 MHz, tetapi belum sepenuhnya membatasi timing I/O karena port transaksi menggunakan virtual pins. Karena itu, kami menyatakan **build Quartus profil saat ini berhasil**, sedangkan **sign-off timing I/O dan demonstrasi fisik DE10-Nano masih pending**.
+**Status baseline historis 1 Oktober 2026:** kami telah memenuhi kompilasi penuh dan pembuatan `.sof` untuk profil Cyclone V yang ditetapkan. Laporan mencatat setup slack positif pada clock 50 MHz, tetapi belum sepenuhnya membatasi timing I/O karena port transaksi menggunakan virtual pins. Karena itu, kami menyatakan **build Quartus profil saat ini berhasil**, sedangkan **sign-off timing I/O dan demonstrasi fisik DE10-Nano masih pending**.
 
 ## 18. Penyesuaian Proposal
 
