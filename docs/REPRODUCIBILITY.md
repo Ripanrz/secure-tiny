@@ -1,6 +1,6 @@
 # Reproducibility
 
-This repository keeps the **source of truth** in RTL, testbenches, scripts, reference models, vectors, and Quartus project files. Generated simulation and FPGA-build artifacts are intentionally not tracked.
+This repository keeps the **source of truth** in RTL, testbenches, scripts, reference models, vectors, and Quartus project files. Generated simulation and FPGA-build artifacts are intentionally not tracked. The recorded 2026 results are historical evidence; this repository snapshot does not claim a fresh toolchain rerun.
 
 ## Environment
 
@@ -16,7 +16,7 @@ Recorded baseline:
 
 Exact tool versions may change the generated artifacts. Always record the tool version with a new benchmark.
 
-## RTL regression
+## RTL regression — historical recipe
 
 From the repository root:
 
@@ -37,7 +37,7 @@ The runner executes the current test suites:
 
 Generated VCD/log files are written to `sim/` and are intentionally ignored by Git.
 
-## Lint and generic synthesis
+## Lint and generic synthesis — historical recipe
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/lint_verilator.ps1 -MaxDataBytes 16
@@ -46,15 +46,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/synth_yosys.ps1 
 
 Yosys cell counts are generic synthesis statistics, not Cyclone V ALM counts.
 
-## Quartus
+## Quartus — historical build recipe
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check_quartus_project.ps1
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build_quartus.ps1 -QuartusSh 'C:\altera_lite\25.1std\quartus\bin64\quartus_sh.exe'
 ```
 
-The build generates reports and `.sof` under `quartus/output_files/`. These are build artifacts and are not tracked.
+A historical Quartus build generated reports and `.sof` under `quartus/output_files/`. These artifacts are not tracked.
 
 ## Hardware boundary
 
-A successful Quartus build is **not** a physical DE10-Nano test. The current project has no HPS/Avalon transaction path, no physical throughput measurement, no power measurement, and no board-level I/O timing sign-off.
+The recorded Quartus build is **not** a physical DE10-Nano test. The current project has no HPS/Avalon transaction path, no physical throughput measurement, no power measurement, and no board-level I/O timing sign-off.
