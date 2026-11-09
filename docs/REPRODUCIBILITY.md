@@ -25,14 +25,15 @@ $env:OSS_CAD_SUITE = 'C:\tools\oss-cad-suite'
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1
 ```
 
-The runner executes the current product test suites:
+The runner executes the current test suites:
 
-1. Ascon permutation
-2. Ascon core KAT
-3. Tag/authentication modules
-4. Top-level directed tests
-5. Top-level KAT sweep
-6. Python reference checks
+1. Counter learning/unit test
+2. Ascon permutation
+3. Ascon core KAT
+4. Tag/authentication modules
+5. Top-level directed tests
+6. Top-level KAT sweep
+7. Python reference checks
 
 Generated VCD/log files are written to `sim/` and are intentionally ignored by Git.
 
