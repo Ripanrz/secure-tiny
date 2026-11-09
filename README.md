@@ -75,7 +75,7 @@ Tag ──►│  Tag Verifier   │
 **Security invariant:**
 
 ```text
-plaintext_valid = authentication_success
+plaintext_valid -> authentication_success
 ```
 
 The invariant is the central security property of the current architecture. It is tested through negative authentication scenarios, while broader claims such as side-channel resistance and fault-injection resistance remain outside the current evidence.
@@ -172,7 +172,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_all_tests.
 
 Dengan rangkaian ini, kami menguji permutasi, KAT core RTL, unit tag/guard, uji terarah dan sapuan KAT tingkat atas, serta pemeriksa Python ACVP/KAT. Kode keluar selain nol atau pesan `$fatal` berarti pengujian gagal. Icarus dapat menampilkan peringatan `constant selects in always_*`; kami mencatatnya sebagai peringatan simulator, bukan hasil sintesis Quartus.
 
-Runner individual tersedia di `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
+Runner individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
 
 ### 3. Jalankan lint dan periksa sintesis/preflight FPGA
 
