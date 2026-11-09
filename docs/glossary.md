@@ -49,7 +49,7 @@ Analogi ini hanya membantu memahami alur. Ia bukan klaim bahwa chip memverifikas
 | Fitter | — | Tahap Quartus yang menempatkan logika hasil sintesis ke sumber daya FPGA yang tersedia. |
 | ALM | *Adaptive Logic Module* | Satuan blok logika yang dipakai Intel FPGA. Angka ALM dari Quartus hanya bermakna untuk perangkat dan konfigurasi laporan tersebut. |
 | Register | — | Penyimpan kecil yang mengingat nilai dari satu detak clock ke detak berikutnya. Banyak register bukan ukuran langsung kualitas atau keamanan desain. |
-| M10K | Blok memori tertanam sekitar 10 kilabit pada keluarga FPGA terkait | Memori di dalam FPGA. Laporan Quartus SECURE-TINY saat ini mencatat penggunaan nol M10K. |
+| M10K | Blok memori tertanam sekitar 10 kilabit pada keluarga FPGA terkait | Memori di dalam FPGA. Laporan baseline Quartus SECURE-TINY mencatat penggunaan nol M10K. |
 | DSP | *Digital Signal Processing* block | Blok FPGA untuk operasi hitung tertentu, seperti perkalian. Laporan Quartus SECURE-TINY saat ini mencatat penggunaan nol DSP. |
 | Fmax | Frekuensi maksimum yang dilaporkan | Perkiraan frekuensi tertinggi untuk jalur yang dianalisis Quartus. Bukan jaminan bahwa semua pin board memenuhi timing. |
 | Slack | Sisa waktu terhadap batas timing | Nilai positif berarti jalur yang dianalisis selesai sebelum batas pada kondisi laporan tersebut. Constraint yang tidak lengkap membatasi makna hasil. |
