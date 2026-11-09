@@ -16,10 +16,10 @@
 
 ![KAT](https://img.shields.io/badge/KAT-2%2C178%20crypto%20transactions-success)
 ![Regression](https://img.shields.io/badge/Regression-7%2F7%20PASS-success)
-![Fmax](https://img.shields.io/badge/Fmax-79.72%20MHz-blue)
+![Fmax](https://img.shields.io/badge/Fmax-79.72%2520MHz-blue)
 ![ALM](https://img.shields.io/badge/ALM-2%2C464-blueviolet)
 ![Verilator](https://img.shields.io/badge/Verilator-0%20warnings-success)
-![Quartus](https://img.shields.io/badge/Quartus-25.1%20PASS-success)
+![Quartus](https://img.shields.io/badge/Quartus-25.1%2520PASS-success)
 
 </p>
 
