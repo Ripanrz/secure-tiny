@@ -1,6 +1,6 @@
 # Evidence Index — SECURE-TINY
 
-Dokumen ini adalah indeks bukti teknis yang sengaja **tidak bergantung pada generated artifacts yang disimpan di repository**. Waveform, simulator logs, Quartus reports, dan `.sof` dapat dibuat ulang dari source. Angka baseline yang penting dicatat di `docs/results.md`.
+Dokumen ini adalah indeks bukti teknis historis yang sengaja **tidak bergantung pada generated artifacts yang disimpan di repository**. Waveform, simulator logs, Quartus reports, dan `.sof` dapat dibuat ulang dari source. Angka baseline yang penting dicatat di `docs/results.md`.
 
 ## Evidence matrix
 
@@ -22,6 +22,10 @@ Dokumen ini adalah indeks bukti teknis yang sengaja **tidak bergantung pada gene
 - editor/OS temporary files
 - competition proposal drafts
 - other temporary learning artifacts that are not part of the repository source tree
+
+## Evidence status
+
+All numeric implementation results in this index refer to the recorded October 2026 baseline. The current repository snapshot does not claim a fresh rerun.
 
 ## Interpretation
 
