@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Autentikasi Dahulu. Lepaskan Kemudian.</strong><br>
-  Ascon-AEAD128 Akselerator Kriptografi Perangkat Keras with Fail-Closed Plaintext Release
+  Akselerator Kriptografi Perangkat Keras Ascon-AEAD128 dengan Fail-Closed Plaintext Release
 </p>
 
 <div align="center">
@@ -28,14 +28,14 @@
 
 ## 🧪 Modul Pembelajaran / Uji Unit
 
-The repository also keeps a small `counter.sv` example as a learning and RTL unit-test module. It is **not part of the SECURE-TINY cryptographic datapath**.
+Repositori ini juga menyimpan contoh kecil `counter.sv` sebagai modul pembelajaran dan RTL unit test. Modul ini **bukan bagian dari cryptographic datapath SECURE-TINY**.
 
 - RTL: `rtl/counter.sv`
 - testbench: `tb/tb_counter.sv`
 - pelaksana uji: `scripts/run_counter.ps1`
 - Make target: `make test-counter`
 
-It is included intentionally as a basic example for synchronous reset, enable, hold behavior, and wraparound testing.
+Modul ini sengaja disertakan sebagai contoh dasar untuk menguji synchronous reset, enable, hold behavior, dan wraparound.
 
 ## 🛡️ Security Boundary
 
@@ -78,7 +78,7 @@ Tag ──►│  Tag Verifier   │
 plaintext_valid -> authentication_success
 ```
 
-The invariant is the central security property of the current architecture. It is tested through negative authentication scenarios, while broader claims such as side-channel resistance and fault-injection resistance remain outside the current bukti.
+Invarian ini merupakan security property utama dari arsitektur saat ini. Invarian diuji melalui skenario negative authentication, sedangkan klaim yang lebih luas seperti side-channel resistance dan fault-injection resistance tetap berada di luar cakupan bukti saat ini.
 
 ---
 
@@ -90,7 +90,7 @@ Kami mengacu pada NIST SP 800-232 final untuk Ascon-AEAD128. Kami tidak mengklai
 
 ### Dasar keamanan rancangan
 
-Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh mentransfer plaintext. Kami memperlakukan key, state internal, dan calon plaintext sebagai aset. Pemanggil bertanggung jawab atas nonce; kami belum menerapkan atau membuktikan pembersihan semua salinan rahasia, mitigasi side-channel, perlindungan fault injection, maupun deteksi gangguan fisik. Kami menguji penahanan plaintext pada skenario simulasi yang tercatat dan menjelaskan cakupan serta batas klaim di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/Hasil.md`](docs/Hasil.md).
+Kami menjadikan keamanan sebagai batas arsitektur: plaintext dekripsi tidak boleh keluar sebelum tag cocok, dan transaksi yang ditolak tidak boleh mentransfer plaintext. Kami memperlakukan key, state internal, dan calon plaintext sebagai aset. Pemanggil bertanggung jawab atas nonce; kami belum menerapkan atau membuktikan pembersihan semua salinan rahasia, mitigasi side-channel, perlindungan fault injection, maupun deteksi gangguan fisik. Kami menguji penahanan plaintext pada skenario simulasi yang tercatat dan menjelaskan cakupan serta batas klaim di [`docs/PRD.md`](docs/PRD.md), [`docs/verification.md`](docs/verification.md), dan [`docs/results.md`](docs/results.md).
 
 ## ✨ Fitur dan Status Saat Ini
 
@@ -172,13 +172,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_all_tests.
 
 Dengan rangkaian ini, kami menguji permutasi, KAT core RTL, unit tag/guard, uji terarah dan sapuan KAT tingkat atas, serta pemeriksa Python ACVP/KAT. Kode keluar selain nol atau pesan `$fatal` berarti pengujian gagal. Icarus dapat menampilkan peringatan `constant selects in always_*`; kami mencatatnya sebagai peringatan simulator, bukan hasil sintesis Quartus.
 
-pelaksana uji individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
+Pelaksana uji individual tersedia di `run_counter.ps1`, `run_ascon_permutation.ps1`, `run_ascon_core.ps1`, `run_tag_auth_modules.ps1`, `run_secure_tiny_top.ps1`, `run_secure_tiny_kat.ps1`, dan `run_python_reference.ps1`.
 
 ### 3. Referensi lint, sintesis, dan baseline FPGA
 
 ```powershell
-```text
-Perintah lint/sintesis/Quartus historis tidak dijalankan ulang untuk snapshot repository ini. Software toolchain yang dipakai pada baseline 2026 sudah tidak tersedia di lingkungan pengembangan saat dokumentasi ini dirapikan. Script tetap dipertahankan sebagai reproducibility recipe.
+Perintah lint/sintesis/Quartus historis tidak dijalankan ulang untuk snapshot repositori ini. Software toolchain yang digunakan pada baseline 2026 sudah tidak tersedia di lingkungan pengembangan saat dokumentasi ini dirapikan. Script tetap dipertahankan sebagai reproducibility recipe.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\synth_yosys.ps1 -MaxDataBytes 16
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_quartus_project.ps1
 ```
@@ -226,19 +225,19 @@ baseline historis menggunakan [Quartus Prime Lite Edition 25.1 untuk Windows](ht
 
 Kami memilih edisi Lite karena mendukung Cyclone V untuk alur yang dibutuhkan proyek. Kami tidak memerlukan edisi Standard atau Pro untuk target ini. [Matriks edisi dan perangkat Quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime/resource.html) · [Paket dukungan Cyclone V 25.1](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-Windows).
 
-Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. Kami mencantumkan perintah build yang berhasil dan cara mengulangnya pada bagian penggunaan di atas, serta menyimpan rincian run di [`docs/Hasil.md`](docs/Hasil.md). Skrip `build_quartus.ps1` menjalankan alur kompilasi penuh; skrip ekstraksi metrik terpisah menjalankan ulang map/fit/timing dan tidak membuat `.sof` sendiri. Build ini belum menambahkan jalur transaksi host ke desain kami: port transaksi masih berupa virtual pins.
+Executable yang kami gunakan berada di `C:\altera_lite\25.1std\quartus\bin64`. Kami mencantumkan perintah build yang berhasil dan cara mengulangnya pada bagian penggunaan di atas, serta menyimpan rincian run di [`docs/results.md`](docs/results.md). Skrip `build_quartus.ps1` menjalankan alur kompilasi penuh; skrip ekstraksi metrik terpisah menjalankan ulang map/fit/timing dan tidak membuat `.sof` sendiri. Build ini belum menambahkan jalur transaksi host ke desain kami: port transaksi masih berupa virtual pins.
 
 ### 4. Artefak simulasi
 
-VCD dan log simulasi adalah artefak generated dan sengaja tidak disimpan di repository. Hasil yang dipakai untuk baseline didokumentasikan di `docs/Hasil.md`.
+VCD dan log simulasi adalah artefak generated dan sengaja tidak disimpan di repository. Hasil yang dipakai untuk baseline didokumentasikan di `docs/results.md`.
 
 ## 🧪 Hasil Verifikasi yang Tercatat
 
-Hasil baseline historis yang tercatat pada 6 Oktober 2026 menunjukkan seluruh pelaksana uji yang dijalankan berstatus LULUS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/Hasil.md`](docs/Hasil.md).
+Hasil baseline historis yang tercatat pada 6 Oktober 2026 menunjukkan seluruh pelaksana uji yang dijalankan berstatus LULUS. Core RTL kami cocok dengan seluruh 1.089 rekaman Ascon-C KAT pada kedua mode (2.178 transaksi; total 121.308 siklus; maksimum 88). Modul tingkat atas kami juga cocok dengan 289 pasangan panjang AD/pesan hingga 16 byte pada enkripsi dan dekripsi (578 transaksi; maksimum 150 siklus termasuk waktu masukan). Model Python kami cocok dengan 14 sampel ACVP berukuran kelipatan byte dan seluruh KAT. Kami mencatat versi alat, sumber vektor, hash, batas klaim, dan hasil tiap skenario di [`docs/results.md`](docs/results.md).
 
 Pada 1 Oktober 2026, kami juga menjalankan lint Verilator 5.053 untuk tingkat atas dengan `MAX_DATA_BYTES=16`; lint lulus tanpa peringatan. Pemeriksaan ini mencakup elaborasi/lint, bukan kompilasi Quartus.
 
-Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline 2026** untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/Hasil.md`](docs/Hasil.md).
+Build penuh Quartus Prime Lite 25.1 yang **pernah dijalankan pada baseline historis 2026** untuk `5CSEBA6U23I7` juga lulus: Fitter menggunakan 2.464 ALM dan 2.800 register; Timing Analyzer melaporkan Fmax 79,72 MHz serta setup slack +7,456 ns; Assembler menghasilkan `.sof`; berkas hasil build tidak disimpan di repository. Kami belum menganggap timing I/O sign-off karena 616 virtual pins membuat constraint I/O belum lengkap. Detail dan peringatan ada di [`docs/results.md`](docs/results.md).
 
 **Belum kami ukur/lakukan:** daya, throughput fisik, timing I/O dengan constraint nyata, integrasi antarmuka transaksi host, serta pengujian fungsional pada DE10-Nano. Kami tidak mengklaim pengujian board atau fabrikasi ASIC.
 
@@ -273,18 +272,18 @@ Glosarium singkat ini menjelaskan istilah yang kami gunakan: **clock** mengatur 
 
 ## 📜 Lisensi dan Atribusi
 
-Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi MIT](LICENSE). Kami menyertakan vektor uji pihak ketiga agar hasil dapat direproduksi, dengan tetap mengikuti ketentuan sumber masing-masing. KAT Ascon-C v1.3.0 berasal dari repositori hulu berlisensi CC0-1.0 ([lisensi hulu](https://github.com/ascon/ascon-c/blob/v1.3.0/LICENSE)); lisensi proyek kami tidak mengubah lisensi atau atribusi materi pihak ketiga. Kami mencatat sumber dan identitas vektor di [`docs/verification.md`](docs/verification.md) dan [`docs/Hasil.md`](docs/Hasil.md).
+Kami melisensikan kode sumber dan dokumentasi SECURE-TINY berdasarkan [Lisensi MIT](LICENSE). Kami menyertakan vektor uji pihak ketiga agar hasil dapat direproduksi, dengan tetap mengikuti ketentuan sumber masing-masing. KAT Ascon-C v1.3.0 berasal dari repositori hulu berlisensi CC0-1.0 ([lisensi hulu](https://github.com/ascon/ascon-c/blob/v1.3.0/LICENSE)); lisensi proyek kami tidak mengubah lisensi atau atribusi materi pihak ketiga. Kami mencatat sumber dan identitas vektor di [`docs/verification.md`](docs/verification.md) dan [`docs/results.md`](docs/results.md).
 
 ## 📚 Rujukan Utama
 
 1. NIST, [SP 800-232 final: Standar Kriptografi Ringan Berbasis Ascon untuk Perangkat Terbatas](https://csrc.nist.gov/pubs/sp/800/232/final), 2025.
 2. NIST, [Publikasi Kriptografi Ringan dan informasi standardisasi](https://csrc.nist.gov/Projects/lightweight-cryptography/publications).
 3. NIST ACVP Server, [vektor sampel Ascon-AEAD128 SP 800-232](https://github.com/usnistgov/ACVP-Server/tree/master/gen-val/json-files/Ascon-AEAD128-SP800-232).
-4. Tim Ascon, [kode sumber ascon-c dan riwayat rilis](https://github.com/ascon/ascon-c), termasuk KAT tambahan yang versinya dicatat di `docs/Hasil.md`.
+4. Tim Ascon, [kode sumber ascon-c dan riwayat rilis](https://github.com/ascon/ascon-c), termasuk KAT tambahan yang versinya dicatat di `docs/results.md`.
 5. Terasic, [halaman produk DE10-Nano dan panduan pengguna](https://www.terasic.com.tw/cgi-bin/page/archive.pl?CategoryNo=204&Language=English&No=1046&PartNo=4).
 6. Intel, [Panduan Pengguna Quartus Prime: Memulai](https://www.intel.com/content/www/us/en/docs/programmable/683475.html).
 
-baseline bukti historis terakhir yang dirujuk: 6 Oktober 2026. Repository snapshot ini tidak mengklaim rerun setelah tanggal tersebut.
+Baseline bukti historis terakhir yang dirujuk: 6 Oktober 2026. Repository snapshot ini tidak mengklaim rerun setelah tanggal tersebut.
 
 
 ---
