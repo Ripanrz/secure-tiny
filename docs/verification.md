@@ -2,8 +2,11 @@
 
 ## Verification layers
 
+The repository also runs a small counter learning/unit test. It is tracked for RTL learning and regression hygiene, but it is not evidence for the cryptographic datapath.
+
 | Layer | What is tested | Evidence |
 |---|---|---|
+| Counter learning/unit | Basic synchronous RTL reset/enable/hold/wrap behavior | `tb/tb_counter.sv` |
 | Ascon permutation | Round behavior used by the AEAD core | `tb/tb_ascon_permutation.sv` |
 | Ascon core | Empty/partial inputs and full KAT set in both directions | `tb/tb_ascon_core.sv`, KAT vectors |
 | Tag/authentication | Tag generation, full tag comparison, accept/reject behavior | `tb/tb_tag_auth_modules.sv` |
