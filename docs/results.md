@@ -1,5 +1,7 @@
 # Results
 
+> **Evidence status:** historical baseline. These results were recorded in October 2026 and are preserved as project evidence. They were not re-generated for the current repository cleanup.
+
 ## Baseline
 
 The current recorded baseline uses:
@@ -49,7 +51,7 @@ This is simulation evidence, not proof against side-channel, fault-injection, ph
 
 ## Hardware validation scope
 
-Not yet performed:
+The following were not performed in the recorded baseline:
 
 - physical DE10-Nano programming/transaction test
 - HPS/Avalon integration
