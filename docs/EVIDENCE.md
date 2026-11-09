@@ -21,7 +21,7 @@ Dokumen ini adalah indeks bukti teknis yang sengaja **tidak bergantung pada gene
 - Quartus cache directories
 - editor/OS temporary files
 - competition proposal drafts
-- learning-only RTL/testbench files that are not part of the AEAD product path
+- other temporary learning artifacts that are not part of the repository source tree
 
 ## Interpretation
 
