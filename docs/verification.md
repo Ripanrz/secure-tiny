@@ -2,6 +2,8 @@
 
 ## Verification layers
 
+> The verification results documented here are recorded baseline evidence. No fresh simulation is claimed for the current repository cleanup.
+
 The repository also runs a small counter learning/unit test. It is tracked for RTL learning and regression hygiene, but it is not evidence for the cryptographic datapath.
 
 | Layer | What is tested | Evidence |
